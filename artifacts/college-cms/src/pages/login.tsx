@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GraduationCap, Loader2, Eye, EyeOff, Shield, BookOpen, Users, Briefcase, UserCheck, User } from "lucide-react";
+import { Loader2, Eye, EyeOff, Shield, BookOpen, Users, Briefcase, UserCheck, User } from "lucide-react";
 
 const DEMO_ACCOUNTS = [
   { label: "Admin", username: "college_admin", password: "Admin@123", icon: Shield, color: "from-orange-500 to-amber-600", desc: "Full system access" },
@@ -58,8 +58,8 @@ export default function LoginPage() {
 
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-700 rounded-2xl shadow-2xl shadow-teal-500/30 ring-1 ring-white/10 mb-5">
-            <GraduationCap className="w-8 h-8 text-white" />
+          <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-2xl shadow-teal-500/20 ring-1 ring-white/10 mb-5 mx-auto">
+            <img src={`${import.meta.env.BASE_URL}logo.jpeg`} alt="Automystics Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight">KalviCore</h1>
           <p className="text-teal-300/60 text-sm font-medium mt-1">Complete Campus. One Intelligent System</p>
