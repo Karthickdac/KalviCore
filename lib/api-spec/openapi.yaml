@@ -2538,6 +2538,464 @@ paths:
               schema:
                 $ref: "#/components/schemas/StaffLeave"
 
+  # ── Disciplinary Records ──
+  /disciplinary-records:
+    get:
+      operationId: listDisciplinaryRecords
+      tags: [students]
+      summary: List disciplinary records
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Record list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DisciplinaryRecord"
+    post:
+      operationId: createDisciplinaryRecord
+      tags: [students]
+      summary: Create disciplinary record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDisciplinaryRecordBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisciplinaryRecord"
+  /disciplinary-records/{id}:
+    get:
+      operationId: getDisciplinaryRecord
+      tags: [students]
+      summary: Get disciplinary record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisciplinaryRecord"
+    patch:
+      operationId: updateDisciplinaryRecord
+      tags: [students]
+      summary: Update disciplinary record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDisciplinaryRecordBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisciplinaryRecord"
+    delete:
+      operationId: deleteDisciplinaryRecord
+      tags: [students]
+      summary: Delete disciplinary record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── Fee Instalments ──
+  /fee-instalments:
+    get:
+      operationId: listFeeInstalments
+      tags: [fees]
+      summary: List fee instalments
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Instalment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeeInstalment"
+    post:
+      operationId: createFeeInstalment
+      tags: [fees]
+      summary: Create fee instalment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeeInstalmentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeInstalment"
+  /fee-instalments/{id}:
+    get:
+      operationId: getFeeInstalment
+      tags: [fees]
+      summary: Get instalment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Instalment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeInstalment"
+    patch:
+      operationId: updateFeeInstalment
+      tags: [fees]
+      summary: Update instalment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFeeInstalmentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeeInstalment"
+    delete:
+      operationId: deleteFeeInstalment
+      tags: [fees]
+      summary: Delete instalment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+  /fee-defaulters:
+    get:
+      operationId: listFeeDefaulters
+      tags: [fees]
+      summary: List fee defaulters
+      responses:
+        "200":
+          description: Defaulter list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeeInstalment"
+
+  # ── Scholarships ──
+  /scholarships:
+    get:
+      operationId: listScholarships
+      tags: [fees]
+      summary: List scholarships
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scholarship list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Scholarship"
+    post:
+      operationId: createScholarship
+      tags: [fees]
+      summary: Create scholarship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScholarshipBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scholarship"
+  /scholarships/{id}:
+    get:
+      operationId: getScholarship
+      tags: [fees]
+      summary: Get scholarship
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Scholarship
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scholarship"
+    patch:
+      operationId: updateScholarship
+      tags: [fees]
+      summary: Update scholarship
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateScholarshipBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scholarship"
+    delete:
+      operationId: deleteScholarship
+      tags: [fees]
+      summary: Delete scholarship
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── Attendance Condonation ──
+  /attendance-condonation:
+    get:
+      operationId: listAttendanceCondonation
+      tags: [attendance]
+      summary: List condonation requests
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Condonation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceCondonation"
+    post:
+      operationId: createAttendanceCondonation
+      tags: [attendance]
+      summary: Request condonation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAttendanceCondonationBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceCondonation"
+  /attendance-condonation/{id}:
+    get:
+      operationId: getAttendanceCondonation
+      tags: [attendance]
+      summary: Get condonation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Condonation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceCondonation"
+    patch:
+      operationId: updateAttendanceCondonation
+      tags: [attendance]
+      summary: Update condonation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAttendanceCondonationBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceCondonation"
+
+  # ── Institution Settings ──
+  /settings:
+    get:
+      operationId: listSettings
+      tags: [settings]
+      summary: List all settings
+      responses:
+        "200":
+          description: Settings list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InstitutionSetting"
+  /settings/{key}:
+    get:
+      operationId: getSetting
+      tags: [settings]
+      summary: Get setting
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Setting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstitutionSetting"
+    put:
+      operationId: upsertSetting
+      tags: [settings]
+      summary: Upsert setting
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertSettingBody"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstitutionSetting"
+  /settings/bulk:
+    post:
+      operationId: bulkUpsertSettings
+      tags: [settings]
+      summary: Bulk upsert settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkSettingsBody"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InstitutionSetting"
+
 components:
   schemas:
     HealthStatus:
@@ -2820,6 +3278,22 @@ components:
           type: ["string", "null"]
         firstGraduate:
           type: boolean
+        admissionStatus:
+          type: string
+        applicationNumber:
+          type: ["string", "null"]
+        previousInstitution:
+          type: ["string", "null"]
+        previousCourse:
+          type: ["string", "null"]
+        entranceScore:
+          type: ["string", "null"]
+        isAlumni:
+          type: boolean
+        graduationDate:
+          type: ["string", "null"]
+        alumniEmail:
+          type: ["string", "null"]
         status:
           type: string
         createdAt:
@@ -2859,6 +3333,14 @@ components:
         - admissionType
         - scholarshipStatus
         - firstGraduate
+        - admissionStatus
+        - applicationNumber
+        - previousInstitution
+        - previousCourse
+        - entranceScore
+        - isAlumni
+        - graduationDate
+        - alumniEmail
         - status
         - createdAt
 
@@ -2929,6 +3411,22 @@ components:
           type: ["string", "null"]
         firstGraduate:
           type: boolean
+        admissionStatus:
+          type: string
+        applicationNumber:
+          type: ["string", "null"]
+        previousInstitution:
+          type: ["string", "null"]
+        previousCourse:
+          type: ["string", "null"]
+        entranceScore:
+          type: ["string", "null"]
+        isAlumni:
+          type: boolean
+        graduationDate:
+          type: ["string", "null"]
+        alumniEmail:
+          type: ["string", "null"]
         status:
           type: string
       required:
@@ -3005,6 +3503,22 @@ components:
           type: ["string", "null"]
         firstGraduate:
           type: boolean
+        admissionStatus:
+          type: string
+        applicationNumber:
+          type: ["string", "null"]
+        previousInstitution:
+          type: ["string", "null"]
+        previousCourse:
+          type: ["string", "null"]
+        entranceScore:
+          type: ["string", "null"]
+        isAlumni:
+          type: boolean
+        graduationDate:
+          type: ["string", "null"]
+        alumniEmail:
+          type: ["string", "null"]
         status:
           type: string
 
@@ -5260,3 +5774,314 @@ components:
           type: string
         remarks:
           type: string
+
+    # ── Disciplinary Records ──
+    DisciplinaryRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        incidentDate:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        actionTaken:
+          type: ["string", "null"]
+        actionDate:
+          type: ["string", "null"]
+        reportedBy:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, incidentDate, category, description, severity, actionTaken, actionDate, reportedBy, status, remarks, createdAt]
+    CreateDisciplinaryRecordBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        incidentDate:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        actionTaken:
+          type: ["string", "null"]
+        actionDate:
+          type: ["string", "null"]
+        reportedBy:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+      required: [studentId, incidentDate, category, description]
+    UpdateDisciplinaryRecordBody:
+      type: object
+      properties:
+        category:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        actionTaken:
+          type: ["string", "null"]
+        actionDate:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+
+    # ── Fee Instalments ──
+    FeeInstalment:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        feeStructureId:
+          type: integer
+        instalmentNumber:
+          type: integer
+        amount:
+          type: string
+        dueDate:
+          type: string
+        paidDate:
+          type: ["string", "null"]
+        paidAmount:
+          type: ["string", "null"]
+        lateFee:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, feeStructureId, instalmentNumber, amount, dueDate, paidDate, paidAmount, lateFee, status, remarks, createdAt]
+    CreateFeeInstalmentBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        feeStructureId:
+          type: integer
+        instalmentNumber:
+          type: integer
+        amount:
+          type: string
+        dueDate:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+      required: [studentId, feeStructureId, instalmentNumber, amount, dueDate]
+    UpdateFeeInstalmentBody:
+      type: object
+      properties:
+        paidDate:
+          type: ["string", "null"]
+        paidAmount:
+          type: ["string", "null"]
+        lateFee:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+
+    # ── Scholarships ──
+    Scholarship:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        scholarshipName:
+          type: string
+        type:
+          type: string
+        amount:
+          type: string
+        academicYear:
+          type: string
+        awardDate:
+          type: ["string", "null"]
+        status:
+          type: string
+        approvedBy:
+          type: ["string", "null"]
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, scholarshipName, type, amount, academicYear, awardDate, status, approvedBy, remarks, createdAt]
+    CreateScholarshipBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        scholarshipName:
+          type: string
+        type:
+          type: string
+        amount:
+          type: string
+        academicYear:
+          type: string
+        awardDate:
+          type: ["string", "null"]
+        status:
+          type: string
+        approvedBy:
+          type: ["string", "null"]
+        remarks:
+          type: ["string", "null"]
+      required: [studentId, scholarshipName, type, amount, academicYear]
+    UpdateScholarshipBody:
+      type: object
+      properties:
+        scholarshipName:
+          type: string
+        type:
+          type: string
+        amount:
+          type: string
+        status:
+          type: string
+        approvedBy:
+          type: ["string", "null"]
+        remarks:
+          type: ["string", "null"]
+
+    # ── Attendance Condonation ──
+    AttendanceCondonation:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        subjectId:
+          type: integer
+        semester:
+          type: integer
+        academicYear:
+          type: string
+        currentPercentage:
+          type: string
+        reason:
+          type: string
+        supportingDocument:
+          type: ["string", "null"]
+        requestDate:
+          type: string
+        status:
+          type: string
+        approvedBy:
+          type: ["string", "null"]
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, subjectId, semester, academicYear, currentPercentage, reason, supportingDocument, requestDate, status, approvedBy, remarks, createdAt]
+    CreateAttendanceCondonationBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        subjectId:
+          type: integer
+        semester:
+          type: integer
+        academicYear:
+          type: string
+        currentPercentage:
+          type: string
+        reason:
+          type: string
+        supportingDocument:
+          type: ["string", "null"]
+        requestDate:
+          type: string
+        status:
+          type: string
+      required: [studentId, subjectId, semester, academicYear, currentPercentage, reason, requestDate]
+    UpdateAttendanceCondonationBody:
+      type: object
+      properties:
+        status:
+          type: string
+        approvedBy:
+          type: ["string", "null"]
+        remarks:
+          type: ["string", "null"]
+
+    # ── Institution Settings ──
+    InstitutionSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+        key:
+          type: string
+        value:
+          type: string
+        category:
+          type: string
+        description:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, key, value, category, description, updatedAt]
+    UpsertSettingBody:
+      type: object
+      properties:
+        value:
+          type: string
+        category:
+          type: string
+        description:
+          type: ["string", "null"]
+      required: [value]
+    BulkSettingsBody:
+      type: object
+      properties:
+        settings:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              value:
+                type: string
+              category:
+                type: string
+              description:
+                type: ["string", "null"]
+            required: [key, value]
+      required: [settings]

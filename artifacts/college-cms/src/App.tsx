@@ -22,6 +22,7 @@ import Timetable from "@/pages/timetable";
 import Assignments from "@/pages/assignments";
 import Certificates from "@/pages/certificates";
 import Leaves from "@/pages/leaves";
+import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ function Router() {
         <Route path="/assignments" component={Assignments} />
         <Route path="/certificates" component={Certificates} />
         <Route path="/leaves" component={Leaves} />
+        <Route path="/settings" component={SettingsPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

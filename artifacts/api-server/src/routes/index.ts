@@ -20,6 +20,11 @@ import timetableRouter from "./timetable";
 import assignmentsRouter from "./assignments";
 import certificatesRouter from "./certificates";
 import leavesRouter from "./leaves";
+import disciplinaryRouter from "./disciplinary";
+import feeInstalmentsRouter from "./feeInstalments";
+import scholarshipsRouter from "./scholarships";
+import condonationRouter from "./condonation";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -44,5 +49,10 @@ router.use(timetableRouter);
 router.use(assignmentsRouter);
 router.use(certificatesRouter);
 router.use(leavesRouter);
+router.use(disciplinaryRouter);
+router.use(feeInstalmentsRouter);
+router.use(scholarshipsRouter);
+router.use(condonationRouter);
+router.use(settingsRouter);
 
 export default router;

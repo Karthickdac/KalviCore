@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useListFeeStructures, useCreateFeeStructure, getListFeeStructuresQueryKey, useListFeePayments, useRecordFeePayment, getListFeePaymentsQueryKey, useGetStudentDues, getGetStudentDuesQueryKey, useListCourses, useListStudents, useCreateRazorpayOrder, useVerifyRazorpayPayment, useGetRazorpayConfig } from "@workspace/api-client-react";
+import { useListFeeStructures, useCreateFeeStructure, getListFeeStructuresQueryKey, useListFeePayments, useRecordFeePayment, getListFeePaymentsQueryKey, useGetStudentDues, getGetStudentDuesQueryKey, useListCourses, useListStudents, useCreateRazorpayOrder, useVerifyRazorpayPayment, useGetRazorpayConfig, useListFeeInstalments, useCreateFeeInstalment, useUpdateFeeInstalment, getListFeeInstalmentsQueryKey, useListFeeDefaulters, useListScholarships, useCreateScholarship, useUpdateScholarship, getListScholarshipsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,10 +44,13 @@ export default function Fees() {
     <div className="space-y-6">
       <div><h2 className="text-2xl font-bold tracking-tight">Fees & Payments</h2><p className="text-muted-foreground">Manage fee structures, payments, and student dues.</p></div>
       <Tabs defaultValue="structures">
-        <TabsList><TabsTrigger value="structures">Fee Structures</TabsTrigger><TabsTrigger value="payments">Payments</TabsTrigger><TabsTrigger value="dues">Student Dues</TabsTrigger></TabsList>
+        <TabsList className="flex-wrap"><TabsTrigger value="structures">Fee Structures</TabsTrigger><TabsTrigger value="payments">Payments</TabsTrigger><TabsTrigger value="dues">Student Dues</TabsTrigger><TabsTrigger value="instalments">Instalments</TabsTrigger><TabsTrigger value="defaulters">Defaulters</TabsTrigger><TabsTrigger value="scholarships">Scholarships</TabsTrigger></TabsList>
         <TabsContent value="structures"><FeeStructures /></TabsContent>
         <TabsContent value="payments"><FeePayments /></TabsContent>
         <TabsContent value="dues"><StudentDues /></TabsContent>
+        <TabsContent value="instalments"><FeeInstalments /></TabsContent>
+        <TabsContent value="defaulters"><FeeDefaulters /></TabsContent>
+        <TabsContent value="scholarships"><Scholarships /></TabsContent>
       </Tabs>
     </div>
   );
@@ -424,6 +427,215 @@ function StudentDues() {
             )}
           </div>
         ) : (<p className="text-muted-foreground text-center py-8">Select a student to view dues.</p>)}
+      </CardContent>
+    </Card>
+  );
+}
+
+const instalmentSchema = z.object({
+  studentId: z.coerce.number().min(1),
+  feeStructureId: z.coerce.number().min(1),
+  instalmentNumber: z.coerce.number().min(1),
+  amount: z.string().min(1),
+  dueDate: z.string().min(1),
+  status: z.string().default("Pending"),
+  remarks: z.string().optional().nullable(),
+});
+
+function FeeInstalments() {
+  const { data: instalments, isLoading } = useListFeeInstalments();
+  const { data: students } = useListStudents();
+  const { data: structures } = useListFeeStructures();
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createMutation = useCreateFeeInstalment();
+  const updateMutation = useUpdateFeeInstalment();
+
+  const getStudentName = (id: number) => { const s = students?.find(st => st.id === id); return s ? `${s.firstName} ${s.lastName}` : '-'; };
+
+  const form = useForm({ resolver: zodResolver(instalmentSchema), defaultValues: { studentId: 0, feeStructureId: 0, instalmentNumber: 1, amount: "", dueDate: "", status: "Pending", remarks: "" } });
+
+  const onSubmit = (values: any) => {
+    createMutation.mutate({ data: values }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListFeeInstalmentsQueryKey() });
+        toast({ title: "Instalment created" });
+        setIsOpen(false);
+        form.reset();
+      },
+      onError: () => toast({ title: "Error", variant: "destructive" }),
+    });
+  };
+
+  const markPaid = (inst: any) => {
+    updateMutation.mutate({ id: inst.id, data: { status: "Paid", paidDate: new Date().toISOString().split('T')[0], paidAmount: inst.amount } }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListFeeInstalmentsQueryKey() });
+        toast({ title: "Marked as paid" });
+      },
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Fee Instalments</CardTitle>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Add Instalment</Button></DialogTrigger>
+          <DialogContent><DialogHeader><DialogTitle>Create Instalment</DialogTitle></DialogHeader>
+            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student</FormLabel><Select onValueChange={field.onChange} value={String(field.value || "")}><FormControl><SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => (<SelectItem key={s.id} value={String(s.id)}>{s.firstName} {s.lastName} ({s.rollNumber})</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="feeStructureId" render={({ field }) => (<FormItem><FormLabel>Fee Structure</FormLabel><Select onValueChange={field.onChange} value={String(field.value || "")}><FormControl><SelectTrigger><SelectValue placeholder="Select structure" /></SelectTrigger></FormControl><SelectContent>{structures?.map(s => (<SelectItem key={s.id} value={String(s.id)}>{s.academicYear} - ₹{Number(s.totalFee).toLocaleString('en-IN')}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+              <div className="grid grid-cols-2 gap-3">
+                <FormField control={form.control} name="instalmentNumber" render={({ field }) => (<FormItem><FormLabel>Instalment #</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><FormLabel>Amount</FormLabel><FormControl><Input {...field} placeholder="10000" /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <FormField control={form.control} name="dueDate" render={({ field }) => (<FormItem><FormLabel>Due Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="remarks" render={({ field }) => (<FormItem><FormLabel>Remarks</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl></FormItem>)} />
+              <DialogFooter><Button type="submit" disabled={createMutation.isPending}>Create</Button></DialogFooter>
+            </form></Form>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? <p>Loading...</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>#</TableHead><TableHead>Amount</TableHead><TableHead>Due Date</TableHead><TableHead>Paid</TableHead><TableHead>Late Fee</TableHead><TableHead>Status</TableHead><TableHead>Action</TableHead></TableRow></TableHeader>
+            <TableBody>{instalments?.map(inst => (
+              <TableRow key={inst.id}>
+                <TableCell>{getStudentName(inst.studentId)}</TableCell>
+                <TableCell>{inst.instalmentNumber}</TableCell>
+                <TableCell>₹{Number(inst.amount).toLocaleString('en-IN')}</TableCell>
+                <TableCell>{inst.dueDate}</TableCell>
+                <TableCell>{inst.paidDate || '-'}</TableCell>
+                <TableCell>{inst.lateFee ? `₹${Number(inst.lateFee).toLocaleString('en-IN')}` : '-'}</TableCell>
+                <TableCell><Badge variant={inst.status === 'Paid' ? 'default' : inst.status === 'Overdue' ? 'destructive' : 'secondary'}>{inst.status}</Badge></TableCell>
+                <TableCell>{inst.status !== 'Paid' && <Button size="sm" variant="outline" onClick={() => markPaid(inst)}>Mark Paid</Button>}</TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function FeeDefaulters() {
+  const { data: defaulters, isLoading } = useListFeeDefaulters();
+  const { data: students } = useListStudents();
+  const getStudentName = (id: number) => { const s = students?.find(st => st.id === id); return s ? `${s.firstName} ${s.lastName} (${s.rollNumber})` : '-'; };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-red-600">Fee Defaulters</CardTitle></CardHeader>
+      <CardContent>
+        {isLoading ? <p>Loading...</p> : defaulters?.length === 0 ? <p className="text-muted-foreground text-center py-8">No defaulters found.</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Instalment #</TableHead><TableHead>Amount Due</TableHead><TableHead>Due Date</TableHead><TableHead>Late Fee</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+            <TableBody>{defaulters?.map(d => (
+              <TableRow key={d.id}>
+                <TableCell>{getStudentName(d.studentId)}</TableCell>
+                <TableCell>{d.instalmentNumber}</TableCell>
+                <TableCell>₹{Number(d.amount).toLocaleString('en-IN')}</TableCell>
+                <TableCell>{d.dueDate}</TableCell>
+                <TableCell>{d.lateFee ? `₹${Number(d.lateFee).toLocaleString('en-IN')}` : '-'}</TableCell>
+                <TableCell><Badge variant="destructive">{d.status}</Badge></TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const scholarshipSchema = z.object({
+  studentId: z.coerce.number().min(1),
+  scholarshipName: z.string().min(1),
+  type: z.string().min(1),
+  amount: z.string().min(1),
+  academicYear: z.string().min(1),
+  awardDate: z.string().optional().nullable(),
+  status: z.string().default("Applied"),
+  approvedBy: z.string().optional().nullable(),
+  remarks: z.string().optional().nullable(),
+});
+
+function Scholarships() {
+  const { data: scholarships, isLoading } = useListScholarships();
+  const { data: students } = useListStudents();
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createMutation = useCreateScholarship();
+  const updateMutation = useUpdateScholarship();
+  const getStudentName = (id: number) => { const s = students?.find(st => st.id === id); return s ? `${s.firstName} ${s.lastName}` : '-'; };
+
+  const form = useForm({ resolver: zodResolver(scholarshipSchema), defaultValues: { studentId: 0, scholarshipName: "", type: "Merit", amount: "", academicYear: "2024-2025", awardDate: "", status: "Applied", approvedBy: "", remarks: "" } });
+
+  const onSubmit = (values: any) => {
+    createMutation.mutate({ data: values }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListScholarshipsQueryKey() });
+        toast({ title: "Scholarship created" });
+        setIsOpen(false);
+        form.reset();
+      },
+      onError: () => toast({ title: "Error", variant: "destructive" }),
+    });
+  };
+
+  const approve = (sch: any) => {
+    updateMutation.mutate({ id: sch.id, data: { status: "Approved", approvedBy: "Admin" } }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListScholarshipsQueryKey() });
+        toast({ title: "Scholarship approved" });
+      },
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Scholarships</CardTitle>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Add Scholarship</Button></DialogTrigger>
+          <DialogContent><DialogHeader><DialogTitle>Create Scholarship</DialogTitle></DialogHeader>
+            <ScrollArea className="max-h-[60vh]">
+            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 p-1">
+              <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student</FormLabel><Select onValueChange={field.onChange} value={String(field.value || "")}><FormControl><SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => (<SelectItem key={s.id} value={String(s.id)}>{s.firstName} {s.lastName} ({s.rollNumber})</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="scholarshipName" render={({ field }) => (<FormItem><FormLabel>Scholarship Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Merit">Merit</SelectItem><SelectItem value="Need-Based">Need-Based</SelectItem><SelectItem value="Government">Government</SelectItem><SelectItem value="SC/ST">SC/ST</SelectItem><SelectItem value="BC/MBC">BC/MBC</SelectItem><SelectItem value="First Graduate">First Graduate</SelectItem><SelectItem value="Sports">Sports</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+              <div className="grid grid-cols-2 gap-3">
+                <FormField control={form.control} name="amount" render={({ field }) => (<FormItem><FormLabel>Amount</FormLabel><FormControl><Input {...field} placeholder="25000" /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="academicYear" render={({ field }) => (<FormItem><FormLabel>Academic Year</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+              </div>
+              <FormField control={form.control} name="awardDate" render={({ field }) => (<FormItem><FormLabel>Award Date</FormLabel><FormControl><Input type="date" {...field} value={field.value || ""} /></FormControl></FormItem>)} />
+              <FormField control={form.control} name="remarks" render={({ field }) => (<FormItem><FormLabel>Remarks</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl></FormItem>)} />
+              <DialogFooter><Button type="submit" disabled={createMutation.isPending}>Create</Button></DialogFooter>
+            </form></Form>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? <p>Loading...</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Scholarship</TableHead><TableHead>Type</TableHead><TableHead>Amount</TableHead><TableHead>Year</TableHead><TableHead>Status</TableHead><TableHead>Action</TableHead></TableRow></TableHeader>
+            <TableBody>{scholarships?.map(sch => (
+              <TableRow key={sch.id}>
+                <TableCell>{getStudentName(sch.studentId)}</TableCell>
+                <TableCell>{sch.scholarshipName}</TableCell>
+                <TableCell>{sch.type}</TableCell>
+                <TableCell>₹{Number(sch.amount).toLocaleString('en-IN')}</TableCell>
+                <TableCell>{sch.academicYear}</TableCell>
+                <TableCell><Badge variant={sch.status === 'Approved' ? 'default' : sch.status === 'Rejected' ? 'destructive' : 'secondary'}>{sch.status}</Badge></TableCell>
+                <TableCell>{sch.status === 'Applied' && <Button size="sm" variant="outline" onClick={() => approve(sch)}>Approve</Button>}</TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

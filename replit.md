@@ -2,7 +2,7 @@
 
 ## Overview
 
-A comprehensive College Management System built for Tamil Nadu, India. Full-stack React + Vite frontend with Express backend, covering 19 modules: Students, Staff, Departments, Courses, Subjects, Attendance, Fees (Razorpay), Exams, Hostels, Transport, Library, Events/Cultural, Communications, Inventory/Assets, Timetable, Assignments, Certificates, and Staff Leaves.
+A comprehensive College Management System built for Tamil Nadu, India. Full-stack React + Vite frontend with Express backend, covering 20+ modules: Students (with admissions workflow, alumni, disciplinary), Staff, Departments, Courses, Subjects, Attendance (with condonation), Fees (Razorpay, instalments, defaulters, scholarships), Exams, Hostels, Transport, Library, Events/Cultural, Communications, Inventory/Assets, Timetable, Assignments, Certificates, Staff Leaves, and Settings/Configuration.
 
 ## Stack
 
@@ -29,13 +29,13 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 7. **Exams** — Exam scheduling (Internal/External/Supplementary), results entry with marks/grade/status
 
 ### People Management
-8. **Students** — Enrollment, Tamil Nadu community categories (OC/BC/MBC/SC/ST), scholarship tracking, first-graduate flag
+8. **Students** — Enrollment with admissions workflow (Applied/Provisional/Confirmed/Rejected), alumni tracking, disciplinary records, Tamil Nadu community categories (OC/BC/MBC/SC/ST)
 9. **Staff** — Faculty management with designation, qualification, specialization, experience, salary
-10. **Attendance** — Mark attendance by subject/date, student attendance summary with percentage tracking
+10. **Attendance** — Mark attendance by subject/date, student attendance summary with 75% threshold alerts, condonation requests with approval workflow
 11. **Staff Leaves** — Leave applications (CL/SL/EL/ML/PL/OD/LOP), approval workflow
 
 ### Finance
-12. **Fees** — Fee structures, payment recording (Cash/Cheque/Online/DD/Razorpay), Razorpay integration
+12. **Fees** — Fee structures, payment recording (Cash/Cheque/Online/DD/Razorpay), Razorpay integration, fee instalments with due dates, fee defaulter tracking, scholarship management (Merit/Need-Based/Government/SC-ST/BC-MBC/First Graduate/Sports)
 13. **Certificates** — Certificate requests (Bonafide/TC/Conduct/Migration etc.), approval and issuance workflow
 
 ### Campus Management
@@ -48,6 +48,9 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 18. **Events** — Event management (Cultural/Sports/Technical), participant registration, achievements
 19. **Communications** — Announcements, notices, grievance management with resolution tracking
 
+### System
+20. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
+
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages
@@ -58,7 +61,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Database Schema
 
-22+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves
+28+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings
 
 ## CRITICAL Notes
 
@@ -88,6 +91,6 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Sidebar Navigation
 
-Grouped into: Overview, Academics, People, Finance, Campus, Engagement
+Grouped into: Overview, Academics, People, Finance, Campus, Engagement, System
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

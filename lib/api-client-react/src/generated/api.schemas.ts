@@ -154,6 +154,20 @@ export interface Student {
   /** @nullable */
   scholarshipStatus: string | null;
   firstGraduate: boolean;
+  admissionStatus: string;
+  /** @nullable */
+  applicationNumber: string | null;
+  /** @nullable */
+  previousInstitution: string | null;
+  /** @nullable */
+  previousCourse: string | null;
+  /** @nullable */
+  entranceScore: string | null;
+  isAlumni: boolean;
+  /** @nullable */
+  graduationDate: string | null;
+  /** @nullable */
+  alumniEmail: string | null;
   status: string;
   createdAt: string;
 }
@@ -209,6 +223,20 @@ export interface CreateStudentBody {
   /** @nullable */
   scholarshipStatus?: string | null;
   firstGraduate: boolean;
+  admissionStatus?: string;
+  /** @nullable */
+  applicationNumber?: string | null;
+  /** @nullable */
+  previousInstitution?: string | null;
+  /** @nullable */
+  previousCourse?: string | null;
+  /** @nullable */
+  entranceScore?: string | null;
+  isAlumni?: boolean;
+  /** @nullable */
+  graduationDate?: string | null;
+  /** @nullable */
+  alumniEmail?: string | null;
   status: string;
 }
 
@@ -258,6 +286,20 @@ export interface UpdateStudentBody {
   /** @nullable */
   scholarshipStatus?: string | null;
   firstGraduate?: boolean;
+  admissionStatus?: string;
+  /** @nullable */
+  applicationNumber?: string | null;
+  /** @nullable */
+  previousInstitution?: string | null;
+  /** @nullable */
+  previousCourse?: string | null;
+  /** @nullable */
+  entranceScore?: string | null;
+  isAlumni?: boolean;
+  /** @nullable */
+  graduationDate?: string | null;
+  /** @nullable */
+  alumniEmail?: string | null;
   status?: string;
 }
 
@@ -1327,6 +1369,209 @@ export interface UpdateStaffLeaveBody {
   remarks?: string;
 }
 
+export interface DisciplinaryRecord {
+  id: number;
+  studentId: number;
+  incidentDate: string;
+  category: string;
+  description: string;
+  severity: string;
+  /** @nullable */
+  actionTaken: string | null;
+  /** @nullable */
+  actionDate: string | null;
+  /** @nullable */
+  reportedBy: string | null;
+  status: string;
+  /** @nullable */
+  remarks: string | null;
+  createdAt: string;
+}
+
+export interface CreateDisciplinaryRecordBody {
+  studentId: number;
+  incidentDate: string;
+  category: string;
+  description: string;
+  severity?: string;
+  /** @nullable */
+  actionTaken?: string | null;
+  /** @nullable */
+  actionDate?: string | null;
+  /** @nullable */
+  reportedBy?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface UpdateDisciplinaryRecordBody {
+  category?: string;
+  description?: string;
+  severity?: string;
+  /** @nullable */
+  actionTaken?: string | null;
+  /** @nullable */
+  actionDate?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface FeeInstalment {
+  id: number;
+  studentId: number;
+  feeStructureId: number;
+  instalmentNumber: number;
+  amount: string;
+  dueDate: string;
+  /** @nullable */
+  paidDate: string | null;
+  /** @nullable */
+  paidAmount: string | null;
+  /** @nullable */
+  lateFee: string | null;
+  status: string;
+  /** @nullable */
+  remarks: string | null;
+  createdAt: string;
+}
+
+export interface CreateFeeInstalmentBody {
+  studentId: number;
+  feeStructureId: number;
+  instalmentNumber: number;
+  amount: string;
+  dueDate: string;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface UpdateFeeInstalmentBody {
+  /** @nullable */
+  paidDate?: string | null;
+  /** @nullable */
+  paidAmount?: string | null;
+  /** @nullable */
+  lateFee?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface Scholarship {
+  id: number;
+  studentId: number;
+  scholarshipName: string;
+  type: string;
+  amount: string;
+  academicYear: string;
+  /** @nullable */
+  awardDate: string | null;
+  status: string;
+  /** @nullable */
+  approvedBy: string | null;
+  /** @nullable */
+  remarks: string | null;
+  createdAt: string;
+}
+
+export interface CreateScholarshipBody {
+  studentId: number;
+  scholarshipName: string;
+  type: string;
+  amount: string;
+  academicYear: string;
+  /** @nullable */
+  awardDate?: string | null;
+  status?: string;
+  /** @nullable */
+  approvedBy?: string | null;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface UpdateScholarshipBody {
+  scholarshipName?: string;
+  type?: string;
+  amount?: string;
+  status?: string;
+  /** @nullable */
+  approvedBy?: string | null;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface AttendanceCondonation {
+  id: number;
+  studentId: number;
+  subjectId: number;
+  semester: number;
+  academicYear: string;
+  currentPercentage: string;
+  reason: string;
+  /** @nullable */
+  supportingDocument: string | null;
+  requestDate: string;
+  status: string;
+  /** @nullable */
+  approvedBy: string | null;
+  /** @nullable */
+  remarks: string | null;
+  createdAt: string;
+}
+
+export interface CreateAttendanceCondonationBody {
+  studentId: number;
+  subjectId: number;
+  semester: number;
+  academicYear: string;
+  currentPercentage: string;
+  reason: string;
+  /** @nullable */
+  supportingDocument?: string | null;
+  requestDate: string;
+  status?: string;
+}
+
+export interface UpdateAttendanceCondonationBody {
+  status?: string;
+  /** @nullable */
+  approvedBy?: string | null;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface InstitutionSetting {
+  id: number;
+  key: string;
+  value: string;
+  category: string;
+  /** @nullable */
+  description: string | null;
+  updatedAt: string;
+}
+
+export interface UpsertSettingBody {
+  value: string;
+  category?: string;
+  /** @nullable */
+  description?: string | null;
+}
+
+export type BulkSettingsBodySettingsItem = {
+  key: string;
+  value: string;
+  category?: string;
+  /** @nullable */
+  description?: string | null;
+};
+
+export interface BulkSettingsBody {
+  settings: BulkSettingsBodySettingsItem[];
+}
+
 export type GetRecentActivityParams = {
   limit?: number;
 };
@@ -1456,5 +1701,24 @@ export type ListCertificatesParams = {
 
 export type ListStaffLeavesParams = {
   staffId?: number;
+  status?: string;
+};
+
+export type ListDisciplinaryRecordsParams = {
+  studentId?: number;
+};
+
+export type ListFeeInstalmentsParams = {
+  studentId?: number;
+  status?: string;
+};
+
+export type ListScholarshipsParams = {
+  studentId?: number;
+  type?: string;
+};
+
+export type ListAttendanceCondonationParams = {
+  studentId?: number;
   status?: string;
 };

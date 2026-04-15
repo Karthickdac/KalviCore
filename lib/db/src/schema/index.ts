@@ -20,3 +20,8 @@ export * from "./timetable";
 export * from "./assignments";
 export * from "./certificates";
 export * from "./leaves";
+export * from "./disciplinary";
+export * from "./feeInstalments";
+export * from "./scholarships";
+export * from "./attendanceCondonation";
+export * from "./institutionSettings";

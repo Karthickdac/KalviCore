@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useListStudents, useCreateStudent, useUpdateStudent, useDeleteStudent, getListStudentsQueryKey, useListDepartments, useListCourses } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useListStudents, useCreateStudent, useUpdateStudent, useDeleteStudent, getListStudentsQueryKey, useListDepartments, useListCourses, useListDisciplinaryRecords, useCreateDisciplinaryRecord, getListDisciplinaryRecordsQueryKey } from "@workspace/api-client-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -9,11 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit2, Trash2, Search } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, GraduationCap, AlertTriangle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -50,10 +52,33 @@ const formSchema = z.object({
   admissionType: z.string().min(1, "Admission type is required"),
   scholarshipStatus: z.string().optional().nullable(),
   firstGraduate: z.boolean().default(false),
+  admissionStatus: z.string().default("Confirmed"),
+  applicationNumber: z.string().optional().nullable(),
+  previousInstitution: z.string().optional().nullable(),
+  previousCourse: z.string().optional().nullable(),
+  entranceScore: z.string().optional().nullable(),
+  isAlumni: z.boolean().default(false),
+  graduationDate: z.string().optional().nullable(),
+  alumniEmail: z.string().optional().nullable(),
   status: z.string().default("Active"),
 });
 
 export default function Students() {
+  return (
+    <div className="space-y-6">
+      <div><h2 className="text-2xl font-bold tracking-tight">Students</h2><p className="text-muted-foreground">Manage student enrollment and records.</p></div>
+      <Tabs defaultValue="all">
+        <TabsList className="flex-wrap"><TabsTrigger value="all">All Students</TabsTrigger><TabsTrigger value="admissions">Admissions</TabsTrigger><TabsTrigger value="alumni">Alumni</TabsTrigger><TabsTrigger value="disciplinary">Disciplinary</TabsTrigger></TabsList>
+        <TabsContent value="all"><StudentList /></TabsContent>
+        <TabsContent value="admissions"><AdmissionsWorkflow /></TabsContent>
+        <TabsContent value="alumni"><AlumniList /></TabsContent>
+        <TabsContent value="disciplinary"><DisciplinaryRecords /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function StudentList() {
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("");
   const [communityFilter, setCommunityFilter] = useState<string>("");
@@ -76,12 +101,8 @@ export default function Students() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Students</h2>
-          <p className="text-muted-foreground">Manage student enrollment and records.</p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-end">
         <StudentDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
       </div>
 
@@ -199,6 +220,14 @@ function StudentDialog({ student, open, onOpenChange, trigger }: any) {
       admissionType: student?.admissionType || "Government",
       scholarshipStatus: student?.scholarshipStatus || "",
       firstGraduate: student?.firstGraduate || false,
+      admissionStatus: student?.admissionStatus || "Confirmed",
+      applicationNumber: student?.applicationNumber || "",
+      previousInstitution: student?.previousInstitution || "",
+      previousCourse: student?.previousCourse || "",
+      entranceScore: student?.entranceScore || "",
+      isAlumni: student?.isAlumni || false,
+      graduationDate: student?.graduationDate || "",
+      alumniEmail: student?.alumniEmail || "",
       status: student?.status || "Active",
     },
   });
@@ -375,6 +404,26 @@ function StudentDialog({ student, open, onOpenChange, trigger }: any) {
                   )} />
                 </div>
               </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Admission Details</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField control={form.control} name="admissionStatus" render={({ field }) => (
+                    <FormItem><FormLabel>Admission Status</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Applied">Applied</SelectItem><SelectItem value="Provisional">Provisional</SelectItem><SelectItem value="Confirmed">Confirmed</SelectItem><SelectItem value="Rejected">Rejected</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="applicationNumber" render={({ field }) => (
+                    <FormItem><FormLabel>Application Number</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="APP-2024-001" /></FormControl></FormItem>
+                  )} />
+                  <FormField control={form.control} name="previousInstitution" render={({ field }) => (
+                    <FormItem><FormLabel>Previous Institution</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl></FormItem>
+                  )} />
+                  <FormField control={form.control} name="previousCourse" render={({ field }) => (
+                    <FormItem><FormLabel>Previous Course</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl></FormItem>
+                  )} />
+                  <FormField control={form.control} name="entranceScore" render={({ field }) => (
+                    <FormItem><FormLabel>Entrance Score</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="185.5" /></FormControl></FormItem>
+                  )} />
+                </div>
+              </div>
 
               <DialogFooter>
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} data-testid="button-save-student">Save</Button>
@@ -400,4 +449,207 @@ function DeleteStudentButton({ id, name }: { id: number; name: string }) {
     }
   };
   return <Button variant="ghost" size="icon" onClick={handleDelete} className="text-destructive hover:bg-destructive/10" data-testid={`button-delete-student-${id}`}><Trash2 className="w-4 h-4" /></Button>;
+}
+
+function AdmissionsWorkflow() {
+  const { data: students } = useListStudents();
+  const updateMutation = useUpdateStudent();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const admissionStudents = students?.filter(s => s.admissionStatus && s.admissionStatus !== "Confirmed") || [];
+  const provisionalStudents = students?.filter(s => s.admissionStatus === "Provisional") || [];
+  const appliedStudents = students?.filter(s => s.admissionStatus === "Applied") || [];
+  const confirmedCount = students?.filter(s => s.admissionStatus === "Confirmed").length || 0;
+
+  const changeStatus = (id: number, status: string) => {
+    updateMutation.mutate({ id, data: { admissionStatus: status } }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
+        toast({ title: `Admission status updated to ${status}` });
+      },
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-4 gap-4">
+        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{appliedStudents.length}</div><p className="text-muted-foreground text-sm">Applied</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{provisionalStudents.length}</div><p className="text-muted-foreground text-sm">Provisional</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{confirmedCount}</div><p className="text-muted-foreground text-sm">Confirmed</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{students?.length || 0}</div><p className="text-muted-foreground text-sm">Total</p></CardContent></Card>
+      </div>
+      <Card>
+        <CardHeader><CardTitle>Pending Admissions</CardTitle></CardHeader>
+        <CardContent>
+          {[...appliedStudents, ...provisionalStudents].length === 0 ? <p className="text-muted-foreground text-center py-8">No pending admissions.</p> : (
+            <Table>
+              <TableHeader><TableRow><TableHead>Roll No</TableHead><TableHead>Name</TableHead><TableHead>App No</TableHead><TableHead>Previous Institution</TableHead><TableHead>Entrance Score</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
+              <TableBody>{[...appliedStudents, ...provisionalStudents].map(s => (
+                <TableRow key={s.id}>
+                  <TableCell>{s.rollNumber}</TableCell>
+                  <TableCell>{s.firstName} {s.lastName}</TableCell>
+                  <TableCell>{s.applicationNumber || '-'}</TableCell>
+                  <TableCell>{s.previousInstitution || '-'}</TableCell>
+                  <TableCell>{s.entranceScore || '-'}</TableCell>
+                  <TableCell><Badge variant={s.admissionStatus === 'Applied' ? 'secondary' : 'outline'}>{s.admissionStatus}</Badge></TableCell>
+                  <TableCell className="space-x-1">
+                    {s.admissionStatus === "Applied" && <Button size="sm" variant="outline" onClick={() => changeStatus(s.id, "Provisional")}>Provisional</Button>}
+                    {(s.admissionStatus === "Applied" || s.admissionStatus === "Provisional") && <Button size="sm" onClick={() => changeStatus(s.id, "Confirmed")}>Confirm</Button>}
+                    <Button size="sm" variant="destructive" onClick={() => changeStatus(s.id, "Rejected")}>Reject</Button>
+                  </TableCell>
+                </TableRow>
+              ))}</TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function AlumniList() {
+  const { data: students } = useListStudents();
+  const updateMutation = useUpdateStudent();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const alumni = students?.filter(s => s.isAlumni) || [];
+  const active = students?.filter(s => !s.isAlumni && s.status === "Active") || [];
+
+  const markAlumni = (id: number) => {
+    updateMutation.mutate({ id, data: { isAlumni: true, status: "Graduated", graduationDate: new Date().toISOString().split('T')[0] } }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
+        toast({ title: "Student marked as alumni" });
+      },
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <Card><CardContent className="pt-4"><GraduationCap className="w-6 h-6 mb-2 text-primary" /><div className="text-2xl font-bold">{alumni.length}</div><p className="text-muted-foreground text-sm">Alumni</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{active.length}</div><p className="text-muted-foreground text-sm">Active Students</p></CardContent></Card>
+      </div>
+      <Card>
+        <CardHeader><CardTitle>Alumni Directory</CardTitle></CardHeader>
+        <CardContent>
+          {alumni.length === 0 ? <p className="text-muted-foreground text-center py-8">No alumni records found.</p> : (
+            <Table>
+              <TableHeader><TableRow><TableHead>Roll No</TableHead><TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Graduation Date</TableHead><TableHead>Alumni Email</TableHead></TableRow></TableHeader>
+              <TableBody>{alumni.map(s => (
+                <TableRow key={s.id}>
+                  <TableCell>{s.rollNumber}</TableCell>
+                  <TableCell>{s.firstName} {s.lastName}</TableCell>
+                  <TableCell>{s.email || '-'}</TableCell>
+                  <TableCell>{s.graduationDate || '-'}</TableCell>
+                  <TableCell>{s.alumniEmail || '-'}</TableCell>
+                </TableRow>
+              ))}</TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+      {active.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>Mark as Alumni</CardTitle></CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader><TableRow><TableHead>Roll No</TableHead><TableHead>Name</TableHead><TableHead>Year/Sem</TableHead><TableHead>Status</TableHead><TableHead>Action</TableHead></TableRow></TableHeader>
+              <TableBody>{active.map(s => (
+                <TableRow key={s.id}>
+                  <TableCell>{s.rollNumber}</TableCell>
+                  <TableCell>{s.firstName} {s.lastName}</TableCell>
+                  <TableCell>{s.year} / {s.semester}</TableCell>
+                  <TableCell><Badge>{s.status}</Badge></TableCell>
+                  <TableCell><Button size="sm" variant="outline" onClick={() => markAlumni(s.id)}><GraduationCap className="w-3 h-3 mr-1" />Mark Alumni</Button></TableCell>
+                </TableRow>
+              ))}</TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+const disciplinarySchema = z.object({
+  studentId: z.coerce.number().min(1),
+  incidentDate: z.string().min(1),
+  category: z.string().min(1),
+  description: z.string().min(1),
+  severity: z.string().default("Minor"),
+  actionTaken: z.string().optional().nullable(),
+  actionDate: z.string().optional().nullable(),
+  reportedBy: z.string().optional().nullable(),
+  status: z.string().default("Open"),
+  remarks: z.string().optional().nullable(),
+});
+
+function DisciplinaryRecords() {
+  const { data: records, isLoading } = useListDisciplinaryRecords();
+  const { data: students } = useListStudents();
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createMutation = useCreateDisciplinaryRecord();
+
+  const getStudentName = (id: number) => { const s = students?.find(st => st.id === id); return s ? `${s.firstName} ${s.lastName}` : '-'; };
+
+  const form = useForm({ resolver: zodResolver(disciplinarySchema), defaultValues: { studentId: 0, incidentDate: new Date().toISOString().split('T')[0], category: "", description: "", severity: "Minor", actionTaken: "", actionDate: "", reportedBy: "", status: "Open", remarks: "" } });
+
+  const onSubmit = (values: any) => {
+    createMutation.mutate({ data: values }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListDisciplinaryRecordsQueryKey() });
+        toast({ title: "Record created" });
+        setIsOpen(false);
+        form.reset();
+      },
+      onError: () => toast({ title: "Error", variant: "destructive" }),
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-amber-500" />Disciplinary Records</CardTitle>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Add Record</Button></DialogTrigger>
+          <DialogContent><DialogHeader><DialogTitle>Create Disciplinary Record</DialogTitle></DialogHeader>
+            <ScrollArea className="max-h-[60vh]">
+            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 p-1">
+              <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student</FormLabel><Select onValueChange={field.onChange} value={String(field.value || "")}><FormControl><SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => (<SelectItem key={s.id} value={String(s.id)}>{s.firstName} {s.lastName} ({s.rollNumber})</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="incidentDate" render={({ field }) => (<FormItem><FormLabel>Incident Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Academic Misconduct">Academic Misconduct</SelectItem><SelectItem value="Behavioral Issue">Behavioral Issue</SelectItem><SelectItem value="Attendance Issue">Attendance Issue</SelectItem><SelectItem value="Property Damage">Property Damage</SelectItem><SelectItem value="Ragging">Ragging</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="severity" render={({ field }) => (<FormItem><FormLabel>Severity</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Minor">Minor</SelectItem><SelectItem value="Moderate">Moderate</SelectItem><SelectItem value="Major">Major</SelectItem><SelectItem value="Critical">Critical</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="reportedBy" render={({ field }) => (<FormItem><FormLabel>Reported By</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl></FormItem>)} />
+              <FormField control={form.control} name="actionTaken" render={({ field }) => (<FormItem><FormLabel>Action Taken</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl></FormItem>)} />
+              <DialogFooter><Button type="submit" disabled={createMutation.isPending}>Create</Button></DialogFooter>
+            </form></Form>
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? <p>Loading...</p> : records?.length === 0 ? <p className="text-muted-foreground text-center py-8">No disciplinary records.</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Date</TableHead><TableHead>Category</TableHead><TableHead>Severity</TableHead><TableHead>Action</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+            <TableBody>{records?.map(r => (
+              <TableRow key={r.id}>
+                <TableCell>{getStudentName(r.studentId)}</TableCell>
+                <TableCell>{r.incidentDate}</TableCell>
+                <TableCell>{r.category}</TableCell>
+                <TableCell><Badge variant={r.severity === 'Critical' || r.severity === 'Major' ? 'destructive' : 'secondary'}>{r.severity}</Badge></TableCell>
+                <TableCell>{r.actionTaken || '-'}</TableCell>
+                <TableCell><Badge variant={r.status === 'Resolved' ? 'default' : 'outline'}>{r.status}</Badge></TableCell>
+              </TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
 }

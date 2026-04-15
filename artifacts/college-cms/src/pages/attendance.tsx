@@ -1,24 +1,31 @@
 import { useState } from "react";
-import { useListSubjects, useListStudents, useMarkAttendance, useGetStudentAttendanceSummary, getListAttendanceQueryKey, getGetStudentAttendanceSummaryQueryKey, getGetAttendanceOverviewQueryKey } from "@workspace/api-client-react";
+import { useListSubjects, useListStudents, useMarkAttendance, useGetStudentAttendanceSummary, getListAttendanceQueryKey, getGetStudentAttendanceSummaryQueryKey, getGetAttendanceOverviewQueryKey, useListAttendanceCondonation, useCreateAttendanceCondonation, useUpdateAttendanceCondonation, getListAttendanceCondonationQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { CheckCircle2, XCircle, Plus, AlertTriangle } from "lucide-react";
 
 export default function Attendance() {
   return (
     <div className="space-y-6">
       <div><h2 className="text-2xl font-bold tracking-tight">Attendance</h2><p className="text-muted-foreground">Mark and track student attendance.</p></div>
       <Tabs defaultValue="mark">
-        <TabsList><TabsTrigger value="mark">Mark Attendance</TabsTrigger><TabsTrigger value="summary">Student Summary</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="mark">Mark Attendance</TabsTrigger><TabsTrigger value="summary">Student Summary</TabsTrigger><TabsTrigger value="condonation">Condonation</TabsTrigger></TabsList>
         <TabsContent value="mark"><MarkAttendance /></TabsContent>
         <TabsContent value="summary"><StudentAttendanceSummary /></TabsContent>
+        <TabsContent value="condonation"><CondonationRequests /></TabsContent>
       </Tabs>
     </div>
   );
@@ -143,5 +150,115 @@ function StudentAttendanceSummary() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+const condonationSchema = z.object({
+  studentId: z.coerce.number().min(1),
+  subjectId: z.coerce.number().min(1),
+  semester: z.coerce.number().min(1).max(8),
+  academicYear: z.string().min(1),
+  currentPercentage: z.string().min(1),
+  reason: z.string().min(1),
+  supportingDocument: z.string().optional().nullable(),
+  requestDate: z.string().min(1),
+  status: z.string().default("Pending"),
+});
+
+function CondonationRequests() {
+  const { data: requests, isLoading } = useListAttendanceCondonation();
+  const { data: students } = useListStudents();
+  const { data: subjects } = useListSubjects();
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createMutation = useCreateAttendanceCondonation();
+  const updateMutation = useUpdateAttendanceCondonation();
+
+  const getStudentName = (id: number) => { const s = students?.find(st => st.id === id); return s ? `${s.firstName} ${s.lastName}` : '-'; };
+  const getSubjectName = (id: number) => subjects?.find(s => s.id === id)?.name || '-';
+
+  const form = useForm({ resolver: zodResolver(condonationSchema), defaultValues: { studentId: 0, subjectId: 0, semester: 1, academicYear: "2024-2025", currentPercentage: "", reason: "", supportingDocument: "", requestDate: new Date().toISOString().split('T')[0], status: "Pending" } });
+
+  const onSubmit = (values: any) => {
+    createMutation.mutate({ data: values }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAttendanceCondonationQueryKey() });
+        toast({ title: "Condonation request submitted" });
+        setIsOpen(false);
+        form.reset();
+      },
+      onError: () => toast({ title: "Error", variant: "destructive" }),
+    });
+  };
+
+  const handleApproval = (id: number, status: string) => {
+    updateMutation.mutate({ id, data: { status, approvedBy: "Admin" } }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListAttendanceCondonationQueryKey() });
+        toast({ title: `Request ${status.toLowerCase()}` });
+      },
+    });
+  };
+
+  const belowThreshold = requests?.filter(r => Number(r.currentPercentage) < 75) || [];
+
+  return (
+    <div className="space-y-4">
+      {belowThreshold.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="pt-4 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
+            <span className="font-medium text-amber-800">{belowThreshold.length} student(s) below 75% attendance threshold</span>
+          </CardContent>
+        </Card>
+      )}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Condonation Requests</CardTitle>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />New Request</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Request Attendance Condonation</DialogTitle></DialogHeader>
+              <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student</FormLabel><Select onValueChange={field.onChange} value={String(field.value || "")}><FormControl><SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => (<SelectItem key={s.id} value={String(s.id)}>{s.firstName} {s.lastName}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="subjectId" render={({ field }) => (<FormItem><FormLabel>Subject</FormLabel><Select onValueChange={field.onChange} value={String(field.value || "")}><FormControl><SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger></FormControl><SelectContent>{subjects?.map(s => (<SelectItem key={s.id} value={String(s.id)}>{s.name} ({s.code})</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>)} />
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField control={form.control} name="semester" render={({ field }) => (<FormItem><FormLabel>Semester</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="currentPercentage" render={({ field }) => (<FormItem><FormLabel>Current %</FormLabel><FormControl><Input {...field} placeholder="65" /></FormControl><FormMessage /></FormItem>)} />
+                </div>
+                <FormField control={form.control} name="academicYear" render={({ field }) => (<FormItem><FormLabel>Academic Year</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="reason" render={({ field }) => (<FormItem><FormLabel>Reason</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="requestDate" render={({ field }) => (<FormItem><FormLabel>Request Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <DialogFooter><Button type="submit" disabled={createMutation.isPending}>Submit</Button></DialogFooter>
+              </form></Form>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? <p>Loading...</p> : requests?.length === 0 ? <p className="text-muted-foreground text-center py-8">No condonation requests.</p> : (
+            <Table>
+              <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Subject</TableHead><TableHead>Semester</TableHead><TableHead>Current %</TableHead><TableHead>Reason</TableHead><TableHead>Status</TableHead><TableHead>Actions</TableHead></TableRow></TableHeader>
+              <TableBody>{requests?.map(r => (
+                <TableRow key={r.id}>
+                  <TableCell>{getStudentName(r.studentId)}</TableCell>
+                  <TableCell>{getSubjectName(r.subjectId)}</TableCell>
+                  <TableCell>{r.semester}</TableCell>
+                  <TableCell><Badge variant={Number(r.currentPercentage) < 75 ? 'destructive' : 'default'}>{r.currentPercentage}%</Badge></TableCell>
+                  <TableCell className="max-w-[200px] truncate">{r.reason}</TableCell>
+                  <TableCell><Badge variant={r.status === 'Approved' ? 'default' : r.status === 'Rejected' ? 'destructive' : 'secondary'}>{r.status}</Badge></TableCell>
+                  <TableCell className="space-x-1">
+                    {r.status === 'Pending' && (<>
+                      <Button size="sm" onClick={() => handleApproval(r.id, 'Approved')}>Approve</Button>
+                      <Button size="sm" variant="destructive" onClick={() => handleApproval(r.id, 'Rejected')}>Reject</Button>
+                    </>)}
+                  </TableCell>
+                </TableRow>
+              ))}</TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

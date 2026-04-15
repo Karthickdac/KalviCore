@@ -57,5 +57,19 @@ export interface CreateStudentBody {
   /** @nullable */
   scholarshipStatus?: string | null;
   firstGraduate: boolean;
+  admissionStatus?: string;
+  /** @nullable */
+  applicationNumber?: string | null;
+  /** @nullable */
+  previousInstitution?: string | null;
+  /** @nullable */
+  previousCourse?: string | null;
+  /** @nullable */
+  entranceScore?: string | null;
+  isAlumni?: boolean;
+  /** @nullable */
+  graduationDate?: string | null;
+  /** @nullable */
+  alumniEmail?: string | null;
   status: string;
 }

@@ -20,7 +20,8 @@ import {
   Clock,
   ClipboardList,
   Award,
-  CalendarOff
+  CalendarOff,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -73,6 +74,12 @@ const navGroups = [
     items: [
       { name: "Events", href: "/events", icon: Calendar },
       { name: "Communications", href: "/communications", icon: Megaphone },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { name: "Settings", href: "/settings", icon: Settings },
     ],
   },
 ];
