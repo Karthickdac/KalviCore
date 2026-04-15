@@ -63,10 +63,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight">KalviCore</h1>
           <p className="text-teal-300/60 text-sm font-medium mt-1">Complete Campus. One Intelligent System</p>
-          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/10">
-            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-            <span className="text-xs text-white/50">Affiliated to Madurai Kamaraj University</span>
-          </div>
+
         </div>
 
         <div className="w-full max-w-md">
