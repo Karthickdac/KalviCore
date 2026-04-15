@@ -26,7 +26,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 4. **Subjects** — Curriculum management with course mapping, credits, type (Theory/Lab/Elective), staff assignment
 5. **Timetable** — Department/semester-wise timetable management with day, period, subject, staff, room allocation
 6. **Assignments** — Assignment creation, student submissions tracking, grading with marks and grade calculation
-7. **Exams** — Exam scheduling (Internal/External/Supplementary), results entry with marks/grade/status
+7. **Exams** — Comprehensive exam management with scheduling (Internal/External/Supplementary/Model/Practical), department/course/subject filtering, venue/timing/duration, pass marks threshold, auto-grade calculation (O/A+/A/B+/B/C/F), status workflow (Scheduled→Ongoing→Completed/Cancelled), results entry with eligible student filtering, per-exam analytics (pass rate, highest/lowest/average, grade distribution, mark ranges), edit/delete exams, analytics dashboard with type distribution and overall performance
 
 ### People Management
 8. **Students** — Enrollment with admissions workflow (Applied/Provisional/Confirmed/Rejected), alumni tracking, disciplinary records, Tamil Nadu community categories (OC/BC/MBC/SC/ST)
