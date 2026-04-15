@@ -32,8 +32,8 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
       <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 bg-card/95 backdrop-blur">
         <CardHeader className="text-center space-y-4 pb-2">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-            <GraduationCap className="w-9 h-9 text-white" />
+          <div className="mx-auto w-20 h-20 rounded-2xl overflow-hidden shadow-lg">
+            <img src={`${import.meta.env.BASE_URL}logo.jpeg`} alt="Automystics Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">EduManage TN</CardTitle>
