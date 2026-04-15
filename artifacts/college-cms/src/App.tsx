@@ -44,6 +44,7 @@ import DashboardSettingsPage from "@/pages/dashboard-settings";
 import PlacementsPage from "@/pages/placements";
 import FundraisingPage from "@/pages/fundraising";
 import VisitorsPage from "@/pages/visitors";
+import AccessManagementPage from "@/pages/access-management";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -109,6 +110,7 @@ function AppRoutes() {
         <Route path="/placements" component={PlacementsPage} />
         <Route path="/fundraising" component={FundraisingPage} />
         <Route path="/visitors" component={VisitorsPage} />
+        <Route path="/access-management" component={AccessManagementPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

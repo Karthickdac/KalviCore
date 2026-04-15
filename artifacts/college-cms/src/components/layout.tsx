@@ -9,7 +9,7 @@ import {
   Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp,
   Upload, Ticket, UserCircle, Database, CreditCard,
   BellRing, FolderOpen, Printer, LayoutGrid,
-  Landmark, Heart, UserCheck, Search, X, MessageSquare
+  Landmark, Heart, UserCheck, Search, X, MessageSquare, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -129,6 +129,7 @@ const navGroups: NavGroup[] = [
       { name: "Document Vault", href: "/documents", icon: FolderOpen, permission: "students" },
       { name: "Print Templates", href: "/print-templates", icon: Printer, permission: "print_templates" },
       { name: "Dashboard Settings", href: "/dashboard-settings", icon: LayoutGrid, permission: "dashboard_settings" },
+      { name: "Access Management", href: "/access-management", icon: ShieldCheck, permission: "access_management" },
       { name: "Data Backup", href: "/backup", icon: Database, permission: "settings" },
       { name: "Settings", href: "/settings", icon: Settings, permission: "settings" },
     ],

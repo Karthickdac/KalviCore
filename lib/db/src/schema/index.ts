@@ -33,3 +33,4 @@ export * from "./dashboardWidgets";
 export * from "./placements";
 export * from "./fundraising";
 export * from "./visitors";
+export * from "./rolePermissions";

@@ -41,7 +41,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "hostels", "transport", "library", "inventory", "visitors",
     "events", "communications", "notifications",
     "placements", "id_cards",
-    "settings", "users", "print_templates", "dashboard_settings",
+    "settings", "users", "print_templates", "dashboard_settings", "access_management",
   ],
   Principal: [
     "dashboard", "reports", "calendar",

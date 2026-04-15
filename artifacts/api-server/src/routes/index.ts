@@ -41,6 +41,7 @@ import dashboardWidgetsRouter from "./dashboardWidgets";
 import placementsRouter from "./placements";
 import fundraisingRouter from "./fundraising";
 import visitorsRouter from "./visitors";
+import accessManagementRouter from "./accessManagement";
 
 const router: IRouter = Router();
 
@@ -86,5 +87,6 @@ router.use(dashboardWidgetsRouter);
 router.use(placementsRouter);
 router.use(fundraisingRouter);
 router.use(visitorsRouter);
+router.use(accessManagementRouter);
 
 export default router;

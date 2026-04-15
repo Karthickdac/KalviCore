@@ -132,7 +132,8 @@ Enterprise-level sidebar with search, multicolor group indicators: Overview (blu
 - **College type**: Arts & Science College affiliated to Madurai Kamaraj University
 - **Departments**: Tamil(1), English(2), Mathematics(3), Physics(4), Chemistry(5), Computer Science(6), Commerce(7), Economics(8), History(9), Botany(10), Zoology(11), Political Science(12)
 - **Pre-created users**: college_admin/Admin@123, principal/Principal@123, hod_cse/hod_ece/hod_mech (Hod@123, depts 1/2/3), faculty_cse/faculty_ece (Faculty@123, depts 1/2), office_staff/Staff@123, student_cse/Student@123
-- **RBAC permissions**: Granular per-module permissions (reports, calendar, fundraising, visitors, placements, id_cards, print_templates, dashboard_settings, notifications) — Students see ~10 items, Faculty ~15, HOD ~18, Admin/Principal full access
+- **RBAC permissions**: Granular per-module permissions (reports, calendar, fundraising, visitors, placements, id_cards, print_templates, dashboard_settings, notifications, access_management) — Students see ~10 items, Faculty ~15, HOD ~18, Admin/Principal full access
+- **Access Management**: Admin can dynamically toggle permissions per role via `/access-management` page; DB-backed overrides in `role_permissions` table with 30s in-memory cache; SuperAdmin cannot be modified; reset-to-defaults available per role
 - **Notification scoping**: Faculty/HOD auto-scoped to their department; Admin/Principal can target all or by department
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.

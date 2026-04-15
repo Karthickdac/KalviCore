@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db, usersTable, ROLES, ROLE_PERMISSIONS } from "@workspace/db";
-import { createSession, destroySession, requireAuth, requireRole } from "../middleware/auth";
+import { createSession, destroySession, requireAuth, requireRole, getEffectivePermissions } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
 
 const router: IRouter = Router();
@@ -40,8 +40,8 @@ router.post("/auth/logout", (req, res): void => {
   res.json({ success: true });
 });
 
-router.get("/auth/me", requireAuth, (req, res): void => {
-  const perms = ROLE_PERMISSIONS[req.user!.role] || [];
+router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
+  const perms = await getEffectivePermissions(req.user!.role);
   res.json({ ...req.user, permissions: perms });
 });
 

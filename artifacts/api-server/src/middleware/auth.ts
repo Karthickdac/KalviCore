@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { eq } from "drizzle-orm";
-import { db, usersTable, ROLE_PERMISSIONS } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
+import { db, usersTable, ROLE_PERMISSIONS, rolePermissionsTable } from "@workspace/db";
 
 declare global {
   namespace Express {
@@ -84,17 +84,59 @@ export function requireRole(...roles: string[]) {
   };
 }
 
+const permissionCache = new Map<string, { perms: string[]; expiry: number }>();
+const CACHE_TTL = 30_000;
+
+export async function getEffectivePermissions(role: string): Promise<string[]> {
+  const defaults = ROLE_PERMISSIONS[role] || [];
+  if (defaults.includes("*")) return ["*"];
+
+  const cached = permissionCache.get(role);
+  if (cached && cached.expiry > Date.now()) return cached.perms;
+
+  try {
+    const overrides = await db.select().from(rolePermissionsTable)
+      .where(eq(rolePermissionsTable.role, role));
+
+    if (overrides.length === 0) {
+      permissionCache.set(role, { perms: defaults, expiry: Date.now() + CACHE_TTL });
+      return defaults;
+    }
+
+    const overrideMap = new Map(overrides.map(o => [o.permission, o.enabled]));
+    const allPermKeys = new Set([...defaults, ...overrides.map(o => o.permission)]);
+    const effective: string[] = [];
+    for (const key of allPermKeys) {
+      const override = overrideMap.get(key);
+      if (override !== undefined) {
+        if (override) effective.push(key);
+      } else if (defaults.includes(key)) {
+        effective.push(key);
+      }
+    }
+
+    permissionCache.set(role, { perms: effective, expiry: Date.now() + CACHE_TTL });
+    return effective;
+  } catch {
+    return defaults;
+  }
+}
+
+export function clearPermissionCache(role?: string) {
+  if (role) {
+    permissionCache.delete(role);
+  } else {
+    permissionCache.clear();
+  }
+}
+
 export function requirePermission(module: string) {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
       res.status(401).json({ error: "Authentication required" });
       return;
     }
-    const perms = ROLE_PERMISSIONS[req.user.role];
-    if (!perms) {
-      res.status(403).json({ error: "Role not configured" });
-      return;
-    }
+    const perms = await getEffectivePermissions(req.user.role);
     if (perms.includes("*") || perms.includes(module)) {
       next();
       return;
