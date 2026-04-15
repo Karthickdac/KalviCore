@@ -145,6 +145,8 @@ const ROLE_BADGE_COLORS: Record<string, string> = {
   Student: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
 };
 
+let _sidebarScrollTop = 0;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout, hasPermission } = useAuth();
@@ -208,7 +210,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <nav ref={(el) => {
+        if (el && !el.dataset.scrollInit) {
+          el.dataset.scrollInit = "1";
+          el.scrollTop = _sidebarScrollTop;
+          el.addEventListener("scroll", () => { _sidebarScrollTop = el.scrollTop; }, { passive: true });
+        }
+      }} className="flex-1 overflow-y-auto px-2 py-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <div className="space-y-0.5">
           {filteredGroups.map((group) => {
             const isExpanded = searchQuery ? true : expandedGroups[group.label] !== false;

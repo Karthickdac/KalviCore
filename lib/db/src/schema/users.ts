@@ -71,7 +71,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "dashboard",
     "students", "attendance", "leaves",
     "fees", "certificates",
-    "hostels", "transport", "library", "inventory",
+    "hostels", "transport", "library", "inventory", "visitors",
     "events", "communications",
   ],
   Student: [
