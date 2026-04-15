@@ -6,7 +6,7 @@ import {
   CalendarCheck, IndianRupee, FileText, Menu, Bell, Building2, Bus,
   BookMarked, Calendar, Megaphone, Package, Clock, ClipboardList,
   Award, CalendarOff, Settings, ChevronDown, ChevronRight, LogOut,
-  Shield, UserCog, Home
+  Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -38,6 +38,8 @@ const navGroups: NavGroup[] = [
     icon: Home,
     items: [
       { name: "Dashboard", href: "/", icon: LayoutDashboard, permission: "dashboard" },
+      { name: "Reports", href: "/reports", icon: BarChart3, permission: "dashboard" },
+      { name: "Academic Calendar", href: "/academic-calendar", icon: CalendarDays, permission: "dashboard" },
     ],
   },
   {
@@ -50,6 +52,7 @@ const navGroups: NavGroup[] = [
       { name: "Timetable", href: "/timetable", icon: Clock, permission: "timetable" },
       { name: "Assignments", href: "/assignments", icon: ClipboardList, permission: "assignments" },
       { name: "Exams", href: "/exams", icon: FileText, permission: "exams" },
+      { name: "CGPA Tracker", href: "/cgpa", icon: TrendingUp, permission: "exams" },
     ],
   },
   {
@@ -60,6 +63,7 @@ const navGroups: NavGroup[] = [
       { name: "Staff", href: "/staff", icon: Briefcase, permission: "staff" },
       { name: "Attendance", href: "/attendance", icon: CalendarCheck, permission: "attendance" },
       { name: "Staff Leaves", href: "/leaves", icon: CalendarOff, permission: "leaves" },
+      { name: "Payroll", href: "/payroll", icon: Wallet, permission: "staff" },
     ],
   },
   {
@@ -93,6 +97,7 @@ const navGroups: NavGroup[] = [
     icon: Settings,
     items: [
       { name: "User Management", href: "/users", icon: UserCog, permission: "users" },
+      { name: "Activity Log", href: "/activity-log", icon: Activity, permission: "settings" },
       { name: "Settings", href: "/settings", icon: Settings, permission: "settings" },
     ],
   },

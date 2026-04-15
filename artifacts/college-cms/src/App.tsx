@@ -26,6 +26,11 @@ import Certificates from "@/pages/certificates";
 import Leaves from "@/pages/leaves";
 import SettingsPage from "@/pages/settings";
 import UsersPage from "@/pages/users";
+import ReportsPage from "@/pages/reports";
+import ActivityLogPage from "@/pages/activity-log";
+import AcademicCalendarPage from "@/pages/academic-calendar";
+import PayrollPage from "@/pages/payroll";
+import CGPAPage from "@/pages/cgpa";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -73,6 +78,11 @@ function AppRoutes() {
         <Route path="/leaves" component={Leaves} />
         <Route path="/settings" component={SettingsPage} />
         <Route path="/users" component={UsersPage} />
+        <Route path="/reports" component={ReportsPage} />
+        <Route path="/activity-log" component={ActivityLogPage} />
+        <Route path="/academic-calendar" component={AcademicCalendarPage} />
+        <Route path="/payroll" component={PayrollPage} />
+        <Route path="/cgpa" component={CGPAPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

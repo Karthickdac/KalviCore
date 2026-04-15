@@ -25,6 +25,10 @@ import feeInstalmentsRouter from "./feeInstalments";
 import scholarshipsRouter from "./scholarships";
 import condonationRouter from "./condonation";
 import settingsRouter from "./settings";
+import reportsRouter from "./reports";
+import payrollRouter from "./payroll";
+import academicCalendarRouter from "./academicCalendar";
+import cgpaRouter from "./cgpa";
 
 const router: IRouter = Router();
 
@@ -54,5 +58,9 @@ router.use(feeInstalmentsRouter);
 router.use(scholarshipsRouter);
 router.use(condonationRouter);
 router.use(settingsRouter);
+router.use(reportsRouter);
+router.use(payrollRouter);
+router.use(academicCalendarRouter);
+router.use(cgpaRouter);
 
 export default router;

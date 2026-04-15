@@ -48,9 +48,18 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 18. **Events** — Event management (Cultural/Sports/Technical), participant registration, achievements
 19. **Communications** — Announcements, notices, grievance management with resolution tracking
 
+### Analytics & Planning
+20. **Reports & Analytics** — Student reports (by department, community, year, gender with charts), attendance reports (with below-threshold count), fee collection reports (by mode, monthly trend), exam results summary — all with CSV export and print
+21. **Academic Calendar** — Monthly calendar view with events, holidays, exam dates, semester markers; event types: General, Holiday, Exam, Semester Start/End, Workshop, Cultural, Sports, Meeting
+22. **CGPA Tracker** — Semester-wise GPA calculation with grade points (O=10, A+=9 ... F=0), cumulative CGPA, subject-level breakdown, GPA trend chart
+23. **Activity Log** — Full audit trail viewer with search, action type badges, entity tracking
+
+### People (Additional)
+24. **Payroll** — Staff salary processing with basic, HRA, DA, TA, allowances, PF, tax deductions, net salary calculation, mark-as-paid workflow, monthly view
+
 ### System
-20. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
-21. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
+25. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
+26. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
 
 ## Key Commands
 
@@ -62,7 +71,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Database Schema
 
-29+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings, users
+31+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings, users, payroll, academic_calendar
 
 ## CRITICAL Notes
 
