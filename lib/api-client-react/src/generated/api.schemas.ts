@@ -486,6 +486,10 @@ export interface FeePayment {
   academicYear: string;
   status: string;
   /** @nullable */
+  razorpayOrderId: string | null;
+  /** @nullable */
+  razorpayPaymentId: string | null;
+  /** @nullable */
   remarks: string | null;
   createdAt: string;
 }
@@ -555,6 +559,35 @@ export interface ExamResultRecord {
 export interface RecordExamResultsBody {
   examId: number;
   results: ExamResultRecord[];
+}
+
+export interface CreateRazorpayOrderBody {
+  studentId: number;
+  feeStructureId: number;
+  amount: number;
+  semester: number;
+  academicYear: string;
+}
+
+export interface RazorpayOrderResponse {
+  orderId: string;
+  amount: number;
+  currency: string;
+  keyId: string;
+  studentName: string;
+  studentEmail: string;
+  studentPhone: string;
+}
+
+export interface VerifyRazorpayPaymentBody {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}
+
+export interface RazorpayConfig {
+  keyId: string;
+  collegeName: string;
 }
 
 export type GetRecentActivityParams = {

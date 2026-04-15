@@ -9,3 +9,4 @@ export * from "./feePayments";
 export * from "./exams";
 export * from "./examResults";
 export * from "./activityLog";
+export * from "./pendingOrders";

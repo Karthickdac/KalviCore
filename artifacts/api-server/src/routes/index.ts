@@ -9,6 +9,7 @@ import attendanceRouter from "./attendance";
 import feesRouter from "./fees";
 import examsRouter from "./exams";
 import dashboardRouter from "./dashboard";
+import razorpayRouter from "./razorpay";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(subjectsRouter);
 router.use(attendanceRouter);
 router.use(feesRouter);
 router.use(examsRouter);
+router.use(razorpayRouter);
 
 export default router;

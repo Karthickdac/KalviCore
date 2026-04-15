@@ -26,7 +26,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 5. **Courses** — Anna University regulation-wise courses, affiliated university, degree programs (B.E., B.Tech, M.E., MBA, MCA)
 6. **Subjects** — Curriculum management with course mapping, credits, type (Theory/Lab/Elective), staff assignment
 7. **Attendance** — Mark attendance by subject/date, student attendance summary with percentage tracking
-8. **Fees** — Fee structures per course/year, payment recording (Cash/Cheque/Online/DD), student dues tracking
+8. **Fees** — Fee structures per course/year, payment recording (Cash/Cheque/Online/DD/Razorpay), student dues tracking, Razorpay online payment integration
 9. **Exams** — Exam scheduling (Internal/External/Supplementary), results entry with marks/grade/status
 
 ## Key Commands
@@ -39,7 +39,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Database Schema
 
-11 tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, exams, exam_results, activity_log
+12 tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log
 
 ## Tamil Nadu-Specific Features
 
@@ -50,6 +50,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 - District field for Tamil Nadu districts
 - Aadhar number field
 - Indian Rupee formatting for all fee amounts
+- Razorpay payment gateway integration (UPI, Cards, Net Banking) with server-side order tracking and HMAC signature verification
 
 ## Project Structure
 

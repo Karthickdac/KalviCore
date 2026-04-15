@@ -779,6 +779,57 @@ paths:
               schema:
                 $ref: "#/components/schemas/StudentDues"
 
+  /razorpay/create-order:
+    post:
+      operationId: createRazorpayOrder
+      tags: [fees]
+      summary: Create a Razorpay order for fee payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRazorpayOrderBody"
+      responses:
+        "201":
+          description: Razorpay order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RazorpayOrderResponse"
+
+  /razorpay/verify-payment:
+    post:
+      operationId: verifyRazorpayPayment
+      tags: [fees]
+      summary: Verify Razorpay payment and record fee payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyRazorpayPaymentBody"
+      responses:
+        "200":
+          description: Payment verified and recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeePayment"
+
+  /razorpay/config:
+    get:
+      operationId: getRazorpayConfig
+      tags: [fees]
+      summary: Get Razorpay public key for frontend
+      responses:
+        "200":
+          description: Razorpay config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RazorpayConfig"
+
   # ── Exams ──
   /exams:
     get:
@@ -1826,6 +1877,10 @@ components:
           type: string
         status:
           type: string
+        razorpayOrderId:
+          type: ["string", "null"]
+        razorpayPaymentId:
+          type: ["string", "null"]
         remarks:
           type: ["string", "null"]
         createdAt:
@@ -1842,6 +1897,8 @@ components:
         - semester
         - academicYear
         - status
+        - razorpayOrderId
+        - razorpayPaymentId
         - remarks
         - createdAt
 
@@ -2014,3 +2071,74 @@ components:
         - studentId
         - marksObtained
         - status
+
+    CreateRazorpayOrderBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        feeStructureId:
+          type: integer
+        amount:
+          type: number
+        semester:
+          type: integer
+        academicYear:
+          type: string
+      required:
+        - studentId
+        - feeStructureId
+        - amount
+        - semester
+        - academicYear
+
+    RazorpayOrderResponse:
+      type: object
+      properties:
+        orderId:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        keyId:
+          type: string
+        studentName:
+          type: string
+        studentEmail:
+          type: string
+        studentPhone:
+          type: string
+      required:
+        - orderId
+        - amount
+        - currency
+        - keyId
+        - studentName
+        - studentEmail
+        - studentPhone
+
+    VerifyRazorpayPaymentBody:
+      type: object
+      properties:
+        razorpayOrderId:
+          type: string
+        razorpayPaymentId:
+          type: string
+        razorpaySignature:
+          type: string
+      required:
+        - razorpayOrderId
+        - razorpayPaymentId
+        - razorpaySignature
+
+    RazorpayConfig:
+      type: object
+      properties:
+        keyId:
+          type: string
+        collegeName:
+          type: string
+      required:
+        - keyId
+        - collegeName

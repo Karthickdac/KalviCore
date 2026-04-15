@@ -823,6 +823,8 @@ export const ListFeePaymentsResponseItem = zod.object({
   semester: zod.number(),
   academicYear: zod.string(),
   status: zod.string(),
+  razorpayOrderId: zod.string().nullable(),
+  razorpayPaymentId: zod.string().nullable(),
   remarks: zod.string().nullable(),
   createdAt: zod.coerce.date(),
 });
@@ -869,10 +871,57 @@ export const GetStudentDuesResponse = zod.object({
       semester: zod.number(),
       academicYear: zod.string(),
       status: zod.string(),
+      razorpayOrderId: zod.string().nullable(),
+      razorpayPaymentId: zod.string().nullable(),
       remarks: zod.string().nullable(),
       createdAt: zod.coerce.date(),
     }),
   ),
+});
+
+/**
+ * @summary Create a Razorpay order for fee payment
+ */
+export const CreateRazorpayOrderBody = zod.object({
+  studentId: zod.number(),
+  feeStructureId: zod.number(),
+  amount: zod.number(),
+  semester: zod.number(),
+  academicYear: zod.string(),
+});
+
+/**
+ * @summary Verify Razorpay payment and record fee payment
+ */
+export const VerifyRazorpayPaymentBody = zod.object({
+  razorpayOrderId: zod.string(),
+  razorpayPaymentId: zod.string(),
+  razorpaySignature: zod.string(),
+});
+
+export const VerifyRazorpayPaymentResponse = zod.object({
+  id: zod.number(),
+  studentId: zod.number(),
+  feeStructureId: zod.number(),
+  amountPaid: zod.number(),
+  paymentDate: zod.coerce.date(),
+  paymentMode: zod.string(),
+  receiptNumber: zod.string(),
+  semester: zod.number(),
+  academicYear: zod.string(),
+  status: zod.string(),
+  razorpayOrderId: zod.string().nullable(),
+  razorpayPaymentId: zod.string().nullable(),
+  remarks: zod.string().nullable(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Get Razorpay public key for frontend
+ */
+export const GetRazorpayConfigResponse = zod.object({
+  keyId: zod.string(),
+  collegeName: zod.string(),
 });
 
 /**

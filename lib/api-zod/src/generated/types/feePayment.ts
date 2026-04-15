@@ -18,6 +18,10 @@ export interface FeePayment {
   academicYear: string;
   status: string;
   /** @nullable */
+  razorpayOrderId: string | null;
+  /** @nullable */
+  razorpayPaymentId: string | null;
+  /** @nullable */
   remarks: string | null;
   createdAt: Date;
 }

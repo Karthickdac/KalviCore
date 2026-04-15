@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useListFeeStructures, useCreateFeeStructure, getListFeeStructuresQueryKey, useListFeePayments, useRecordFeePayment, getListFeePaymentsQueryKey, useGetStudentDues, getGetStudentDuesQueryKey, useListCourses, useListStudents } from "@workspace/api-client-react";
+import { useState, useEffect, useCallback } from "react";
+import { useListFeeStructures, useCreateFeeStructure, getListFeeStructuresQueryKey, useListFeePayments, useRecordFeePayment, getListFeePaymentsQueryKey, useGetStudentDues, getGetStudentDuesQueryKey, useListCourses, useListStudents, useCreateRazorpayOrder, useVerifyRazorpayPayment, useGetRazorpayConfig } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,31 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, CreditCard, IndianRupee } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+function useRazorpayScript() {
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+      setLoaded(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setLoaded(true);
+    document.body.appendChild(script);
+  }, []);
+  return loaded;
+}
 
 export default function Fees() {
   return (
@@ -169,7 +191,7 @@ function FeePayments() {
                   <FormField control={form.control} name="feeStructureId" render={({ field }) => (<FormItem><FormLabel>Fee Structure *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{structures?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.academicYear} - Total: {s.totalFee}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="amountPaid" render={({ field }) => (<FormItem><FormLabel>Amount *</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="paymentDate" render={({ field }) => (<FormItem><FormLabel>Date *</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="paymentMode" render={({ field }) => (<FormItem><FormLabel>Mode *</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem><SelectItem value="Online">Online</SelectItem><SelectItem value="DD">DD</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="paymentMode" render={({ field }) => (<FormItem><FormLabel>Mode *</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem><SelectItem value="Online">Online</SelectItem><SelectItem value="DD">DD</SelectItem><SelectItem value="Razorpay">Razorpay</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="receiptNumber" render={({ field }) => (<FormItem><FormLabel>Receipt No *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <FormField control={form.control} name="semester" render={({ field }) => (<FormItem><FormLabel>Semester</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl></FormItem>)} />
                   <FormField control={form.control} name="status" render={({ field }) => (<FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Paid">Paid</SelectItem><SelectItem value="Partial">Partial</SelectItem><SelectItem value="Pending">Pending</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
@@ -191,7 +213,11 @@ function FeePayments() {
                   <TableCell>{getStudentName(p.studentId)}</TableCell>
                   <TableCell>{p.amountPaid.toLocaleString('en-IN')}</TableCell>
                   <TableCell>{p.paymentDate}</TableCell>
-                  <TableCell>{p.paymentMode}</TableCell>
+                  <TableCell>
+                    {p.paymentMode === 'Razorpay' ? (
+                      <Badge className="bg-blue-600"><CreditCard className="w-3 h-3 mr-1" />{p.paymentMode}</Badge>
+                    ) : p.paymentMode}
+                  </TableCell>
                   <TableCell><Badge variant={p.status === 'Paid' ? 'default' : p.status === 'Partial' ? 'secondary' : 'destructive'}>{p.status}</Badge></TableCell>
                 </TableRow>
               ))
@@ -207,6 +233,100 @@ function StudentDues() {
   const [studentId, setStudentId] = useState("");
   const { data: students } = useListStudents();
   const { data: dues } = useGetStudentDues(Number(studentId), { query: { enabled: !!studentId, queryKey: getGetStudentDuesQueryKey(Number(studentId)) } });
+  const { data: structures } = useListFeeStructures();
+  const razorpayLoaded = useRazorpayScript();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createOrderMutation = useCreateRazorpayOrder();
+  const verifyPaymentMutation = useVerifyRazorpayPayment();
+  const [payAmount, setPayAmount] = useState("");
+  const [isPayOpen, setIsPayOpen] = useState(false);
+  const [paying, setPaying] = useState(false);
+
+  const selectedStudent = students?.find(s => s.id === Number(studentId));
+  const studentFeeStructure = structures?.find(s => selectedStudent && s.courseId === selectedStudent.courseId);
+
+  const handlePayOnline = useCallback(() => {
+    if (!studentId || !selectedStudent || !studentFeeStructure) {
+      toast({ title: "Select a student first", variant: "destructive" });
+      return;
+    }
+    const amount = Number(payAmount);
+    if (!amount || amount <= 0) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
+    }
+    if (!razorpayLoaded) {
+      toast({ title: "Payment system is loading, please try again", variant: "destructive" });
+      return;
+    }
+
+    setPaying(true);
+    createOrderMutation.mutate({
+      data: {
+        studentId: Number(studentId),
+        feeStructureId: studentFeeStructure.id,
+        amount,
+        semester: selectedStudent.semester,
+        academicYear: studentFeeStructure.academicYear,
+      }
+    }, {
+      onSuccess: (orderData) => {
+        const options = {
+          key: orderData.keyId,
+          amount: Math.round(orderData.amount * 100),
+          currency: orderData.currency,
+          name: "EduManage TN",
+          description: `Fee Payment - ${selectedStudent.rollNumber}`,
+          order_id: orderData.orderId,
+          prefill: {
+            name: orderData.studentName,
+            email: orderData.studentEmail || undefined,
+            contact: orderData.studentPhone || undefined,
+          },
+          theme: { color: "#1e3a5f" },
+          handler: function(response: any) {
+            verifyPaymentMutation.mutate({
+              data: {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }
+            }, {
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: getGetStudentDuesQueryKey(Number(studentId)) });
+                queryClient.invalidateQueries({ queryKey: getListFeePaymentsQueryKey() });
+                toast({ title: "Payment successful! Fee has been recorded." });
+                setIsPayOpen(false);
+                setPayAmount("");
+                setPaying(false);
+              },
+              onError: () => {
+                toast({ title: "Payment received but recording failed. Contact admin.", variant: "destructive" });
+                setPaying(false);
+              }
+            });
+          },
+          modal: {
+            ondismiss: function() {
+              setPaying(false);
+              toast({ title: "Payment cancelled" });
+            }
+          }
+        };
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function(response: any) {
+          setPaying(false);
+          toast({ title: `Payment failed: ${response.error.description}`, variant: "destructive" });
+        });
+        rzp.open();
+      },
+      onError: () => {
+        setPaying(false);
+        toast({ title: "Failed to create payment order", variant: "destructive" });
+      }
+    });
+  }, [studentId, selectedStudent, studentFeeStructure, payAmount, razorpayLoaded, createOrderMutation, verifyPaymentMutation, queryClient, toast]);
 
   return (
     <Card>
@@ -225,11 +345,80 @@ function StudentDues() {
               <Card><CardContent className="pt-6"><div className="text-sm text-muted-foreground">Total Paid</div><div className="text-2xl font-bold text-green-600">{dues.totalPaid.toLocaleString('en-IN')}</div></CardContent></Card>
               <Card><CardContent className="pt-6"><div className="text-sm text-muted-foreground">Dues Remaining</div><div className="text-2xl font-bold text-red-600">{dues.totalDue.toLocaleString('en-IN')}</div></CardContent></Card>
             </div>
+
+            {dues.totalDue > 0 && (
+              <Card className="border-blue-200 bg-blue-50/50">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center">
+                        <CreditCard className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold">Pay Online via Razorpay</h4>
+                        <p className="text-sm text-muted-foreground">Secure online payment - UPI, Cards, Net Banking</p>
+                      </div>
+                    </div>
+                    <Dialog open={isPayOpen} onOpenChange={setIsPayOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-blue-600 hover:bg-blue-700">
+                          <IndianRupee className="w-4 h-4 mr-1" /> Pay Now
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader><DialogTitle>Online Fee Payment</DialogTitle></DialogHeader>
+                        <div className="space-y-4">
+                          <div className="rounded-lg border p-4 space-y-2">
+                            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Student</span><span className="font-medium">{selectedStudent?.rollNumber} - {selectedStudent?.firstName} {selectedStudent?.lastName}</span></div>
+                            <div className="flex justify-between text-sm"><span className="text-muted-foreground">Due Amount</span><span className="font-bold text-red-600">{dues.totalDue.toLocaleString('en-IN')}</span></div>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Amount to Pay (in Rupees)</label>
+                            <Input
+                              type="number"
+                              placeholder={`Max: ${dues.totalDue}`}
+                              value={payAmount}
+                              onChange={(e) => setPayAmount(e.target.value)}
+                              min={1}
+                              max={dues.totalDue}
+                            />
+                            <div className="flex gap-2 mt-2">
+                              <Button variant="outline" size="sm" onClick={() => setPayAmount(String(dues.totalDue))}>Full Amount</Button>
+                              <Button variant="outline" size="sm" onClick={() => setPayAmount(String(Math.ceil(dues.totalDue / 2)))}>Half</Button>
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              className="w-full bg-blue-600 hover:bg-blue-700"
+                              onClick={handlePayOnline}
+                              disabled={paying || createOrderMutation.isPending || verifyPaymentMutation.isPending}
+                            >
+                              {paying ? "Processing..." : `Pay ${payAmount ? `Rs. ${Number(payAmount).toLocaleString('en-IN')}` : ''} via Razorpay`}
+                            </Button>
+                          </DialogFooter>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {dues.payments.length > 0 && (
               <Table>
                 <TableHeader><TableRow><TableHead>Receipt</TableHead><TableHead>Amount</TableHead><TableHead>Date</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
                 <TableBody>{dues.payments.map(p => (
-                  <TableRow key={p.id}><TableCell>{p.receiptNumber}</TableCell><TableCell>{p.amountPaid.toLocaleString('en-IN')}</TableCell><TableCell>{p.paymentDate}</TableCell><TableCell>{p.paymentMode}</TableCell><TableCell><Badge variant={p.status === 'Paid' ? 'default' : 'secondary'}>{p.status}</Badge></TableCell></TableRow>
+                  <TableRow key={p.id}>
+                    <TableCell>{p.receiptNumber}</TableCell>
+                    <TableCell>{p.amountPaid.toLocaleString('en-IN')}</TableCell>
+                    <TableCell>{p.paymentDate}</TableCell>
+                    <TableCell>
+                      {p.paymentMode === 'Razorpay' ? (
+                        <Badge className="bg-blue-600"><CreditCard className="w-3 h-3 mr-1" />{p.paymentMode}</Badge>
+                      ) : p.paymentMode}
+                    </TableCell>
+                    <TableCell><Badge variant={p.status === 'Paid' ? 'default' : 'secondary'}>{p.status}</Badge></TableCell>
+                  </TableRow>
                 ))}</TableBody>
               </Table>
             )}

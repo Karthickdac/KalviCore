@@ -15,6 +15,8 @@ export const feePaymentsTable = pgTable("fee_payments", {
   semester: integer("semester").notNull(),
   academicYear: text("academic_year").notNull(),
   status: text("status").notNull().default("Paid"),
+  razorpayOrderId: text("razorpay_order_id"),
+  razorpayPaymentId: text("razorpay_payment_id"),
   remarks: text("remarks"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
