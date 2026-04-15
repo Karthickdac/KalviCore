@@ -6,14 +6,14 @@ import { logActivity } from "../lib/activity";
 
 const router: IRouter = Router();
 
-router.get("/fundraising/campaigns", requireAuth, async (_req, res): Promise<void> => {
+router.get("/fundraising/campaigns", requireAuth, requirePermission("fundraising"), async (_req, res): Promise<void> => {
   try {
     const campaigns = await db.select().from(fundraisingCampaignsTable).orderBy(desc(fundraisingCampaignsTable.createdAt));
     res.json(campaigns);
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/fundraising/campaigns", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.post("/fundraising/campaigns", requireAuth, requirePermission("fundraising"), async (req, res): Promise<void> => {
   try {
     const { title, description, goalAmount, startDate, endDate, category, createdBy } = req.body;
     if (!title || !goalAmount || !startDate) { res.status(400).json({ error: "Title, goal amount, and start date required" }); return; }
@@ -25,7 +25,7 @@ router.post("/fundraising/campaigns", requireAuth, requirePermission("settings")
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/fundraising/campaigns/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.patch("/fundraising/campaigns/:id", requireAuth, requirePermission("fundraising"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const updateData = { ...req.body };
@@ -37,7 +37,7 @@ router.patch("/fundraising/campaigns/:id", requireAuth, requirePermission("setti
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.delete("/fundraising/campaigns/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.delete("/fundraising/campaigns/:id", requireAuth, requirePermission("fundraising"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     await db.delete(donationsTable).where(eq(donationsTable.campaignId, id));
@@ -47,7 +47,7 @@ router.delete("/fundraising/campaigns/:id", requireAuth, requirePermission("sett
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.get("/fundraising/donations", requireAuth, async (req, res): Promise<void> => {
+router.get("/fundraising/donations", requireAuth, requirePermission("fundraising"), async (req, res): Promise<void> => {
   try {
     const { campaignId } = req.query;
     const conditions: any[] = [];
@@ -64,7 +64,7 @@ router.get("/fundraising/donations", requireAuth, async (req, res): Promise<void
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/fundraising/donations", requireAuth, requirePermission("fees"), async (req, res): Promise<void> => {
+router.post("/fundraising/donations", requireAuth, requirePermission("fundraising"), async (req, res): Promise<void> => {
   try {
     const { campaignId, donorName, donorType, donorEmail, donorPhone, donorRelation, amount, paymentMode, transactionId, donationDate, purpose, remarks } = req.body;
     if (!donorName || !amount || !donationDate) { res.status(400).json({ error: "Donor name, amount, and date required" }); return; }
@@ -86,7 +86,7 @@ router.post("/fundraising/donations", requireAuth, requirePermission("fees"), as
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.delete("/fundraising/donations/:id", requireAuth, requirePermission("fees"), async (req, res): Promise<void> => {
+router.delete("/fundraising/donations/:id", requireAuth, requirePermission("fundraising"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [donation] = await db.delete(donationsTable).where(eq(donationsTable.id, id)).returning();
@@ -100,7 +100,7 @@ router.delete("/fundraising/donations/:id", requireAuth, requirePermission("fees
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.get("/fundraising/stats", requireAuth, async (_req, res): Promise<void> => {
+router.get("/fundraising/stats", requireAuth, requirePermission("fundraising"), async (_req, res): Promise<void> => {
   try {
     const campaigns = await db.select().from(fundraisingCampaignsTable);
     const donations = await db.select().from(donationsTable);

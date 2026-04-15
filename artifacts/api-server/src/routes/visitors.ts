@@ -6,7 +6,7 @@ import { logActivity } from "../lib/activity";
 
 const router: IRouter = Router();
 
-router.get("/visitors", requireAuth, async (req, res): Promise<void> => {
+router.get("/visitors", requireAuth, requirePermission("visitors"), async (req, res): Promise<void> => {
   try {
     const { status, date } = req.query;
     const conditions: any[] = [];
@@ -18,7 +18,7 @@ router.get("/visitors", requireAuth, async (req, res): Promise<void> => {
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/visitors", requireAuth, async (req, res): Promise<void> => {
+router.post("/visitors", requireAuth, requirePermission("visitors"), async (req, res): Promise<void> => {
   try {
     const { visitorName, phone, email, idProofType, idProofNumber, purpose, personToMeet, department, numberOfVisitors, vehicleNumber, remarks } = req.body;
     if (!visitorName || !purpose || !personToMeet) { res.status(400).json({ error: "Name, purpose, and person to meet required" }); return; }
@@ -33,7 +33,7 @@ router.post("/visitors", requireAuth, async (req, res): Promise<void> => {
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/visitors/:id/checkout", requireAuth, async (req, res): Promise<void> => {
+router.patch("/visitors/:id/checkout", requireAuth, requirePermission("visitors"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [visitor] = await db.update(visitorsTable).set({
@@ -45,7 +45,7 @@ router.patch("/visitors/:id/checkout", requireAuth, async (req, res): Promise<vo
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.delete("/visitors/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.delete("/visitors/:id", requireAuth, requirePermission("visitors"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [v] = await db.delete(visitorsTable).where(eq(visitorsTable.id, id)).returning();
@@ -54,7 +54,7 @@ router.delete("/visitors/:id", requireAuth, requirePermission("settings"), async
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.get("/visitors/stats", requireAuth, async (_req, res): Promise<void> => {
+router.get("/visitors/stats", requireAuth, requirePermission("visitors"), async (_req, res): Promise<void> => {
   try {
     const all = await db.select().from(visitorsTable);
     const today = new Date().toISOString().split("T")[0];

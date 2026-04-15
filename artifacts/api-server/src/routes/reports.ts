@@ -1,10 +1,11 @@
 import { Router, type IRouter } from "express";
 import { db, studentsTable, staffTable, departmentsTable, coursesTable, attendanceTable, subjectsTable, feePaymentsTable, feeStructuresTable, examResultsTable, examsTable } from "@workspace/db";
 import { eq, sql, and, gte, lte, count, avg, sum } from "drizzle-orm";
+import { requireAuth, requirePermission } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/reports/students", async (req, res): Promise<void> => {
+router.get("/reports/students", requireAuth, requirePermission("reports"), async (req, res): Promise<void> => {
   const { departmentId, courseId, year, status, community, admissionType } = req.query;
   let conditions: any[] = [];
   if (departmentId) conditions.push(eq(studentsTable.departmentId, Number(departmentId)));
@@ -30,7 +31,7 @@ router.get("/reports/students", async (req, res): Promise<void> => {
   res.json({ students, summary });
 });
 
-router.get("/reports/attendance", async (req, res): Promise<void> => {
+router.get("/reports/attendance", requireAuth, requirePermission("reports"), async (req, res): Promise<void> => {
   const { departmentId, subjectId, fromDate, toDate } = req.query;
   let conditions: any[] = [];
   if (subjectId) conditions.push(eq(attendanceTable.subjectId, Number(subjectId)));
@@ -62,7 +63,7 @@ router.get("/reports/attendance", async (req, res): Promise<void> => {
   });
 });
 
-router.get("/reports/fees", async (req, res): Promise<void> => {
+router.get("/reports/fees", requireAuth, requirePermission("reports"), async (req, res): Promise<void> => {
   const { academicYear, departmentId, fromDate, toDate } = req.query;
   let conditions: any[] = [];
   if (academicYear) conditions.push(eq(feePaymentsTable.academicYear, String(academicYear)));
@@ -87,7 +88,7 @@ router.get("/reports/fees", async (req, res): Promise<void> => {
   res.json({ summary: { totalPayments: payments.length, totalCollected, byMode, byMonth }, payments });
 });
 
-router.get("/reports/exams", async (req, res): Promise<void> => {
+router.get("/reports/exams", requireAuth, requirePermission("reports"), async (req, res): Promise<void> => {
   const { examId } = req.query;
   let results;
   if (examId) {

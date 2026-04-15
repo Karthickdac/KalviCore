@@ -1,12 +1,12 @@
 import { Router, type IRouter } from "express";
-import { db, notificationsTable, studentsTable, staffTable } from "@workspace/db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { db, notificationsTable, studentsTable, staffTable, departmentsTable } from "@workspace/db";
+import { eq, desc, and, sql, inArray } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
 
 const router: IRouter = Router();
 
-router.get("/notifications", requireAuth, requirePermission("communications"), async (req, res): Promise<void> => {
+router.get("/notifications", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
   try {
     const { channel, status } = req.query;
     const conditions: any[] = [];
@@ -21,18 +21,46 @@ router.get("/notifications", requireAuth, requirePermission("communications"), a
   }
 });
 
-router.post("/notifications/send", requireAuth, requirePermission("communications"), async (req, res): Promise<void> => {
+router.get("/notifications/departments", requireAuth, requirePermission("notifications"), async (_req, res): Promise<void> => {
   try {
-    const { type, channel, recipients, subject, message } = req.body;
+    const depts = await db.select({ id: departmentsTable.id, name: departmentsTable.name }).from(departmentsTable);
+    res.json(depts);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/notifications/send", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
+  try {
+    const { type, channel, recipients, subject, message, departmentId } = req.body;
     if (!type || !channel || !subject || !message) {
       res.status(400).json({ error: "Missing required fields" });
       return;
     }
 
+    const userRole = req.user!.role;
+    const userDeptId = req.user!.departmentId;
+
     const sentNotifications: any[] = [];
 
-    if (recipients === "all_students" || recipients === "all") {
-      const students = await db.select().from(studentsTable).where(eq(studentsTable.status, "Active"));
+    const shouldSendToStudents = ["all_students", "all", "dept_students"].includes(recipients);
+    const shouldSendToStaff = ["all_staff", "all"].includes(recipients);
+
+    if (shouldSendToStudents) {
+      let studentConditions: any[] = [eq(studentsTable.status, "Active")];
+
+      if (recipients === "dept_students" && departmentId) {
+        studentConditions.push(eq(studentsTable.departmentId, Number(departmentId)));
+      } else if (userRole === "Faculty" || userRole === "HOD") {
+        if (userDeptId) {
+          studentConditions.push(eq(studentsTable.departmentId, userDeptId));
+        }
+      }
+
+      const students = studentConditions.length > 1
+        ? await db.select().from(studentsTable).where(and(...studentConditions))
+        : await db.select().from(studentsTable).where(studentConditions[0]);
+
       for (const s of students) {
         const contact = channel === "email" ? (s.email || "") : (s.phone || "");
         if (channel === "whatsapp" && !s.phone) continue;
@@ -46,8 +74,17 @@ router.post("/notifications/send", requireAuth, requirePermission("communication
       }
     }
 
-    if (recipients === "all_staff" || recipients === "all") {
-      const staffMembers = await db.select().from(staffTable).where(eq(staffTable.status, "Active"));
+    if (shouldSendToStaff) {
+      let staffConditions: any[] = [eq(staffTable.status, "Active")];
+
+      if (userRole === "HOD" && userDeptId) {
+        staffConditions.push(eq(staffTable.departmentId, userDeptId));
+      }
+
+      const staffMembers = staffConditions.length > 1
+        ? await db.select().from(staffTable).where(and(...staffConditions))
+        : await db.select().from(staffTable).where(staffConditions[0]);
+
       for (const s of staffMembers) {
         const contact = channel === "email" ? (s.email || "") : (s.phone || "");
         if (channel === "whatsapp" && !s.phone) continue;
@@ -80,7 +117,7 @@ router.post("/notifications/send", requireAuth, requirePermission("communication
   }
 });
 
-router.get("/notifications/stats", requireAuth, requirePermission("communications"), async (_req, res): Promise<void> => {
+router.get("/notifications/stats", requireAuth, requirePermission("notifications"), async (_req, res): Promise<void> => {
   try {
     const all = await db.select().from(notificationsTable);
     const stats = {

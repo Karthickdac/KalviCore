@@ -45,8 +45,8 @@ const navGroups: NavGroup[] = [
     dotColor: "bg-blue-500",
     items: [
       { name: "Dashboard", href: "/", icon: LayoutDashboard, permission: "dashboard" },
-      { name: "Reports & Analytics", href: "/reports", icon: BarChart3, permission: "dashboard" },
-      { name: "Academic Calendar", href: "/academic-calendar", icon: CalendarDays, permission: "dashboard" },
+      { name: "Reports & Analytics", href: "/reports", icon: BarChart3, permission: "reports" },
+      { name: "Academic Calendar", href: "/academic-calendar", icon: CalendarDays, permission: "calendar" },
     ],
   },
   {
@@ -63,8 +63,8 @@ const navGroups: NavGroup[] = [
       { name: "Exams", href: "/exams", icon: FileText, permission: "exams" },
       { name: "CGPA Tracker", href: "/cgpa", icon: TrendingUp, permission: "exams" },
       { name: "Hall Tickets", href: "/hall-tickets", icon: Ticket, permission: "exams" },
-      { name: "ID Cards", href: "/id-cards", icon: CreditCard, permission: "students" },
-      { name: "Training & Placement", href: "/placements", icon: Landmark, permission: "students" },
+      { name: "ID Cards", href: "/id-cards", icon: CreditCard, permission: "id_cards" },
+      { name: "Training & Placement", href: "/placements", icon: Landmark, permission: "placements" },
     ],
   },
   {
@@ -88,7 +88,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Fees", href: "/fees", icon: IndianRupee, permission: "fees" },
       { name: "Certificates", href: "/certificates", icon: Award, permission: "certificates" },
-      { name: "Fundraising", href: "/fundraising", icon: Heart, permission: "fees" },
+      { name: "Fundraising", href: "/fundraising", icon: Heart, permission: "fundraising" },
     ],
   },
   {
@@ -101,7 +101,7 @@ const navGroups: NavGroup[] = [
       { name: "Transport", href: "/transport", icon: Bus, permission: "transport" },
       { name: "Library", href: "/library", icon: BookMarked, permission: "library" },
       { name: "Inventory", href: "/inventory", icon: Package, permission: "inventory" },
-      { name: "Visitors", href: "/visitors", icon: UserCheck, permission: "events" },
+      { name: "Visitors", href: "/visitors", icon: UserCheck, permission: "visitors" },
     ],
   },
   {
@@ -112,7 +112,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Events", href: "/events", icon: Calendar, permission: "events" },
       { name: "Communications", href: "/communications", icon: Megaphone, permission: "communications" },
-      { name: "Notifications", href: "/notifications", icon: BellRing, permission: "communications" },
+      { name: "Notifications", href: "/notifications", icon: BellRing, permission: "notifications" },
       { name: "Student Portal", href: "/student-portal", icon: UserCircle, permission: "students" },
       { name: "Parent Portal", href: "/parent-portal", icon: Home, permission: "students" },
     ],
@@ -127,8 +127,8 @@ const navGroups: NavGroup[] = [
       { name: "Bulk Import/Export", href: "/bulk-import", icon: Upload, permission: "settings" },
       { name: "Activity Log", href: "/activity-log", icon: Activity, permission: "settings" },
       { name: "Document Vault", href: "/documents", icon: FolderOpen, permission: "students" },
-      { name: "Print Templates", href: "/print-templates", icon: Printer, permission: "fees" },
-      { name: "Dashboard Settings", href: "/dashboard-settings", icon: LayoutGrid, permission: "dashboard" },
+      { name: "Print Templates", href: "/print-templates", icon: Printer, permission: "print_templates" },
+      { name: "Dashboard Settings", href: "/dashboard-settings", icon: LayoutGrid, permission: "dashboard_settings" },
       { name: "Data Backup", href: "/backup", icon: Database, permission: "settings" },
       { name: "Settings", href: "/settings", icon: Settings, permission: "settings" },
     ],
@@ -177,15 +177,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const roleBadge = ROLE_BADGE_COLORS[user?.role || ""] || "bg-gray-500/15 text-gray-400 border-gray-500/20";
 
   const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => (
-    <div className="flex h-full flex-col bg-gradient-to-b from-[hsl(222,47%,11%)] to-[hsl(224,50%,8%)]">
+    <div className="flex h-full flex-col bg-gradient-to-b from-[hsl(200,50%,10%)] to-[hsl(200,55%,5%)]">
       <div className="flex h-16 shrink-0 items-center px-4 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 ring-1 ring-white/10">
+          <div className="w-10 h-10 bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-700 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/25 ring-1 ring-white/10">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-[15px] font-bold text-white leading-tight tracking-tight">KalviCore</h1>
-            <p className="text-[10px] text-blue-300/60 leading-tight font-medium">Complete Campus. One Intelligent System</p>
+            <p className="text-[10px] text-teal-300/60 leading-tight font-medium">Complete Campus. One Intelligent System</p>
           </div>
         </div>
       </div>
@@ -248,14 +248,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                             onClick={onNavigate}
                             className={`flex items-center gap-2.5 rounded-lg px-2.5 py-[6px] text-[13px] font-medium transition-all duration-200 group relative
                               ${isActive
-                                ? "bg-gradient-to-r from-blue-500/15 to-blue-500/5 text-blue-300 shadow-sm"
+                                ? "bg-gradient-to-r from-teal-500/15 to-teal-500/5 text-teal-300 shadow-sm"
                                 : "text-white/55 hover:bg-white/[0.04] hover:text-white/80"
                               }`}
                           >
                             {isActive && (
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-blue-500 rounded-r-full shadow-sm shadow-blue-500/50" />
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-teal-500 rounded-r-full shadow-sm shadow-teal-500/50" />
                             )}
-                            <item.icon className={`h-[15px] w-[15px] shrink-0 transition-colors ${isActive ? "text-blue-400" : "text-white/35 group-hover:text-white/55"}`} />
+                            <item.icon className={`h-[15px] w-[15px] shrink-0 transition-colors ${isActive ? "text-teal-400" : "text-white/35 group-hover:text-white/55"}`} />
                             <span className="truncate">{item.name}</span>
                           </Link>
                         </li>
@@ -271,7 +271,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       <div className="shrink-0 border-t border-white/[0.06] p-3">
         <div className="flex items-center gap-3 px-1">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20 ring-1 ring-white/10">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-teal-500/20 ring-1 ring-white/10">
             {user?.fullName?.[0] || "U"}
           </div>
           <div className="flex-1 min-w-0">
@@ -321,7 +321,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2.5 px-2 h-9 rounded-xl hover:bg-accent/50">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xs shadow">
                     {user?.fullName?.[0] || "U"}
                   </div>
                   <span className="hidden sm:block text-sm font-medium">{user?.fullName}</span>

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth";
-import { useListStudents, useListStaff } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,10 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MessageSquare, Send, Bell, CheckCircle, XCircle, Clock, Phone } from "lucide-react";
+import { Mail, MessageSquare, Send, Bell, CheckCircle, Phone, Users, Building2 } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -24,21 +22,32 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 export default function NotificationsPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const [channel, setChannel] = useState("whatsapp");
   const [recipients, setRecipients] = useState("all_students");
+  const [departmentId, setDepartmentId] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [type, setType] = useState("General");
   const [filterChannel, setFilterChannel] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  const userRole = user?.role || "Staff";
+  const userDeptId = user?.departmentId;
+  const isFacultyOrHOD = userRole === "Faculty" || userRole === "HOD";
+  const canSendToAll = ["SuperAdmin", "Admin", "Principal"].includes(userRole);
+
   const { data: stats } = useQuery({
     queryKey: ["notification-stats"],
     queryFn: async () => { const r = await fetch(`${API_BASE}/api/notifications/stats`, { headers }); return r.json(); },
+  });
+
+  const { data: departments = [] } = useQuery({
+    queryKey: ["notification-departments"],
+    queryFn: async () => { const r = await fetch(`${API_BASE}/api/notifications/departments`, { headers }); return r.json(); },
   });
 
   const { data: notifications = [] } = useQuery({
@@ -54,7 +63,7 @@ export default function NotificationsPage() {
     mutationFn: async () => {
       const r = await fetch(`${API_BASE}/api/notifications/send`, {
         method: "POST", headers,
-        body: JSON.stringify({ type, channel, recipients, subject, message }),
+        body: JSON.stringify({ type, channel, recipients, subject, message, departmentId: departmentId || undefined }),
       });
       if (!r.ok) throw new Error("Failed to send");
       return r.json();
@@ -63,7 +72,7 @@ export default function NotificationsPage() {
       toast({ title: `${data.sent} notifications sent via ${channel === "whatsapp" ? "WhatsApp" : channel === "email" ? "Email" : "SMS"}` });
       qc.invalidateQueries({ queryKey: ["notifications"] });
       qc.invalidateQueries({ queryKey: ["notification-stats"] });
-      setSubject(""); setMessage(""); setDialogOpen(false);
+      setSubject(""); setMessage(""); setDepartmentId(""); setDialogOpen(false);
     },
     onError: () => toast({ title: "Failed to send notifications", variant: "destructive" }),
   });
@@ -86,12 +95,36 @@ export default function NotificationsPage() {
     return "bg-amber-500/10 text-amber-600 border-amber-500/20";
   };
 
+  const getScopeDescription = () => {
+    if (isFacultyOrHOD) {
+      const deptName = departments.find((d: any) => d.id === userDeptId)?.name || "your department";
+      return `As ${userRole}, notifications will be sent to students in ${deptName}`;
+    }
+    return "";
+  };
+
+  const getRecipientLabel = () => {
+    if (recipients === "dept_students") {
+      const dept = departments.find((d: any) => String(d.id) === departmentId);
+      return dept ? `Students in ${dept.name}` : "Department Students";
+    }
+    if (recipients === "all_students") return isFacultyOrHOD ? "My Dept Students" : "All Students";
+    if (recipients === "all_staff") return "All Staff";
+    return "Everyone";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
           <p className="text-muted-foreground">Send WhatsApp, email, and SMS notifications to students and staff.</p>
+          {isFacultyOrHOD && (
+            <p className="text-sm text-primary font-medium mt-1 flex items-center gap-1.5">
+              <Building2 className="w-4 h-4" />
+              {getScopeDescription()}
+            </p>
+          )}
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild><Button><Send className="mr-2 h-4 w-4" />Send Notification</Button></DialogTrigger>
@@ -141,16 +174,45 @@ export default function NotificationsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Recipients</Label>
-                  <Select value={recipients} onValueChange={setRecipients}>
+                  <Select value={recipients} onValueChange={(v) => { setRecipients(v); if (v !== "dept_students") setDepartmentId(""); }}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all_students">All Students</SelectItem>
-                      <SelectItem value="all_staff">All Staff</SelectItem>
-                      <SelectItem value="all">Everyone</SelectItem>
+                      {isFacultyOrHOD ? (
+                        <SelectItem value="all_students">My Department Students</SelectItem>
+                      ) : (
+                        <>
+                          <SelectItem value="all_students">All Students</SelectItem>
+                          <SelectItem value="all_staff">All Staff</SelectItem>
+                          <SelectItem value="all">Everyone</SelectItem>
+                          <SelectItem value="dept_students">Department Students</SelectItem>
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
+
+              {recipients === "dept_students" && canSendToAll && (
+                <div className="space-y-2">
+                  <Label>Select Department</Label>
+                  <Select value={departmentId} onValueChange={setDepartmentId}>
+                    <SelectTrigger><SelectValue placeholder="Choose department..." /></SelectTrigger>
+                    <SelectContent>
+                      {(departments as any[]).map((d: any) => (
+                        <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {isFacultyOrHOD && (
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm text-primary flex items-start gap-2">
+                  <Users className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{getScopeDescription()}. Only students with valid contact info will receive the notification.</span>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label>Subject</Label>
                 <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Notification subject..." />
@@ -165,13 +227,17 @@ export default function NotificationsPage() {
                   </p>
                 )}
               </div>
-              <Button className="w-full" onClick={() => sendMutation.mutate()} disabled={!subject || !message || sendMutation.isPending}>
+              <Button
+                className="w-full"
+                onClick={() => sendMutation.mutate()}
+                disabled={!subject || !message || sendMutation.isPending || (recipients === "dept_students" && canSendToAll && !departmentId)}
+              >
                 {sendMutation.isPending ? "Sending..." : (
                   <span className="flex items-center gap-2">
                     {channel === "whatsapp" && <WhatsAppIcon className="w-4 h-4" />}
                     {channel === "email" && <Mail className="w-4 h-4" />}
                     {channel === "sms" && <Phone className="w-4 h-4" />}
-                    Send {getChannelLabel()} to {recipients === "all" ? "Everyone" : recipients === "all_students" ? "All Students" : "All Staff"}
+                    Send {getChannelLabel()} to {getRecipientLabel()}
                   </span>
                 )}
               </Button>
@@ -181,9 +247,9 @@ export default function NotificationsPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card><CardContent className="p-4 text-center"><Bell className="w-6 h-6 mx-auto mb-1 text-blue-500" /><p className="text-2xl font-bold">{stats?.total || 0}</p><p className="text-xs text-muted-foreground">Total Sent</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><Bell className="w-6 h-6 mx-auto mb-1 text-teal-600" /><p className="text-2xl font-bold">{stats?.total || 0}</p><p className="text-xs text-muted-foreground">Total Sent</p></CardContent></Card>
         <Card className="border-green-500/20"><CardContent className="p-4 text-center"><WhatsAppIcon className="w-6 h-6 mx-auto mb-1 text-green-500" /><p className="text-2xl font-bold">{stats?.whatsapp || 0}</p><p className="text-xs text-muted-foreground">WhatsApp</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><Mail className="w-6 h-6 mx-auto mb-1 text-indigo-500" /><p className="text-2xl font-bold">{stats?.email || 0}</p><p className="text-xs text-muted-foreground">Emails</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><Mail className="w-6 h-6 mx-auto mb-1 text-blue-500" /><p className="text-2xl font-bold">{stats?.email || 0}</p><p className="text-xs text-muted-foreground">Emails</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center"><MessageSquare className="w-6 h-6 mx-auto mb-1 text-amber-500" /><p className="text-2xl font-bold">{stats?.sms || 0}</p><p className="text-xs text-muted-foreground">SMS</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center"><CheckCircle className="w-6 h-6 mx-auto mb-1 text-emerald-500" /><p className="text-2xl font-bold">{stats?.sent || 0}</p><p className="text-xs text-muted-foreground">Delivered</p></CardContent></Card>
       </div>
@@ -209,9 +275,9 @@ export default function NotificationsPage() {
               <TableRow><TableHead>Recipient</TableHead><TableHead>Channel</TableHead><TableHead>Subject</TableHead><TableHead>Type</TableHead><TableHead>Status</TableHead><TableHead>Sent At</TableHead></TableRow>
             </TableHeader>
             <TableBody>
-              {(notifications as any[]).length === 0 ? (
+              {!Array.isArray(notifications) || notifications.length === 0 ? (
                 <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No notifications sent yet</TableCell></TableRow>
-              ) : (notifications as any[]).slice(0, 50).map((n: any) => (
+              ) : notifications.slice(0, 50).map((n: any) => (
                 <TableRow key={n.id}>
                   <TableCell><div><p className="font-medium text-sm">{n.recipientName}</p><p className="text-xs text-muted-foreground">{n.recipientContact}</p></div></TableCell>
                   <TableCell>

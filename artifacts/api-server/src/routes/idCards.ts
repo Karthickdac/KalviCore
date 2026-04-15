@@ -5,7 +5,7 @@ import { requireAuth, requirePermission } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/id-cards/student/:studentId", requireAuth, requirePermission("students"), async (req, res): Promise<void> => {
+router.get("/id-cards/student/:studentId", requireAuth, requirePermission("id_cards"), async (req, res): Promise<void> => {
   try {
     const studentId = Number(req.params.studentId);
     if (isNaN(studentId)) { res.status(400).json({ error: "Invalid ID" }); return; }
@@ -41,7 +41,7 @@ router.get("/id-cards/student/:studentId", requireAuth, requirePermission("stude
   }
 });
 
-router.get("/id-cards/staff/:staffId", requireAuth, requirePermission("staff"), async (req, res): Promise<void> => {
+router.get("/id-cards/staff/:staffId", requireAuth, requirePermission("id_cards"), async (req, res): Promise<void> => {
   try {
     const staffId = Number(req.params.staffId);
     if (isNaN(staffId)) { res.status(400).json({ error: "Invalid ID" }); return; }

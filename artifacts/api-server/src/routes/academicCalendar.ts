@@ -1,10 +1,11 @@
 import { Router, type IRouter } from "express";
 import { db, academicCalendarTable } from "@workspace/db";
 import { eq, and, gte, lte } from "drizzle-orm";
+import { requireAuth, requirePermission } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/academic-calendar", async (req, res): Promise<void> => {
+router.get("/academic-calendar", requireAuth, requirePermission("calendar"), async (req, res): Promise<void> => {
   const { month, year, eventType } = req.query;
   let conditions: any[] = [];
   if (eventType) conditions.push(eq(academicCalendarTable.eventType, String(eventType)));
@@ -21,18 +22,18 @@ router.get("/academic-calendar", async (req, res): Promise<void> => {
   res.json(events);
 });
 
-router.post("/academic-calendar", async (req, res): Promise<void> => {
+router.post("/academic-calendar", requireAuth, requirePermission("calendar"), async (req, res): Promise<void> => {
   const [event] = await db.insert(academicCalendarTable).values(req.body).returning();
   res.status(201).json(event);
 });
 
-router.patch("/academic-calendar/:id", async (req, res): Promise<void> => {
+router.patch("/academic-calendar/:id", requireAuth, requirePermission("calendar"), async (req, res): Promise<void> => {
   const [event] = await db.update(academicCalendarTable).set(req.body).where(eq(academicCalendarTable.id, Number(req.params.id))).returning();
   if (!event) { res.status(404).json({ error: "Not found" }); return; }
   res.json(event);
 });
 
-router.delete("/academic-calendar/:id", async (req, res): Promise<void> => {
+router.delete("/academic-calendar/:id", requireAuth, requirePermission("calendar"), async (req, res): Promise<void> => {
   await db.delete(academicCalendarTable).where(eq(academicCalendarTable.id, Number(req.params.id)));
   res.json({ success: true });
 });

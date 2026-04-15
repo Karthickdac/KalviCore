@@ -13,7 +13,7 @@ router.get("/companies", requireAuth, async (_req, res): Promise<void> => {
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/companies", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.post("/companies", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const { name, industry, website, contactPerson, contactEmail, contactPhone, address } = req.body;
     if (!name || !industry) { res.status(400).json({ error: "Name and industry required" }); return; }
@@ -23,7 +23,7 @@ router.post("/companies", requireAuth, requirePermission("settings"), async (req
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/companies/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.patch("/companies/:id", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [company] = await db.update(companiesTable).set(req.body).where(eq(companiesTable.id, id)).returning();
@@ -32,7 +32,7 @@ router.patch("/companies/:id", requireAuth, requirePermission("settings"), async
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.delete("/companies/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.delete("/companies/:id", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [c] = await db.delete(companiesTable).where(eq(companiesTable.id, id)).returning();
@@ -53,7 +53,7 @@ router.get("/placement-drives", requireAuth, async (_req, res): Promise<void> =>
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/placement-drives", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.post("/placement-drives", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const { companyId, title, driveDate, packageMin, packageMax, eligibilityCriteria, rolesOffered, location, driveType, departmentsEligible, description } = req.body;
     if (!companyId || !title || !driveDate) { res.status(400).json({ error: "Company, title, and date required" }); return; }
@@ -65,7 +65,7 @@ router.post("/placement-drives", requireAuth, requirePermission("settings"), asy
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/placement-drives/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.patch("/placement-drives/:id", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [drive] = await db.update(placementDrivesTable).set(req.body).where(eq(placementDrivesTable.id, id)).returning();
@@ -94,7 +94,7 @@ router.get("/placement-applications", requireAuth, async (req, res): Promise<voi
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/placement-applications", requireAuth, requirePermission("students"), async (req, res): Promise<void> => {
+router.post("/placement-applications", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const { driveId, studentId } = req.body;
     if (!driveId || !studentId) { res.status(400).json({ error: "Drive and student required" }); return; }
@@ -107,7 +107,7 @@ router.post("/placement-applications", requireAuth, requirePermission("students"
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/placement-applications/:id", requireAuth, requirePermission("students"), async (req, res): Promise<void> => {
+router.patch("/placement-applications/:id", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [app] = await db.update(placementApplicationsTable).set(req.body).where(eq(placementApplicationsTable.id, id)).returning();
@@ -123,7 +123,7 @@ router.get("/training-programs", requireAuth, async (_req, res): Promise<void> =
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/training-programs", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.post("/training-programs", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const { title, trainer, trainerOrg, startDate, endDate, duration, type, mode, departmentId, maxParticipants, description } = req.body;
     if (!title || !trainer || !startDate) { res.status(400).json({ error: "Title, trainer, and start date required" }); return; }
@@ -135,7 +135,7 @@ router.post("/training-programs", requireAuth, requirePermission("settings"), as
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/training-programs/:id", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
+router.patch("/training-programs/:id", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [program] = await db.update(trainingProgramsTable).set(req.body).where(eq(trainingProgramsTable.id, id)).returning();
@@ -162,7 +162,7 @@ router.get("/training-enrollments", requireAuth, async (req, res): Promise<void>
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.post("/training-enrollments", requireAuth, requirePermission("students"), async (req, res): Promise<void> => {
+router.post("/training-enrollments", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const { programId, studentId } = req.body;
     if (!programId || !studentId) { res.status(400).json({ error: "Program and student required" }); return; }
@@ -171,7 +171,7 @@ router.post("/training-enrollments", requireAuth, requirePermission("students"),
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
-router.patch("/training-enrollments/:id", requireAuth, requirePermission("students"), async (req, res): Promise<void> => {
+router.patch("/training-enrollments/:id", requireAuth, requirePermission("placements"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.id);
     const [enrollment] = await db.update(trainingEnrollmentsTable).set(req.body).where(eq(trainingEnrollmentsTable.id, id)).returning();

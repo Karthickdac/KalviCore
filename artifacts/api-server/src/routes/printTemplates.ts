@@ -1,11 +1,11 @@
 import { Router, type IRouter } from "express";
 import { db, studentsTable, staffTable, feePaymentsTable, feeStructuresTable, payrollTable, certificatesTable, departmentsTable, coursesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { requireAuth } from "../middleware/auth";
+import { requireAuth, requirePermission } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/print/fee-receipt/:paymentId", requireAuth, async (req, res): Promise<void> => {
+router.get("/print/fee-receipt/:paymentId", requireAuth, requirePermission("print_templates"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.paymentId);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
@@ -38,7 +38,7 @@ router.get("/print/fee-receipt/:paymentId", requireAuth, async (req, res): Promi
   }
 });
 
-router.get("/print/payslip/:payrollId", requireAuth, async (req, res): Promise<void> => {
+router.get("/print/payslip/:payrollId", requireAuth, requirePermission("print_templates"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.payrollId);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }
@@ -75,7 +75,7 @@ router.get("/print/payslip/:payrollId", requireAuth, async (req, res): Promise<v
   }
 });
 
-router.get("/print/certificate/:certId", requireAuth, async (req, res): Promise<void> => {
+router.get("/print/certificate/:certId", requireAuth, requirePermission("print_templates"), async (req, res): Promise<void> => {
   try {
     const id = Number(req.params.certId);
     if (isNaN(id)) { res.status(400).json({ error: "Invalid ID" }); return; }

@@ -129,5 +129,8 @@ Enterprise-level sidebar with search, multicolor group indicators: Overview (blu
 - **Users API**: `/api/users` (CRUD, requires Admin+ role)
 - **Token injection**: `setAuthTokenGetter()` from `@workspace/api-client-react` auto-attaches Bearer tokens to all generated API hooks
 - **Default admin**: Seed via `POST /api/auth/seed-admin` (dev only), username: `admin`, password: `admin123`
+- **Pre-created users**: college_admin/Admin@123, principal/Principal@123, hod_cse/hod_ece/hod_mech (Hod@123), faculty_cse/faculty_ece (Faculty@123), office_staff/Staff@123, student_cse/Student@123
+- **RBAC permissions**: Granular per-module permissions (reports, calendar, fundraising, visitors, placements, id_cards, print_templates, dashboard_settings, notifications) — Students see ~10 items, Faculty ~15, HOD ~18, Admin/Principal full access
+- **Notification scoping**: Faculty/HOD auto-scoped to their department; Admin/Principal can target all or by department
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
