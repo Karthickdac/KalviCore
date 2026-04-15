@@ -279,7 +279,7 @@ function StudentDues() {
           key: orderData.keyId,
           amount: Math.round(orderData.amount * 100),
           currency: orderData.currency,
-          name: "EduManage TN",
+          name: "KalviCore",
           description: `Fee Payment - ${selectedStudent.rollNumber}`,
           order_id: orderData.orderId,
           prefill: {

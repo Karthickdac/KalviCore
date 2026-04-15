@@ -184,8 +184,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-[15px] font-bold text-white leading-tight tracking-tight">EduManage TN</h1>
-            <p className="text-[10px] text-blue-300/60 leading-tight font-medium">Enterprise College Suite</p>
+            <h1 className="text-[15px] font-bold text-white leading-tight tracking-tight">KalviCore</h1>
+            <p className="text-[10px] text-blue-300/60 leading-tight font-medium">Complete Campus. One Intelligent System</p>
           </div>
         </div>
       </div>
@@ -208,7 +208,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 py-2 scrollbar-thin">
+      <nav className="flex-1 overflow-y-auto px-2 py-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <div className="space-y-0.5">
           {filteredGroups.map((group) => {
             const isExpanded = searchQuery ? true : expandedGroups[group.label] !== false;

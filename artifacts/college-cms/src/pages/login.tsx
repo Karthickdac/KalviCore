@@ -36,8 +36,8 @@ export default function LoginPage() {
             <img src={`${import.meta.env.BASE_URL}logo.jpeg`} alt="Automystics Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">EduManage TN</CardTitle>
-            <CardDescription className="text-base mt-1">College Management System</CardDescription>
+            <CardTitle className="text-2xl font-bold">KalviCore</CardTitle>
+            <CardDescription className="text-base mt-1">Complete Campus. One Intelligent System</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="pt-4">

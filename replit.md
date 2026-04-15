@@ -1,4 +1,4 @@
-# College Management System (EduManage TN)
+# KalviCore - Complete Campus. One Intelligent System
 
 ## Overview
 

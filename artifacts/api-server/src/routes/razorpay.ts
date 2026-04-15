@@ -33,7 +33,7 @@ router.get("/razorpay/config", async (_req, res): Promise<void> => {
     res.json(
       GetRazorpayConfigResponse.parse({
         keyId,
-        collegeName: "EduManage TN - College Management System",
+        collegeName: "KalviCore - Complete Campus. One Intelligent System",
       })
     );
   } catch {
