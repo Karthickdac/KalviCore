@@ -25,3 +25,4 @@ export * from "./feeInstalments";
 export * from "./scholarships";
 export * from "./attendanceCondonation";
 export * from "./institutionSettings";
+export * from "./users";

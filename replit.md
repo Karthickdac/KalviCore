@@ -50,6 +50,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ### System
 20. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
+21. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
 
 ## Key Commands
 
@@ -61,7 +62,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Database Schema
 
-28+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings
+29+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings, users
 
 ## CRITICAL Notes
 
@@ -91,6 +92,19 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Sidebar Navigation
 
-Grouped into: Overview, Academics, People, Finance, Campus, Engagement, System
+Grouped into: Overview, Academics, People, Finance, Campus, Engagement, Administration — each group is collapsible, menu items are role-filtered by RBAC permissions
+
+## Authentication & RBAC
+
+- **Auth**: Session-based with Bearer tokens, bcrypt password hashing
+- **Roles**: SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student
+- **Permissions**: Module-level permissions per role (defined in `ROLE_PERMISSIONS` in `lib/db/src/schema/users.ts`)
+- **SuperAdmin**: Full access to everything including user management
+- **Admin**: All modules except cannot create SuperAdmin users
+- **Frontend**: AuthProvider with `useAuth()` hook, `hasPermission()` / `hasRole()` helpers
+- **Login**: `/api/auth/login`, `/api/auth/me`, `/api/auth/logout`
+- **Users API**: `/api/users` (CRUD, requires Admin+ role)
+- **Token injection**: `setAuthTokenGetter()` from `@workspace/api-client-react` auto-attaches Bearer tokens to all generated API hooks
+- **Default admin**: Seed via `POST /api/auth/seed-admin` (dev only), username: `admin`, password: `admin123`
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
