@@ -7,7 +7,7 @@ import {
   BookMarked, Calendar, Megaphone, Package, Clock, ClipboardList,
   Award, CalendarOff, Settings, ChevronDown, ChevronRight, LogOut,
   Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp,
-  Upload, Ticket, UserCircle, Database
+  Upload, Ticket, UserCircle, Database, CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -55,6 +55,7 @@ const navGroups: NavGroup[] = [
       { name: "Exams", href: "/exams", icon: FileText, permission: "exams" },
       { name: "CGPA Tracker", href: "/cgpa", icon: TrendingUp, permission: "exams" },
       { name: "Hall Tickets", href: "/hall-tickets", icon: Ticket, permission: "exams" },
+      { name: "ID Cards", href: "/id-cards", icon: CreditCard, permission: "students" },
     ],
   },
   {

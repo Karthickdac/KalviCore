@@ -32,6 +32,7 @@ import cgpaRouter from "./cgpa";
 import bulkImportRouter from "./bulkImport";
 import hallTicketsRouter from "./hallTickets";
 import backupRouter from "./backup";
+import idCardsRouter from "./idCards";
 
 const router: IRouter = Router();
 
@@ -68,5 +69,6 @@ router.use(cgpaRouter);
 router.use(bulkImportRouter);
 router.use(hallTicketsRouter);
 router.use(backupRouter);
+router.use(idCardsRouter);
 
 export default router;

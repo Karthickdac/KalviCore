@@ -35,6 +35,7 @@ import BulkImportPage from "@/pages/bulk-import";
 import HallTicketsPage from "@/pages/hall-tickets";
 import StudentPortalPage from "@/pages/student-portal";
 import BackupPage from "@/pages/backup";
+import IDCardsPage from "@/pages/id-cards";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -91,6 +92,7 @@ function AppRoutes() {
         <Route path="/hall-tickets" component={HallTicketsPage} />
         <Route path="/student-portal" component={StudentPortalPage} />
         <Route path="/backup" component={BackupPage} />
+        <Route path="/id-cards" component={IDCardsPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
