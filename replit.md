@@ -2,7 +2,7 @@
 
 ## Overview
 
-A comprehensive College Management System built for Tamil Nadu, India. Full-stack React + Vite frontend with Express backend, covering 35 modules: Students (with admissions workflow, alumni, disciplinary), Staff, Departments, Courses, Subjects, Attendance (with condonation), Fees (Razorpay, instalments, defaulters, scholarships), Exams, Hostels, Transport, Library, Events/Cultural, Communications, Inventory/Assets, Timetable, Assignments, Certificates, Staff Leaves, Settings/Configuration, Reports & Analytics, Academic Calendar, CGPA Tracker, Payroll, Activity Log, Bulk Import/Export, Hall Tickets, Student Portal, Data Backup, ID Cards, Notifications, Document Vault, Print Templates, Parent Portal, and Dashboard Customization.
+A comprehensive College Management System built for Tamil Nadu, India. Full-stack React + Vite frontend with Express backend, covering 38 modules: Students (with admissions workflow, alumni, disciplinary), Staff, Departments, Courses, Subjects, Attendance (with condonation), Fees (Razorpay, instalments, defaulters, scholarships), Exams, Hostels, Transport, Library, Events/Cultural, Communications, Inventory/Assets, Timetable, Assignments, Certificates, Staff Leaves, Settings/Configuration, Reports & Analytics, Academic Calendar, CGPA Tracker, Payroll, Activity Log, Bulk Import/Export, Hall Tickets, Student Portal, Data Backup, ID Cards, Notifications, Document Vault, Print Templates, Parent Portal, Dashboard Customization, Training & Placement, Fundraising & Donations, and Visitor Management.
 
 ## Stack
 
@@ -71,6 +71,9 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 33. **Print Templates** — Printable fee receipts, salary payslips, and certificates (Bonafide/TC/Conduct) with formal college letterhead layout
 34. **Parent Portal** — Guardian login (roll number + phone), view student profile, fee payments, exam results; IDOR-protected with re-verification on data endpoints
 35. **Dashboard Customization** — Per-user widget visibility and ordering, 12 configurable widgets across stats/finance/academic/charts categories, save/reset layout
+36. **Training & Placement** — Company registration, placement drives (on-campus/off-campus/virtual), student applications with status workflow (Applied→Shortlisted→Placed/Rejected), training programs (Technical/Soft Skills/Aptitude/Communication), student enrollment, placement statistics with highest package tracking
+37. **Fundraising & Donations** — Campaign management with goal tracking and progress bars, donation recording from individuals/corporates/alumni/parents/faculty, receipt number generation, payment mode tracking, auto-updated campaign totals, category-based campaigns (Infrastructure/Scholarship/Sports/Library/Lab Equipment)
+38. **Visitor Management** — Visitor check-in with badge generation, check-out tracking, ID proof collection (Aadhar/Driving License/Voter ID/Passport), purpose categorization, vehicle number tracking, today/currently-in stats, visitor log with status filtering
 
 ## Key Commands
 
@@ -82,7 +85,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Database Schema
 
-34+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings, users, payroll, academic_calendar, notifications, documents, dashboard_widgets
+40+ tables: departments, courses, students, staff, subjects, attendance, fee_structures, fee_payments, pending_orders, exams, exam_results, activity_log, hostels, hostel_rooms, hostel_allocations, hostel_complaints, transport_routes, transport_vehicles, transport_stops, transport_allocations, library_books, library_issued_books, events, event_participants, announcements, grievances, assets, store_items, timetable, assignments, assignment_submissions, certificates, staff_leaves, disciplinary_records, fee_instalments, scholarships, attendance_condonation, institution_settings, users, payroll, academic_calendar, notifications, documents, dashboard_widgets, companies, placement_drives, placement_applications, training_programs, training_enrollments, fundraising_campaigns, donations, visitors
 
 ## CRITICAL Notes
 
@@ -112,7 +115,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Sidebar Navigation
 
-Grouped into: Overview, Academics (incl. Hall Tickets, ID Cards), People, Finance, Campus, Engagement (incl. Student Portal, Parent Portal, Notifications), Administration (incl. Bulk Import/Export, Data Backup, Document Vault, Print Templates, Dashboard Settings) — each group is collapsible, menu items are role-filtered by RBAC permissions
+Grouped into: Overview, Academics (incl. Hall Tickets, ID Cards, Training & Placement), People, Finance (incl. Fundraising), Campus (incl. Visitors), Engagement (incl. Student Portal, Parent Portal, Notifications), Administration (incl. Bulk Import/Export, Data Backup, Document Vault, Print Templates, Dashboard Settings) — each group is collapsible, menu items are role-filtered by RBAC permissions
 
 ## Authentication & RBAC
 

@@ -41,6 +41,9 @@ import DocumentsPage from "@/pages/documents";
 import PrintTemplatesPage from "@/pages/print-templates";
 import ParentPortalPage from "@/pages/parent-portal";
 import DashboardSettingsPage from "@/pages/dashboard-settings";
+import PlacementsPage from "@/pages/placements";
+import FundraisingPage from "@/pages/fundraising";
+import VisitorsPage from "@/pages/visitors";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -103,6 +106,9 @@ function AppRoutes() {
         <Route path="/print-templates" component={PrintTemplatesPage} />
         <Route path="/parent-portal" component={ParentPortalPage} />
         <Route path="/dashboard-settings" component={DashboardSettingsPage} />
+        <Route path="/placements" component={PlacementsPage} />
+        <Route path="/fundraising" component={FundraisingPage} />
+        <Route path="/visitors" component={VisitorsPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

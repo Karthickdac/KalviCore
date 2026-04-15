@@ -8,7 +8,8 @@ import {
   Award, CalendarOff, Settings, ChevronDown, ChevronRight, LogOut,
   Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp,
   Upload, Ticket, UserCircle, Database, CreditCard,
-  BellRing, FolderOpen, Printer, LayoutGrid
+  BellRing, FolderOpen, Printer, LayoutGrid,
+  Landmark, Heart, UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -57,6 +58,7 @@ const navGroups: NavGroup[] = [
       { name: "CGPA Tracker", href: "/cgpa", icon: TrendingUp, permission: "exams" },
       { name: "Hall Tickets", href: "/hall-tickets", icon: Ticket, permission: "exams" },
       { name: "ID Cards", href: "/id-cards", icon: CreditCard, permission: "students" },
+      { name: "Training & Placement", href: "/placements", icon: Landmark, permission: "students" },
     ],
   },
   {
@@ -76,6 +78,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Fees", href: "/fees", icon: IndianRupee, permission: "fees" },
       { name: "Certificates", href: "/certificates", icon: Award, permission: "certificates" },
+      { name: "Fundraising", href: "/fundraising", icon: Heart, permission: "fees" },
     ],
   },
   {
@@ -86,6 +89,7 @@ const navGroups: NavGroup[] = [
       { name: "Transport", href: "/transport", icon: Bus, permission: "transport" },
       { name: "Library", href: "/library", icon: BookMarked, permission: "library" },
       { name: "Inventory", href: "/inventory", icon: Package, permission: "inventory" },
+      { name: "Visitors", href: "/visitors", icon: UserCheck, permission: "events" },
     ],
   },
   {

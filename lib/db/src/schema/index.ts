@@ -30,3 +30,6 @@ export * from "./payroll";
 export * from "./notifications";
 export * from "./documents";
 export * from "./dashboardWidgets";
+export * from "./placements";
+export * from "./fundraising";
+export * from "./visitors";

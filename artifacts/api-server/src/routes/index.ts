@@ -38,6 +38,9 @@ import documentsRouter from "./documents";
 import printTemplatesRouter from "./printTemplates";
 import parentPortalRouter from "./parentPortal";
 import dashboardWidgetsRouter from "./dashboardWidgets";
+import placementsRouter from "./placements";
+import fundraisingRouter from "./fundraising";
+import visitorsRouter from "./visitors";
 
 const router: IRouter = Router();
 
@@ -80,5 +83,8 @@ router.use(documentsRouter);
 router.use(printTemplatesRouter);
 router.use(parentPortalRouter);
 router.use(dashboardWidgetsRouter);
+router.use(placementsRouter);
+router.use(fundraisingRouter);
+router.use(visitorsRouter);
 
 export default router;
