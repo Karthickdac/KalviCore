@@ -31,7 +31,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 ### People Management
 8. **Students** — Enrollment with admissions workflow (Applied/Provisional/Confirmed/Rejected), alumni tracking, disciplinary records, Tamil Nadu community categories (OC/BC/MBC/SC/ST)
 9. **Staff** — Faculty management with designation, qualification, specialization, experience, salary
-10. **Attendance** — Mark attendance by subject/date, student attendance summary with 75% threshold alerts, condonation requests with approval workflow
+10. **Attendance** — Comprehensive attendance management with 4 tabs: (1) Mark Attendance with department/subject filtering, auto-loads eligible students by dept/semester, duplicate prevention (upsert), click-to-toggle status, All Present/Absent bulk actions, existing records detection for editing; (2) Student Summary with dept filter, per-student subject-wise breakdown, progress bars, 75% threshold alerts, overall statistics; (3) Attendance Records browser with subject/date filtering, present/absent counts; (4) Condonation Requests with status filtering, create/approve/reject workflow, academic year support
 11. **Staff Leaves** — Leave applications (CL/SL/EL/ML/PL/OD/LOP), approval workflow
 
 ### Finance
