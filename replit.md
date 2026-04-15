@@ -66,7 +66,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 28. **Data Backup** — Full database export (JSON), record counts per table, admin-only access with role enforcement
 29. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
 30. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
-31. **Notifications** — Email/SMS notification sending (simulated) to students/staff, notification history with channel and status filtering, stats dashboard
+31. **Notifications** — WhatsApp/Email/SMS notification sending (simulated) to students/staff, notification history with channel and status filtering, stats dashboard with per-channel counts, WhatsApp default channel with visual channel selector
 32. **Document Vault** — Student document metadata management (marksheets, certificates, ID proofs), verification workflow, search by student
 33. **Print Templates** — Printable fee receipts, salary payslips, and certificates (Bonafide/TC/Conduct) with formal college letterhead layout
 34. **Parent Portal** — Guardian login (roll number + phone), view student profile, fee payments, exam results; IDOR-protected with re-verification on data endpoints
@@ -115,7 +115,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Sidebar Navigation
 
-Grouped into: Overview, Academics (incl. Hall Tickets, ID Cards, Training & Placement), People, Finance (incl. Fundraising), Campus (incl. Visitors), Engagement (incl. Student Portal, Parent Portal, Notifications), Administration (incl. Bulk Import/Export, Data Backup, Document Vault, Print Templates, Dashboard Settings) — each group is collapsible, menu items are role-filtered by RBAC permissions
+Enterprise-level sidebar with search, multicolor group indicators: Overview (blue), Academics (violet, incl. Hall Tickets, ID Cards, Training & Placement), People (emerald), Finance (amber, incl. Fundraising), Campus (cyan, incl. Visitors), Communication (pink, incl. Student Portal, Parent Portal, Notifications), Administration (orange, incl. Bulk Import/Export, Data Backup, Document Vault, Print Templates, Dashboard Settings) — each group is collapsible with color-coded dots, menu items are role-filtered by RBAC permissions, inline search filters across all modules
 
 ## Authentication & RBAC
 

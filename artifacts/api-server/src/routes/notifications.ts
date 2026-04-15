@@ -35,9 +35,11 @@ router.post("/notifications/send", requireAuth, requirePermission("communication
       const students = await db.select().from(studentsTable).where(eq(studentsTable.status, "Active"));
       for (const s of students) {
         const contact = channel === "email" ? (s.email || "") : (s.phone || "");
+        if (channel === "whatsapp" && !s.phone) continue;
+        if (channel === "email" && !s.email) continue;
         const [n] = await db.insert(notificationsTable).values({
           type, channel, recipientName: `${s.firstName} ${s.lastName}`,
-          recipientContact: contact, subject, message,
+          recipientContact: channel === "whatsapp" ? (s.phone || "") : contact, subject, message,
           status: "Sent", sentAt: new Date(), studentId: s.id,
         }).returning();
         sentNotifications.push(n);
@@ -48,9 +50,11 @@ router.post("/notifications/send", requireAuth, requirePermission("communication
       const staffMembers = await db.select().from(staffTable).where(eq(staffTable.status, "Active"));
       for (const s of staffMembers) {
         const contact = channel === "email" ? (s.email || "") : (s.phone || "");
+        if (channel === "whatsapp" && !s.phone) continue;
+        if (channel === "email" && !s.email) continue;
         const [n] = await db.insert(notificationsTable).values({
           type, channel, recipientName: `${s.firstName} ${s.lastName}`,
-          recipientContact: contact, subject, message,
+          recipientContact: channel === "whatsapp" ? (s.phone || "") : contact, subject, message,
           status: "Sent", sentAt: new Date(), staffId: s.id,
         }).returning();
         sentNotifications.push(n);
@@ -81,6 +85,7 @@ router.get("/notifications/stats", requireAuth, requirePermission("communication
     const all = await db.select().from(notificationsTable);
     const stats = {
       total: all.length,
+      whatsapp: all.filter(n => n.channel === "whatsapp").length,
       email: all.filter(n => n.channel === "email").length,
       sms: all.filter(n => n.channel === "sms").length,
       sent: all.filter(n => n.status === "Sent").length,
