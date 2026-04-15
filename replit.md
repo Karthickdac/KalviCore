@@ -2,7 +2,7 @@
 
 ## Overview
 
-A comprehensive College Management System built for Tamil Nadu, India. Full-stack React + Vite frontend with Express backend, covering 20+ modules: Students (with admissions workflow, alumni, disciplinary), Staff, Departments, Courses, Subjects, Attendance (with condonation), Fees (Razorpay, instalments, defaulters, scholarships), Exams, Hostels, Transport, Library, Events/Cultural, Communications, Inventory/Assets, Timetable, Assignments, Certificates, Staff Leaves, and Settings/Configuration.
+A comprehensive College Management System built for Tamil Nadu, India. Full-stack React + Vite frontend with Express backend, covering 30+ modules: Students (with admissions workflow, alumni, disciplinary), Staff, Departments, Courses, Subjects, Attendance (with condonation), Fees (Razorpay, instalments, defaulters, scholarships), Exams, Hostels, Transport, Library, Events/Cultural, Communications, Inventory/Assets, Timetable, Assignments, Certificates, Staff Leaves, Settings/Configuration, Reports & Analytics, Academic Calendar, CGPA Tracker, Payroll, Activity Log, Bulk Import/Export, Hall Tickets, Student Portal, and Data Backup.
 
 ## Stack
 
@@ -57,9 +57,15 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 ### People (Additional)
 24. **Payroll** — Staff salary processing with basic, HRA, DA, TA, allowances, PF, tax deductions, net salary calculation, mark-as-paid workflow, monthly view
 
+### Data Management
+25. **Bulk Import/Export** — CSV upload for mass student/staff enrollment with preview, validation, error reporting; CSV export of all records; downloadable templates
+26. **Hall Tickets** — Exam hall ticket generation with seat numbers, subject list, printable layout with signatures and instructions
+27. **Student Portal** — Self-service view with student profile, attendance summary with 75% threshold alert, fee dues, CGPA trend chart, semester-wise results, personal info
+
 ### System
-25. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
-26. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
+28. **Data Backup** — Full database export (JSON), record counts per table, admin-only access with role enforcement
+29. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
+30. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
 
 ## Key Commands
 
@@ -101,7 +107,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ## Sidebar Navigation
 
-Grouped into: Overview, Academics, People, Finance, Campus, Engagement, Administration — each group is collapsible, menu items are role-filtered by RBAC permissions
+Grouped into: Overview, Academics (incl. Hall Tickets), People, Finance, Campus, Engagement (incl. Student Portal), Administration (incl. Bulk Import/Export, Data Backup) — each group is collapsible, menu items are role-filtered by RBAC permissions
 
 ## Authentication & RBAC
 

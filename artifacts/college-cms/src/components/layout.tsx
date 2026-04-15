@@ -6,7 +6,8 @@ import {
   CalendarCheck, IndianRupee, FileText, Menu, Bell, Building2, Bus,
   BookMarked, Calendar, Megaphone, Package, Clock, ClipboardList,
   Award, CalendarOff, Settings, ChevronDown, ChevronRight, LogOut,
-  Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp
+  Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp,
+  Upload, Ticket, UserCircle, Database
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -53,6 +54,7 @@ const navGroups: NavGroup[] = [
       { name: "Assignments", href: "/assignments", icon: ClipboardList, permission: "assignments" },
       { name: "Exams", href: "/exams", icon: FileText, permission: "exams" },
       { name: "CGPA Tracker", href: "/cgpa", icon: TrendingUp, permission: "exams" },
+      { name: "Hall Tickets", href: "/hall-tickets", icon: Ticket, permission: "exams" },
     ],
   },
   {
@@ -90,6 +92,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Events", href: "/events", icon: Calendar, permission: "events" },
       { name: "Communications", href: "/communications", icon: Megaphone, permission: "communications" },
+      { name: "Student Portal", href: "/student-portal", icon: UserCircle, permission: "students" },
     ],
   },
   {
@@ -97,7 +100,9 @@ const navGroups: NavGroup[] = [
     icon: Settings,
     items: [
       { name: "User Management", href: "/users", icon: UserCog, permission: "users" },
+      { name: "Bulk Import/Export", href: "/bulk-import", icon: Upload, permission: "settings" },
       { name: "Activity Log", href: "/activity-log", icon: Activity, permission: "settings" },
+      { name: "Data Backup", href: "/backup", icon: Database, permission: "settings" },
       { name: "Settings", href: "/settings", icon: Settings, permission: "settings" },
     ],
   },

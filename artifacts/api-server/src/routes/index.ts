@@ -29,6 +29,9 @@ import reportsRouter from "./reports";
 import payrollRouter from "./payroll";
 import academicCalendarRouter from "./academicCalendar";
 import cgpaRouter from "./cgpa";
+import bulkImportRouter from "./bulkImport";
+import hallTicketsRouter from "./hallTickets";
+import backupRouter from "./backup";
 
 const router: IRouter = Router();
 
@@ -62,5 +65,8 @@ router.use(reportsRouter);
 router.use(payrollRouter);
 router.use(academicCalendarRouter);
 router.use(cgpaRouter);
+router.use(bulkImportRouter);
+router.use(hallTicketsRouter);
+router.use(backupRouter);
 
 export default router;

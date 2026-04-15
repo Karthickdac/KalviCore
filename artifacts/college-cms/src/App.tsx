@@ -31,6 +31,10 @@ import ActivityLogPage from "@/pages/activity-log";
 import AcademicCalendarPage from "@/pages/academic-calendar";
 import PayrollPage from "@/pages/payroll";
 import CGPAPage from "@/pages/cgpa";
+import BulkImportPage from "@/pages/bulk-import";
+import HallTicketsPage from "@/pages/hall-tickets";
+import StudentPortalPage from "@/pages/student-portal";
+import BackupPage from "@/pages/backup";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -83,6 +87,10 @@ function AppRoutes() {
         <Route path="/academic-calendar" component={AcademicCalendarPage} />
         <Route path="/payroll" component={PayrollPage} />
         <Route path="/cgpa" component={CGPAPage} />
+        <Route path="/bulk-import" component={BulkImportPage} />
+        <Route path="/hall-tickets" component={HallTicketsPage} />
+        <Route path="/student-portal" component={StudentPortalPage} />
+        <Route path="/backup" component={BackupPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>
