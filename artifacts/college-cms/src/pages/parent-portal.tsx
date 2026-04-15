@@ -76,7 +76,7 @@ export default function ParentPortalPage() {
               {error && <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20">{error}</div>}
               <div className="space-y-2">
                 <Label>Student Roll Number</Label>
-                <Input value={rollNumber} onChange={e => setRollNumber(e.target.value)} placeholder="e.g., 21CSE001" required />
+                <Input value={rollNumber} onChange={e => setRollNumber(e.target.value)} placeholder="e.g., 21TAM001" required />
               </div>
               <div className="space-y-2">
                 <Label>Guardian Phone Number</Label>

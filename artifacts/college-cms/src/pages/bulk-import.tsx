@@ -64,7 +64,7 @@ export default function BulkImportPage() {
 
   const downloadTemplate = (type: string) => {
     const templates: Record<string, string> = {
-      students: "firstName,lastName,rollNumber,email,phone,departmentId,courseId,year,semester,admissionType,community,gender,dateOfBirth,admissionDate,address,fatherName,guardianPhone\nJohn,Doe,21CSE001,john@example.com,9876543210,1,1,1,1,Government,OC,Male,2003-05-15,2021-08-01,Chennai,James Doe,9876543211",
+      students: "firstName,lastName,rollNumber,email,phone,departmentId,courseId,year,semester,admissionType,community,gender,dateOfBirth,admissionDate,address,fatherName,guardianPhone\nJohn,Doe,21TAM001,john@example.com,9876543210,1,1,1,1,Government,OC,Male,2003-05-15,2021-08-01,Madurai,James Doe,9876543211",
       staff: "firstName,lastName,staffId,email,phone,departmentId,designation,qualification,specialization,experience,salary,joiningDate,gender,employmentType\nSmith,Kumar,FAC001,smith@college.edu,9876543210,1,Professor,Ph.D,AI & ML,15,120000,2020-06-01,Male,Permanent",
     };
     const blob = new Blob([templates[type] || ""], { type: "text/csv" });

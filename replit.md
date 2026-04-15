@@ -22,7 +22,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 ### Core Academic
 1. **Dashboard** — Overview with student/staff counts, department strength chart, fee collection summary, recent activity
 2. **Departments** — Department CRUD with HOD, contact info, established year
-3. **Courses** — Anna University regulation-wise courses, affiliated university, degree programs (B.E., B.Tech, M.E., MBA, MCA)
+3. **Courses** — MK University regulation-wise courses, affiliated university, degree programs (B.A., B.Sc, B.Com, B.C.A, M.A., M.Sc, M.Com, M.C.A, M.Phil, Ph.D)
 4. **Subjects** — Curriculum management with course mapping, credits, type (Theory/Lab/Elective), staff assignment
 5. **Timetable** — Department/semester-wise timetable management with day, period, subject, staff, room allocation
 6. **Assignments** — Assignment creation, student submissions tracking, grading with marks and grade calculation
@@ -129,7 +129,9 @@ Enterprise-level sidebar with search, multicolor group indicators: Overview (blu
 - **Users API**: `/api/users` (CRUD, requires Admin+ role)
 - **Token injection**: `setAuthTokenGetter()` from `@workspace/api-client-react` auto-attaches Bearer tokens to all generated API hooks
 - **Default admin**: Seed via `POST /api/auth/seed-admin` (dev only), username: `admin`, password: `admin123`
-- **Pre-created users**: college_admin/Admin@123, principal/Principal@123, hod_cse/hod_ece/hod_mech (Hod@123), faculty_cse/faculty_ece (Faculty@123), office_staff/Staff@123, student_cse/Student@123
+- **College type**: Arts & Science College affiliated to Madurai Kamaraj University
+- **Departments**: Tamil(1), English(2), Mathematics(3), Physics(4), Chemistry(5), Computer Science(6), Commerce(7), Economics(8), History(9), Botany(10), Zoology(11), Political Science(12)
+- **Pre-created users**: college_admin/Admin@123, principal/Principal@123, hod_cse/hod_ece/hod_mech (Hod@123, depts 1/2/3), faculty_cse/faculty_ece (Faculty@123, depts 1/2), office_staff/Staff@123, student_cse/Student@123
 - **RBAC permissions**: Granular per-module permissions (reports, calendar, fundraising, visitors, placements, id_cards, print_templates, dashboard_settings, notifications) — Students see ~10 items, Faculty ~15, HOD ~18, Admin/Principal full access
 - **Notification scoping**: Faculty/HOD auto-scoped to their department; Admin/Principal can target all or by department
 
