@@ -100,7 +100,7 @@ function CourseDialog({ course, open, onOpenChange, trigger }: any) {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: course?.name || "", code: course?.code || "", departmentId: course?.departmentId || 0, duration: course?.duration || 3, degree: course?.degree || "B.Sc", regulation: course?.regulation || "Regulation 2021", affiliatedUniversity: course?.affiliatedUniversity || "Madurai Kamaraj University", totalSemesters: course?.totalSemesters || 6 },
+    defaultValues: { name: course?.name || "", code: course?.code || "", departmentId: course?.departmentId || 0, duration: course?.duration || 3, degree: course?.degree || "B.Sc", regulation: course?.regulation || "CBCS 2023", affiliatedUniversity: course?.affiliatedUniversity || "Madurai Kamaraj University", totalSemesters: course?.totalSemesters || 6 },
   });
 
   const onSubmit = (data: any) => {
