@@ -12,6 +12,16 @@ import Subjects from "@/pages/subjects";
 import AttendancePage from "@/pages/attendance";
 import Fees from "@/pages/fees";
 import Exams from "@/pages/exams";
+import Hostels from "@/pages/hostels";
+import Transport from "@/pages/transport";
+import Library from "@/pages/library";
+import Events from "@/pages/events";
+import Communications from "@/pages/communications";
+import Inventory from "@/pages/inventory";
+import Timetable from "@/pages/timetable";
+import Assignments from "@/pages/assignments";
+import Certificates from "@/pages/certificates";
+import Leaves from "@/pages/leaves";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -29,6 +39,16 @@ function Router() {
         <Route path="/attendance" component={AttendancePage} />
         <Route path="/fees" component={Fees} />
         <Route path="/exams" component={Exams} />
+        <Route path="/hostels" component={Hostels} />
+        <Route path="/transport" component={Transport} />
+        <Route path="/library" component={Library} />
+        <Route path="/events" component={Events} />
+        <Route path="/communications" component={Communications} />
+        <Route path="/inventory" component={Inventory} />
+        <Route path="/timetable" component={Timetable} />
+        <Route path="/assignments" component={Assignments} />
+        <Route path="/certificates" component={Certificates} />
+        <Route path="/leaves" component={Leaves} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -10,6 +10,16 @@ import feesRouter from "./fees";
 import examsRouter from "./exams";
 import dashboardRouter from "./dashboard";
 import razorpayRouter from "./razorpay";
+import hostelsRouter from "./hostels";
+import transportRouter from "./transport";
+import libraryRouter from "./library";
+import eventsRouter from "./events";
+import communicationsRouter from "./communications";
+import inventoryRouter from "./inventory";
+import timetableRouter from "./timetable";
+import assignmentsRouter from "./assignments";
+import certificatesRouter from "./certificates";
+import leavesRouter from "./leaves";
 
 const router: IRouter = Router();
 
@@ -24,5 +34,15 @@ router.use(attendanceRouter);
 router.use(feesRouter);
 router.use(examsRouter);
 router.use(razorpayRouter);
+router.use(hostelsRouter);
+router.use(transportRouter);
+router.use(libraryRouter);
+router.use(eventsRouter);
+router.use(communicationsRouter);
+router.use(inventoryRouter);
+router.use(timetableRouter);
+router.use(assignmentsRouter);
+router.use(certificatesRouter);
+router.use(leavesRouter);
 
 export default router;

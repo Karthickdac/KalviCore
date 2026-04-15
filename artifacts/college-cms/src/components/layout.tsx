@@ -10,63 +10,118 @@ import {
   IndianRupee, 
   FileText,
   Menu,
-  Bell
+  Bell,
+  Building2,
+  Bus,
+  BookMarked,
+  Calendar,
+  Megaphone,
+  Package,
+  Clock,
+  ClipboardList,
+  Award,
+  CalendarOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Students", href: "/students", icon: Users },
-  { name: "Staff", href: "/staff", icon: Briefcase },
-  { name: "Departments", href: "/departments", icon: BookOpen },
-  { name: "Courses", href: "/courses", icon: GraduationCap },
-  { name: "Subjects", href: "/subjects", icon: FileText },
-  { name: "Attendance", href: "/attendance", icon: CalendarCheck },
-  { name: "Fees", href: "/fees", icon: IndianRupee },
-  { name: "Exams", href: "/exams", icon: FileText },
+const navGroups = [
+  {
+    label: "Overview",
+    items: [
+      { name: "Dashboard", href: "/", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Academics",
+    items: [
+      { name: "Departments", href: "/departments", icon: BookOpen },
+      { name: "Courses", href: "/courses", icon: GraduationCap },
+      { name: "Subjects", href: "/subjects", icon: FileText },
+      { name: "Timetable", href: "/timetable", icon: Clock },
+      { name: "Assignments", href: "/assignments", icon: ClipboardList },
+      { name: "Exams", href: "/exams", icon: FileText },
+    ],
+  },
+  {
+    label: "People",
+    items: [
+      { name: "Students", href: "/students", icon: Users },
+      { name: "Staff", href: "/staff", icon: Briefcase },
+      { name: "Attendance", href: "/attendance", icon: CalendarCheck },
+      { name: "Staff Leaves", href: "/leaves", icon: CalendarOff },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      { name: "Fees", href: "/fees", icon: IndianRupee },
+      { name: "Certificates", href: "/certificates", icon: Award },
+    ],
+  },
+  {
+    label: "Campus",
+    items: [
+      { name: "Hostels", href: "/hostels", icon: Building2 },
+      { name: "Transport", href: "/transport", icon: Bus },
+      { name: "Library", href: "/library", icon: BookMarked },
+      { name: "Inventory", href: "/inventory", icon: Package },
+    ],
+  },
+  {
+    label: "Engagement",
+    items: [
+      { name: "Events", href: "/events", icon: Calendar },
+      { name: "Communications", href: "/communications", icon: Megaphone },
+    ],
+  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col gap-y-5 bg-sidebar px-6 pb-4">
-      <div className="flex h-16 shrink-0 items-center">
-        <h1 className="text-xl font-bold text-sidebar-foreground flex items-center gap-2">
+    <div className="flex h-full flex-col gap-y-3 bg-sidebar px-4 pb-4 overflow-y-auto">
+      <div className="flex h-16 shrink-0 items-center px-2">
+        <h1 className="text-lg font-bold text-sidebar-foreground flex items-center gap-2">
           <BookOpen className="w-6 h-6 text-primary-foreground" />
           <span>EduManage TN</span>
         </h1>
       </div>
       <nav className="flex flex-1 flex-col">
-        <ul role="list" className="flex flex-1 flex-col gap-y-7">
-          <li>
-            <ul role="list" className="-mx-2 space-y-1">
-              {navigation.map((item) => {
-                const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
-                return (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className={`
-                        group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-medium
-                        ${isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                        }
-                      `}
-                    >
-                      <item.icon
-                        className={`h-6 w-6 shrink-0 ${isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/60"}`}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </li>
+        <ul role="list" className="flex flex-1 flex-col gap-y-4">
+          {navGroups.map((group) => (
+            <li key={group.label}>
+              <div className="text-xs font-semibold leading-6 text-sidebar-foreground/50 uppercase tracking-wider px-2">
+                {group.label}
+              </div>
+              <ul role="list" className="mt-1 space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive = location === item.href || (item.href !== "/" && location.startsWith(item.href));
+                  return (
+                    <li key={item.name}>
+                      <Link
+                        href={item.href}
+                        className={`
+                          group flex gap-x-3 rounded-md px-2 py-1.5 text-sm leading-6 font-medium
+                          ${isActive
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                          }
+                        `}
+                      >
+                        <item.icon
+                          className={`h-5 w-5 shrink-0 ${isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/60"}`}
+                          aria-hidden="true"
+                        />
+                        {item.name}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>
@@ -74,7 +129,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile sidebar */}
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="md:hidden fixed top-4 left-4 z-50">
@@ -86,7 +140,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </SheetContent>
       </Sheet>
 
-      {/* Desktop sidebar */}
       <div className="hidden md:fixed md:inset-y-0 md:z-50 md:flex md:w-72 md:flex-col border-r border-sidebar-border">
         <SidebarContent />
       </div>

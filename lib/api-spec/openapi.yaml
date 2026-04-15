@@ -28,6 +28,20 @@ tags:
     description: Fee & payment management
   - name: exams
     description: Examination management
+  - name: hostels
+    description: Hostel management
+  - name: transport
+    description: Transport management
+  - name: library
+    description: Library management
+  - name: events
+    description: Events & cultural management
+  - name: communications
+    description: Communication & notifications
+  - name: inventory
+    description: Inventory & asset management
+  - name: academics
+    description: Academic operations
 
 paths:
   /healthz:
@@ -914,6 +928,1615 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ExamResult"
+
+  # ── Hostels ──
+  /hostels:
+    get:
+      operationId: listHostels
+      tags: [hostels]
+      summary: List hostels
+      responses:
+        "200":
+          description: Hostel list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hostel"
+    post:
+      operationId: createHostel
+      tags: [hostels]
+      summary: Create hostel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHostelBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hostel"
+  /hostels/{id}:
+    get:
+      operationId: getHostel
+      tags: [hostels]
+      summary: Get hostel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Hostel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hostel"
+    patch:
+      operationId: updateHostel
+      tags: [hostels]
+      summary: Update hostel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHostelBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hostel"
+    delete:
+      operationId: deleteHostel
+      tags: [hostels]
+      summary: Delete hostel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /hostel-rooms:
+    get:
+      operationId: listHostelRooms
+      tags: [hostels]
+      summary: List hostel rooms
+      parameters:
+        - name: hostelId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Room list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HostelRoom"
+    post:
+      operationId: createHostelRoom
+      tags: [hostels]
+      summary: Create hostel room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHostelRoomBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostelRoom"
+  /hostel-rooms/{id}:
+    patch:
+      operationId: updateHostelRoom
+      tags: [hostels]
+      summary: Update hostel room
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHostelRoomBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostelRoom"
+    delete:
+      operationId: deleteHostelRoom
+      tags: [hostels]
+      summary: Delete hostel room
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /hostel-allocations:
+    get:
+      operationId: listHostelAllocations
+      tags: [hostels]
+      summary: List hostel allocations
+      parameters:
+        - name: hostelId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Allocation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HostelAllocation"
+    post:
+      operationId: createHostelAllocation
+      tags: [hostels]
+      summary: Create hostel allocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHostelAllocationBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostelAllocation"
+  /hostel-allocations/{id}:
+    patch:
+      operationId: updateHostelAllocation
+      tags: [hostels]
+      summary: Update hostel allocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHostelAllocationBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostelAllocation"
+
+  /hostel-complaints:
+    get:
+      operationId: listHostelComplaints
+      tags: [hostels]
+      summary: List hostel complaints
+      parameters:
+        - name: hostelId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complaint list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HostelComplaint"
+    post:
+      operationId: createHostelComplaint
+      tags: [hostels]
+      summary: Create hostel complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHostelComplaintBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostelComplaint"
+  /hostel-complaints/{id}:
+    patch:
+      operationId: updateHostelComplaint
+      tags: [hostels]
+      summary: Update hostel complaint
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHostelComplaintBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HostelComplaint"
+
+  # ── Transport ──
+  /transport-routes:
+    get:
+      operationId: listTransportRoutes
+      tags: [transport]
+      summary: List transport routes
+      responses:
+        "200":
+          description: Route list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransportRoute"
+    post:
+      operationId: createTransportRoute
+      tags: [transport]
+      summary: Create transport route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransportRouteBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportRoute"
+  /transport-routes/{id}:
+    get:
+      operationId: getTransportRoute
+      tags: [transport]
+      summary: Get transport route
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Route
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportRoute"
+    patch:
+      operationId: updateTransportRoute
+      tags: [transport]
+      summary: Update transport route
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransportRouteBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportRoute"
+    delete:
+      operationId: deleteTransportRoute
+      tags: [transport]
+      summary: Delete transport route
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /transport-vehicles:
+    get:
+      operationId: listTransportVehicles
+      tags: [transport]
+      summary: List vehicles
+      parameters:
+        - name: routeId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransportVehicle"
+    post:
+      operationId: createTransportVehicle
+      tags: [transport]
+      summary: Create vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransportVehicleBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportVehicle"
+  /transport-vehicles/{id}:
+    patch:
+      operationId: updateTransportVehicle
+      tags: [transport]
+      summary: Update vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransportVehicleBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportVehicle"
+    delete:
+      operationId: deleteTransportVehicle
+      tags: [transport]
+      summary: Delete vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /transport-stops:
+    get:
+      operationId: listTransportStops
+      tags: [transport]
+      summary: List stops
+      parameters:
+        - name: routeId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Stop list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransportStop"
+    post:
+      operationId: createTransportStop
+      tags: [transport]
+      summary: Create stop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransportStopBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportStop"
+  /transport-stops/{id}:
+    delete:
+      operationId: deleteTransportStop
+      tags: [transport]
+      summary: Delete stop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /transport-allocations:
+    get:
+      operationId: listTransportAllocations
+      tags: [transport]
+      summary: List transport allocations
+      parameters:
+        - name: routeId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Allocation list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransportAllocation"
+    post:
+      operationId: createTransportAllocation
+      tags: [transport]
+      summary: Create transport allocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransportAllocationBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportAllocation"
+  /transport-allocations/{id}:
+    patch:
+      operationId: updateTransportAllocation
+      tags: [transport]
+      summary: Update transport allocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransportAllocationBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportAllocation"
+
+  # ── Library ──
+  /library-books:
+    get:
+      operationId: listLibraryBooks
+      tags: [library]
+      summary: List library books
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Book list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LibraryBook"
+    post:
+      operationId: createLibraryBook
+      tags: [library]
+      summary: Add book to library
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLibraryBookBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryBook"
+  /library-books/{id}:
+    get:
+      operationId: getLibraryBook
+      tags: [library]
+      summary: Get book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryBook"
+    patch:
+      operationId: updateLibraryBook
+      tags: [library]
+      summary: Update book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLibraryBookBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryBook"
+    delete:
+      operationId: deleteLibraryBook
+      tags: [library]
+      summary: Delete book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /library-issued:
+    get:
+      operationId: listLibraryIssued
+      tags: [library]
+      summary: List issued books
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Issued list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LibraryIssuedBook"
+    post:
+      operationId: issueLibraryBook
+      tags: [library]
+      summary: Issue book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueLibraryBookBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryIssuedBook"
+  /library-issued/{id}:
+    patch:
+      operationId: updateLibraryIssued
+      tags: [library]
+      summary: Update issued book (return/renew)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLibraryIssuedBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryIssuedBook"
+
+  # ── Events ──
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List events
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+    post:
+      operationId: createEvent
+      tags: [events]
+      summary: Create event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+  /events/{id}:
+    get:
+      operationId: getEvent
+      tags: [events]
+      summary: Get event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+    patch:
+      operationId: updateEvent
+      tags: [events]
+      summary: Update event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEventBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+    delete:
+      operationId: deleteEvent
+      tags: [events]
+      summary: Delete event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /event-participants:
+    get:
+      operationId: listEventParticipants
+      tags: [events]
+      summary: List event participants
+      parameters:
+        - name: eventId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Participant list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventParticipant"
+    post:
+      operationId: createEventParticipant
+      tags: [events]
+      summary: Register participant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventParticipantBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventParticipant"
+  /event-participants/{id}:
+    patch:
+      operationId: updateEventParticipant
+      tags: [events]
+      summary: Update participant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEventParticipantBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventParticipant"
+    delete:
+      operationId: deleteEventParticipant
+      tags: [events]
+      summary: Delete participant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── Communications ──
+  /announcements:
+    get:
+      operationId: listAnnouncements
+      tags: [communications]
+      summary: List announcements
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Announcement list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+    post:
+      operationId: createAnnouncement
+      tags: [communications]
+      summary: Create announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnnouncementBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+  /announcements/{id}:
+    get:
+      operationId: getAnnouncement
+      tags: [communications]
+      summary: Get announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Announcement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+    patch:
+      operationId: updateAnnouncement
+      tags: [communications]
+      summary: Update announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAnnouncementBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+    delete:
+      operationId: deleteAnnouncement
+      tags: [communications]
+      summary: Delete announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /grievances:
+    get:
+      operationId: listGrievances
+      tags: [communications]
+      summary: List grievances
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Grievance list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Grievance"
+    post:
+      operationId: createGrievance
+      tags: [communications]
+      summary: Create grievance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGrievanceBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grievance"
+  /grievances/{id}:
+    get:
+      operationId: getGrievance
+      tags: [communications]
+      summary: Get grievance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Grievance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grievance"
+    patch:
+      operationId: updateGrievance
+      tags: [communications]
+      summary: Update grievance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateGrievanceBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Grievance"
+
+  # ── Inventory & Assets ──
+  /assets:
+    get:
+      operationId: listAssets
+      tags: [inventory]
+      summary: List assets
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Asset list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Asset"
+    post:
+      operationId: createAsset
+      tags: [inventory]
+      summary: Create asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAssetBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+  /assets/{id}:
+    get:
+      operationId: getAsset
+      tags: [inventory]
+      summary: Get asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Asset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+    patch:
+      operationId: updateAsset
+      tags: [inventory]
+      summary: Update asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAssetBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+    delete:
+      operationId: deleteAsset
+      tags: [inventory]
+      summary: Delete asset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /store-items:
+    get:
+      operationId: listStoreItems
+      tags: [inventory]
+      summary: List store items
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Item list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoreItem"
+    post:
+      operationId: createStoreItem
+      tags: [inventory]
+      summary: Create store item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStoreItemBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreItem"
+  /store-items/{id}:
+    patch:
+      operationId: updateStoreItem
+      tags: [inventory]
+      summary: Update store item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStoreItemBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreItem"
+    delete:
+      operationId: deleteStoreItem
+      tags: [inventory]
+      summary: Delete store item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── Timetable ──
+  /timetable:
+    get:
+      operationId: listTimetable
+      tags: [academics]
+      summary: List timetable entries
+      parameters:
+        - name: departmentId
+          in: query
+          schema:
+            type: integer
+        - name: semester
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Timetable
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimetableEntry"
+    post:
+      operationId: createTimetableEntry
+      tags: [academics]
+      summary: Create timetable entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimetableEntryBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableEntry"
+  /timetable/{id}:
+    patch:
+      operationId: updateTimetableEntry
+      tags: [academics]
+      summary: Update timetable entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTimetableEntryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableEntry"
+    delete:
+      operationId: deleteTimetableEntry
+      tags: [academics]
+      summary: Delete timetable entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  # ── Assignments ──
+  /assignments:
+    get:
+      operationId: listAssignments
+      tags: [academics]
+      summary: List assignments
+      parameters:
+        - name: subjectId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Assignment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Assignment"
+    post:
+      operationId: createAssignment
+      tags: [academics]
+      summary: Create assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAssignmentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+  /assignments/{id}:
+    get:
+      operationId: getAssignment
+      tags: [academics]
+      summary: Get assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Assignment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+    patch:
+      operationId: updateAssignment
+      tags: [academics]
+      summary: Update assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAssignmentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+    delete:
+      operationId: deleteAssignment
+      tags: [academics]
+      summary: Delete assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+
+  /assignment-submissions:
+    get:
+      operationId: listAssignmentSubmissions
+      tags: [academics]
+      summary: List submissions
+      parameters:
+        - name: assignmentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Submission list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssignmentSubmission"
+    post:
+      operationId: createAssignmentSubmission
+      tags: [academics]
+      summary: Submit assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAssignmentSubmissionBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentSubmission"
+  /assignment-submissions/{id}:
+    patch:
+      operationId: updateAssignmentSubmission
+      tags: [academics]
+      summary: Update submission (grade)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAssignmentSubmissionBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentSubmission"
+
+  # ── Certificates ──
+  /certificates:
+    get:
+      operationId: listCertificates
+      tags: [students]
+      summary: List certificates
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Certificate list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Certificate"
+    post:
+      operationId: createCertificate
+      tags: [students]
+      summary: Request certificate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCertificateBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certificate"
+  /certificates/{id}:
+    get:
+      operationId: getCertificate
+      tags: [students]
+      summary: Get certificate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Certificate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certificate"
+    patch:
+      operationId: updateCertificate
+      tags: [students]
+      summary: Update certificate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCertificateBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certificate"
+
+  # ── Staff Leaves ──
+  /staff-leaves:
+    get:
+      operationId: listStaffLeaves
+      tags: [staff]
+      summary: List staff leaves
+      parameters:
+        - name: staffId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Leave list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StaffLeave"
+    post:
+      operationId: createStaffLeave
+      tags: [staff]
+      summary: Apply for leave
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStaffLeaveBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffLeave"
+  /staff-leaves/{id}:
+    get:
+      operationId: getStaffLeave
+      tags: [staff]
+      summary: Get leave
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Leave
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffLeave"
+    patch:
+      operationId: updateStaffLeave
+      tags: [staff]
+      summary: Update leave (approve/reject)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStaffLeaveBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffLeave"
 
 components:
   schemas:
@@ -2142,3 +3765,1498 @@ components:
       required:
         - keyId
         - collegeName
+
+    # ── Hostel Schemas ──
+    Hostel:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        totalBlocks:
+          type: integer
+        totalRooms:
+          type: integer
+        wardenName:
+          type: string
+          nullable: true
+        wardenPhone:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        facilities:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, type, totalBlocks, totalRooms, status, createdAt]
+
+    CreateHostelBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        totalBlocks:
+          type: integer
+        totalRooms:
+          type: integer
+        wardenName:
+          type: string
+        wardenPhone:
+          type: string
+        address:
+          type: string
+        facilities:
+          type: string
+        status:
+          type: string
+      required: [name, type]
+
+    UpdateHostelBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        totalBlocks:
+          type: integer
+        totalRooms:
+          type: integer
+        wardenName:
+          type: string
+        wardenPhone:
+          type: string
+        address:
+          type: string
+        facilities:
+          type: string
+        status:
+          type: string
+
+    HostelRoom:
+      type: object
+      properties:
+        id:
+          type: integer
+        hostelId:
+          type: integer
+        roomNumber:
+          type: string
+        floor:
+          type: integer
+        block:
+          type: string
+          nullable: true
+        roomType:
+          type: string
+        capacity:
+          type: integer
+        occupancy:
+          type: integer
+        amenities:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, hostelId, roomNumber, floor, roomType, capacity, occupancy, status, createdAt]
+
+    CreateHostelRoomBody:
+      type: object
+      properties:
+        hostelId:
+          type: integer
+        roomNumber:
+          type: string
+        floor:
+          type: integer
+        block:
+          type: string
+        roomType:
+          type: string
+        capacity:
+          type: integer
+        amenities:
+          type: string
+        status:
+          type: string
+      required: [hostelId, roomNumber, roomType]
+
+    UpdateHostelRoomBody:
+      type: object
+      properties:
+        roomNumber:
+          type: string
+        floor:
+          type: integer
+        block:
+          type: string
+        roomType:
+          type: string
+        capacity:
+          type: integer
+        occupancy:
+          type: integer
+        amenities:
+          type: string
+        status:
+          type: string
+
+    HostelAllocation:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        hostelId:
+          type: integer
+        roomId:
+          type: integer
+        academicYear:
+          type: string
+        allocationDate:
+          type: string
+        vacatingDate:
+          type: string
+          nullable: true
+        messType:
+          type: string
+          nullable: true
+        status:
+          type: string
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, hostelId, roomId, academicYear, allocationDate, status, createdAt]
+
+    CreateHostelAllocationBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        hostelId:
+          type: integer
+        roomId:
+          type: integer
+        academicYear:
+          type: string
+        allocationDate:
+          type: string
+        messType:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: string
+      required: [studentId, hostelId, roomId, academicYear, allocationDate]
+
+    UpdateHostelAllocationBody:
+      type: object
+      properties:
+        vacatingDate:
+          type: string
+        messType:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: string
+
+    HostelComplaint:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        hostelId:
+          type: integer
+        category:
+          type: string
+        subject:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+        status:
+          type: string
+        resolvedDate:
+          type: string
+          nullable: true
+        resolution:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, hostelId, category, subject, description, priority, status, createdAt]
+
+    CreateHostelComplaintBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        hostelId:
+          type: integer
+        category:
+          type: string
+        subject:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+      required: [studentId, hostelId, category, subject, description]
+
+    UpdateHostelComplaintBody:
+      type: object
+      properties:
+        status:
+          type: string
+        resolution:
+          type: string
+        resolvedDate:
+          type: string
+        priority:
+          type: string
+
+    # ── Transport Schemas ──
+    TransportRoute:
+      type: object
+      properties:
+        id:
+          type: integer
+        routeName:
+          type: string
+        routeNumber:
+          type: string
+        startPoint:
+          type: string
+        endPoint:
+          type: string
+        distance:
+          type: string
+          nullable: true
+        estimatedTime:
+          type: string
+          nullable: true
+        fare:
+          type: number
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, routeName, routeNumber, startPoint, endPoint, fare, status, createdAt]
+
+    CreateTransportRouteBody:
+      type: object
+      properties:
+        routeName:
+          type: string
+        routeNumber:
+          type: string
+        startPoint:
+          type: string
+        endPoint:
+          type: string
+        distance:
+          type: string
+        estimatedTime:
+          type: string
+        fare:
+          type: number
+        status:
+          type: string
+      required: [routeName, routeNumber, startPoint, endPoint]
+
+    UpdateTransportRouteBody:
+      type: object
+      properties:
+        routeName:
+          type: string
+        routeNumber:
+          type: string
+        startPoint:
+          type: string
+        endPoint:
+          type: string
+        distance:
+          type: string
+        estimatedTime:
+          type: string
+        fare:
+          type: number
+        status:
+          type: string
+
+    TransportVehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleNumber:
+          type: string
+        vehicleType:
+          type: string
+        capacity:
+          type: integer
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        driverLicense:
+          type: string
+          nullable: true
+        routeId:
+          type: integer
+          nullable: true
+        insuranceExpiry:
+          type: string
+          nullable: true
+        fitnessExpiry:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, vehicleNumber, vehicleType, capacity, driverName, driverPhone, status, createdAt]
+
+    CreateTransportVehicleBody:
+      type: object
+      properties:
+        vehicleNumber:
+          type: string
+        vehicleType:
+          type: string
+        capacity:
+          type: integer
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        driverLicense:
+          type: string
+        routeId:
+          type: integer
+        insuranceExpiry:
+          type: string
+        fitnessExpiry:
+          type: string
+        status:
+          type: string
+      required: [vehicleNumber, vehicleType, capacity, driverName, driverPhone]
+
+    UpdateTransportVehicleBody:
+      type: object
+      properties:
+        vehicleNumber:
+          type: string
+        vehicleType:
+          type: string
+        capacity:
+          type: integer
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        driverLicense:
+          type: string
+        routeId:
+          type: integer
+        insuranceExpiry:
+          type: string
+        fitnessExpiry:
+          type: string
+        status:
+          type: string
+
+    TransportStop:
+      type: object
+      properties:
+        id:
+          type: integer
+        routeId:
+          type: integer
+        stopName:
+          type: string
+        stopOrder:
+          type: integer
+        pickupTime:
+          type: string
+          nullable: true
+        dropTime:
+          type: string
+          nullable: true
+        landmark:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, routeId, stopName, stopOrder, createdAt]
+
+    CreateTransportStopBody:
+      type: object
+      properties:
+        routeId:
+          type: integer
+        stopName:
+          type: string
+        stopOrder:
+          type: integer
+        pickupTime:
+          type: string
+        dropTime:
+          type: string
+        landmark:
+          type: string
+      required: [routeId, stopName, stopOrder]
+
+    TransportAllocation:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        routeId:
+          type: integer
+        stopId:
+          type: integer
+        academicYear:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, routeId, stopId, academicYear, status, createdAt]
+
+    CreateTransportAllocationBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        routeId:
+          type: integer
+        stopId:
+          type: integer
+        academicYear:
+          type: string
+        status:
+          type: string
+      required: [studentId, routeId, stopId, academicYear]
+
+    UpdateTransportAllocationBody:
+      type: object
+      properties:
+        routeId:
+          type: integer
+        stopId:
+          type: integer
+        status:
+          type: string
+
+    # ── Library Schemas ──
+    LibraryBook:
+      type: object
+      properties:
+        id:
+          type: integer
+        isbn:
+          type: string
+          nullable: true
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+          nullable: true
+        edition:
+          type: string
+          nullable: true
+        category:
+          type: string
+        subject:
+          type: string
+          nullable: true
+        shelfLocation:
+          type: string
+          nullable: true
+        totalCopies:
+          type: integer
+        availableCopies:
+          type: integer
+        price:
+          type: number
+          nullable: true
+        yearOfPublication:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, author, category, totalCopies, availableCopies, status, createdAt]
+
+    CreateLibraryBookBody:
+      type: object
+      properties:
+        isbn:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        edition:
+          type: string
+        category:
+          type: string
+        subject:
+          type: string
+        shelfLocation:
+          type: string
+        totalCopies:
+          type: integer
+        availableCopies:
+          type: integer
+        price:
+          type: number
+        yearOfPublication:
+          type: string
+        status:
+          type: string
+      required: [title, author, category]
+
+    UpdateLibraryBookBody:
+      type: object
+      properties:
+        isbn:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        edition:
+          type: string
+        category:
+          type: string
+        subject:
+          type: string
+        shelfLocation:
+          type: string
+        totalCopies:
+          type: integer
+        availableCopies:
+          type: integer
+        price:
+          type: number
+        yearOfPublication:
+          type: string
+        status:
+          type: string
+
+    LibraryIssuedBook:
+      type: object
+      properties:
+        id:
+          type: integer
+        bookId:
+          type: integer
+        memberId:
+          type: integer
+        memberType:
+          type: string
+        issueDate:
+          type: string
+        dueDate:
+          type: string
+        returnDate:
+          type: string
+          nullable: true
+        fineAmount:
+          type: number
+          nullable: true
+        fineStatus:
+          type: string
+          nullable: true
+        status:
+          type: string
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, bookId, memberId, memberType, issueDate, dueDate, status, createdAt]
+
+    IssueLibraryBookBody:
+      type: object
+      properties:
+        bookId:
+          type: integer
+        memberId:
+          type: integer
+        memberType:
+          type: string
+        issueDate:
+          type: string
+        dueDate:
+          type: string
+        remarks:
+          type: string
+      required: [bookId, memberId, memberType, issueDate, dueDate]
+
+    UpdateLibraryIssuedBody:
+      type: object
+      properties:
+        returnDate:
+          type: string
+        fineAmount:
+          type: number
+        fineStatus:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: string
+
+    # ── Event Schemas ──
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+          nullable: true
+        departmentId:
+          type: integer
+          nullable: true
+        venue:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+        endDate:
+          type: string
+          nullable: true
+        coordinatorName:
+          type: string
+          nullable: true
+        coordinatorPhone:
+          type: string
+          nullable: true
+        maxParticipants:
+          type: integer
+          nullable: true
+        budget:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, type, startDate, status, createdAt]
+
+    CreateEventBody:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        departmentId:
+          type: integer
+        venue:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        coordinatorName:
+          type: string
+        coordinatorPhone:
+          type: string
+        maxParticipants:
+          type: integer
+        budget:
+          type: string
+        status:
+          type: string
+      required: [title, type, startDate]
+
+    UpdateEventBody:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        departmentId:
+          type: integer
+        venue:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        coordinatorName:
+          type: string
+        coordinatorPhone:
+          type: string
+        maxParticipants:
+          type: integer
+        budget:
+          type: string
+        status:
+          type: string
+
+    EventParticipant:
+      type: object
+      properties:
+        id:
+          type: integer
+        eventId:
+          type: integer
+        studentId:
+          type: integer
+        role:
+          type: string
+        registrationDate:
+          type: string
+        achievement:
+          type: string
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, eventId, studentId, role, registrationDate, createdAt]
+
+    CreateEventParticipantBody:
+      type: object
+      properties:
+        eventId:
+          type: integer
+        studentId:
+          type: integer
+        role:
+          type: string
+        registrationDate:
+          type: string
+        achievement:
+          type: string
+        remarks:
+          type: string
+      required: [eventId, studentId, registrationDate]
+
+    UpdateEventParticipantBody:
+      type: object
+      properties:
+        role:
+          type: string
+        achievement:
+          type: string
+        remarks:
+          type: string
+
+    # ── Communication Schemas ──
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+        priority:
+          type: string
+        targetAudience:
+          type: string
+        departmentId:
+          type: integer
+          nullable: true
+        publishDate:
+          type: string
+        expiryDate:
+          type: string
+          nullable: true
+        postedBy:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, content, type, priority, targetAudience, publishDate, postedBy, status, createdAt]
+
+    CreateAnnouncementBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+        priority:
+          type: string
+        targetAudience:
+          type: string
+        departmentId:
+          type: integer
+        publishDate:
+          type: string
+        expiryDate:
+          type: string
+        postedBy:
+          type: string
+        status:
+          type: string
+      required: [title, content, publishDate, postedBy]
+
+    UpdateAnnouncementBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+        priority:
+          type: string
+        targetAudience:
+          type: string
+        departmentId:
+          type: integer
+        expiryDate:
+          type: string
+        status:
+          type: string
+
+    Grievance:
+      type: object
+      properties:
+        id:
+          type: integer
+        submittedBy:
+          type: string
+        submitterType:
+          type: string
+        category:
+          type: string
+        subject:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+        status:
+          type: string
+        assignedTo:
+          type: string
+          nullable: true
+        resolution:
+          type: string
+          nullable: true
+        resolvedDate:
+          type: string
+          nullable: true
+        isAnonymous:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, submittedBy, submitterType, category, subject, description, priority, status, isAnonymous, createdAt]
+
+    CreateGrievanceBody:
+      type: object
+      properties:
+        submittedBy:
+          type: string
+        submitterType:
+          type: string
+        category:
+          type: string
+        subject:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+        isAnonymous:
+          type: string
+      required: [submittedBy, submitterType, category, subject, description]
+
+    UpdateGrievanceBody:
+      type: object
+      properties:
+        status:
+          type: string
+        assignedTo:
+          type: string
+        resolution:
+          type: string
+        resolvedDate:
+          type: string
+        priority:
+          type: string
+
+    # ── Inventory Schemas ──
+    Asset:
+      type: object
+      properties:
+        id:
+          type: integer
+        assetTag:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        departmentId:
+          type: integer
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        purchaseDate:
+          type: string
+          nullable: true
+        purchasePrice:
+          type: number
+          nullable: true
+        vendor:
+          type: string
+          nullable: true
+        warrantyExpiry:
+          type: string
+          nullable: true
+        condition:
+          type: string
+        assignedTo:
+          type: string
+          nullable: true
+        serialNumber:
+          type: string
+          nullable: true
+        status:
+          type: string
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, assetTag, name, category, condition, status, createdAt]
+
+    CreateAssetBody:
+      type: object
+      properties:
+        assetTag:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        departmentId:
+          type: integer
+        location:
+          type: string
+        purchaseDate:
+          type: string
+        purchasePrice:
+          type: number
+        vendor:
+          type: string
+        warrantyExpiry:
+          type: string
+        condition:
+          type: string
+        assignedTo:
+          type: string
+        serialNumber:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: string
+      required: [assetTag, name, category]
+
+    UpdateAssetBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        departmentId:
+          type: integer
+        location:
+          type: string
+        purchaseDate:
+          type: string
+        purchasePrice:
+          type: number
+        vendor:
+          type: string
+        warrantyExpiry:
+          type: string
+        condition:
+          type: string
+        assignedTo:
+          type: string
+        serialNumber:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: string
+
+    StoreItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        itemCode:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        currentStock:
+          type: integer
+        minimumStock:
+          type: integer
+        unitPrice:
+          type: number
+          nullable: true
+        lastRestockDate:
+          type: string
+          nullable: true
+        supplier:
+          type: string
+          nullable: true
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, itemCode, name, category, unit, currentStock, minimumStock, status, createdAt]
+
+    CreateStoreItemBody:
+      type: object
+      properties:
+        itemCode:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        currentStock:
+          type: integer
+        minimumStock:
+          type: integer
+        unitPrice:
+          type: number
+        supplier:
+          type: string
+        status:
+          type: string
+      required: [itemCode, name, category]
+
+    UpdateStoreItemBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        currentStock:
+          type: integer
+        minimumStock:
+          type: integer
+        unitPrice:
+          type: number
+        lastRestockDate:
+          type: string
+        supplier:
+          type: string
+        status:
+          type: string
+
+    # ── Academic Schemas ──
+    TimetableEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        departmentId:
+          type: integer
+        semester:
+          type: integer
+        dayOfWeek:
+          type: string
+        periodNumber:
+          type: integer
+        startTime:
+          type: string
+        endTime:
+          type: string
+        subjectId:
+          type: integer
+          nullable: true
+        staffId:
+          type: integer
+          nullable: true
+        room:
+          type: string
+          nullable: true
+        section:
+          type: string
+          nullable: true
+        academicYear:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, departmentId, semester, dayOfWeek, periodNumber, startTime, endTime, academicYear, createdAt]
+
+    CreateTimetableEntryBody:
+      type: object
+      properties:
+        departmentId:
+          type: integer
+        semester:
+          type: integer
+        dayOfWeek:
+          type: string
+        periodNumber:
+          type: integer
+        startTime:
+          type: string
+        endTime:
+          type: string
+        subjectId:
+          type: integer
+        staffId:
+          type: integer
+        room:
+          type: string
+        section:
+          type: string
+        academicYear:
+          type: string
+      required: [departmentId, semester, dayOfWeek, periodNumber, startTime, endTime, academicYear]
+
+    UpdateTimetableEntryBody:
+      type: object
+      properties:
+        dayOfWeek:
+          type: string
+        periodNumber:
+          type: integer
+        startTime:
+          type: string
+        endTime:
+          type: string
+        subjectId:
+          type: integer
+        staffId:
+          type: integer
+        room:
+          type: string
+        section:
+          type: string
+
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        subjectId:
+          type: integer
+        staffId:
+          type: integer
+        maxMarks:
+          type: integer
+        dueDate:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, subjectId, staffId, maxMarks, dueDate, type, status, createdAt]
+
+    CreateAssignmentBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        subjectId:
+          type: integer
+        staffId:
+          type: integer
+        maxMarks:
+          type: integer
+        dueDate:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+      required: [title, subjectId, staffId, dueDate]
+
+    UpdateAssignmentBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        maxMarks:
+          type: integer
+        dueDate:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+
+    AssignmentSubmission:
+      type: object
+      properties:
+        id:
+          type: integer
+        assignmentId:
+          type: integer
+        studentId:
+          type: integer
+        submissionDate:
+          type: string
+        marksObtained:
+          type: integer
+          nullable: true
+        grade:
+          type: string
+          nullable: true
+        feedback:
+          type: string
+          nullable: true
+        isLate:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, assignmentId, studentId, submissionDate, isLate, status, createdAt]
+
+    CreateAssignmentSubmissionBody:
+      type: object
+      properties:
+        assignmentId:
+          type: integer
+        studentId:
+          type: integer
+        submissionDate:
+          type: string
+        isLate:
+          type: string
+        status:
+          type: string
+      required: [assignmentId, studentId, submissionDate]
+
+    UpdateAssignmentSubmissionBody:
+      type: object
+      properties:
+        marksObtained:
+          type: integer
+        grade:
+          type: string
+        feedback:
+          type: string
+        status:
+          type: string
+
+    # ── Certificate Schemas ──
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        type:
+          type: string
+        requestDate:
+          type: string
+        issueDate:
+          type: string
+          nullable: true
+        certificateNumber:
+          type: string
+          nullable: true
+        purpose:
+          type: string
+          nullable: true
+        status:
+          type: string
+        approvedBy:
+          type: string
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, studentId, type, requestDate, status, createdAt]
+
+    CreateCertificateBody:
+      type: object
+      properties:
+        studentId:
+          type: integer
+        type:
+          type: string
+        requestDate:
+          type: string
+        purpose:
+          type: string
+        remarks:
+          type: string
+      required: [studentId, type, requestDate]
+
+    UpdateCertificateBody:
+      type: object
+      properties:
+        status:
+          type: string
+        issueDate:
+          type: string
+        certificateNumber:
+          type: string
+        approvedBy:
+          type: string
+        remarks:
+          type: string
+
+    # ── Staff Leave Schemas ──
+    StaffLeave:
+      type: object
+      properties:
+        id:
+          type: integer
+        staffId:
+          type: integer
+        leaveType:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        totalDays:
+          type: integer
+        reason:
+          type: string
+        status:
+          type: string
+        approvedBy:
+          type: string
+          nullable: true
+        remarks:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, staffId, leaveType, startDate, endDate, totalDays, reason, status, createdAt]
+
+    CreateStaffLeaveBody:
+      type: object
+      properties:
+        staffId:
+          type: integer
+        leaveType:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        totalDays:
+          type: integer
+        reason:
+          type: string
+        remarks:
+          type: string
+      required: [staffId, leaveType, startDate, endDate, totalDays, reason]
+
+    UpdateStaffLeaveBody:
+      type: object
+      properties:
+        status:
+          type: string
+        approvedBy:
+          type: string
+        remarks:
+          type: string

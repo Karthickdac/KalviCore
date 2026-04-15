@@ -590,6 +590,743 @@ export interface RazorpayConfig {
   collegeName: string;
 }
 
+export interface Hostel {
+  id: number;
+  name: string;
+  type: string;
+  totalBlocks: number;
+  totalRooms: number;
+  wardenName?: string | null;
+  wardenPhone?: string | null;
+  address?: string | null;
+  facilities?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateHostelBody {
+  name: string;
+  type: string;
+  totalBlocks?: number;
+  totalRooms?: number;
+  wardenName?: string;
+  wardenPhone?: string;
+  address?: string;
+  facilities?: string;
+  status?: string;
+}
+
+export interface UpdateHostelBody {
+  name?: string;
+  type?: string;
+  totalBlocks?: number;
+  totalRooms?: number;
+  wardenName?: string;
+  wardenPhone?: string;
+  address?: string;
+  facilities?: string;
+  status?: string;
+}
+
+export interface HostelRoom {
+  id: number;
+  hostelId: number;
+  roomNumber: string;
+  floor: number;
+  block?: string | null;
+  roomType: string;
+  capacity: number;
+  occupancy: number;
+  amenities?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateHostelRoomBody {
+  hostelId: number;
+  roomNumber: string;
+  floor?: number;
+  block?: string;
+  roomType: string;
+  capacity?: number;
+  amenities?: string;
+  status?: string;
+}
+
+export interface UpdateHostelRoomBody {
+  roomNumber?: string;
+  floor?: number;
+  block?: string;
+  roomType?: string;
+  capacity?: number;
+  occupancy?: number;
+  amenities?: string;
+  status?: string;
+}
+
+export interface HostelAllocation {
+  id: number;
+  studentId: number;
+  hostelId: number;
+  roomId: number;
+  academicYear: string;
+  allocationDate: string;
+  vacatingDate?: string | null;
+  messType?: string | null;
+  status: string;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateHostelAllocationBody {
+  studentId: number;
+  hostelId: number;
+  roomId: number;
+  academicYear: string;
+  allocationDate: string;
+  messType?: string;
+  status?: string;
+  remarks?: string;
+}
+
+export interface UpdateHostelAllocationBody {
+  vacatingDate?: string;
+  messType?: string;
+  status?: string;
+  remarks?: string;
+}
+
+export interface HostelComplaint {
+  id: number;
+  studentId: number;
+  hostelId: number;
+  category: string;
+  subject: string;
+  description: string;
+  priority: string;
+  status: string;
+  resolvedDate?: string | null;
+  resolution?: string | null;
+  createdAt: string;
+}
+
+export interface CreateHostelComplaintBody {
+  studentId: number;
+  hostelId: number;
+  category: string;
+  subject: string;
+  description: string;
+  priority?: string;
+}
+
+export interface UpdateHostelComplaintBody {
+  status?: string;
+  resolution?: string;
+  resolvedDate?: string;
+  priority?: string;
+}
+
+export interface TransportRoute {
+  id: number;
+  routeName: string;
+  routeNumber: string;
+  startPoint: string;
+  endPoint: string;
+  distance?: string | null;
+  estimatedTime?: string | null;
+  fare: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateTransportRouteBody {
+  routeName: string;
+  routeNumber: string;
+  startPoint: string;
+  endPoint: string;
+  distance?: string;
+  estimatedTime?: string;
+  fare?: number;
+  status?: string;
+}
+
+export interface UpdateTransportRouteBody {
+  routeName?: string;
+  routeNumber?: string;
+  startPoint?: string;
+  endPoint?: string;
+  distance?: string;
+  estimatedTime?: string;
+  fare?: number;
+  status?: string;
+}
+
+export interface TransportVehicle {
+  id: number;
+  vehicleNumber: string;
+  vehicleType: string;
+  capacity: number;
+  driverName: string;
+  driverPhone: string;
+  driverLicense?: string | null;
+  routeId?: number | null;
+  insuranceExpiry?: string | null;
+  fitnessExpiry?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateTransportVehicleBody {
+  vehicleNumber: string;
+  vehicleType: string;
+  capacity: number;
+  driverName: string;
+  driverPhone: string;
+  driverLicense?: string;
+  routeId?: number;
+  insuranceExpiry?: string;
+  fitnessExpiry?: string;
+  status?: string;
+}
+
+export interface UpdateTransportVehicleBody {
+  vehicleNumber?: string;
+  vehicleType?: string;
+  capacity?: number;
+  driverName?: string;
+  driverPhone?: string;
+  driverLicense?: string;
+  routeId?: number;
+  insuranceExpiry?: string;
+  fitnessExpiry?: string;
+  status?: string;
+}
+
+export interface TransportStop {
+  id: number;
+  routeId: number;
+  stopName: string;
+  stopOrder: number;
+  pickupTime?: string | null;
+  dropTime?: string | null;
+  landmark?: string | null;
+  createdAt: string;
+}
+
+export interface CreateTransportStopBody {
+  routeId: number;
+  stopName: string;
+  stopOrder: number;
+  pickupTime?: string;
+  dropTime?: string;
+  landmark?: string;
+}
+
+export interface TransportAllocation {
+  id: number;
+  studentId: number;
+  routeId: number;
+  stopId: number;
+  academicYear: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateTransportAllocationBody {
+  studentId: number;
+  routeId: number;
+  stopId: number;
+  academicYear: string;
+  status?: string;
+}
+
+export interface UpdateTransportAllocationBody {
+  routeId?: number;
+  stopId?: number;
+  status?: string;
+}
+
+export interface LibraryBook {
+  id: number;
+  isbn?: string | null;
+  title: string;
+  author: string;
+  publisher?: string | null;
+  edition?: string | null;
+  category: string;
+  subject?: string | null;
+  shelfLocation?: string | null;
+  totalCopies: number;
+  availableCopies: number;
+  price?: number | null;
+  yearOfPublication?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateLibraryBookBody {
+  isbn?: string;
+  title: string;
+  author: string;
+  publisher?: string;
+  edition?: string;
+  category: string;
+  subject?: string;
+  shelfLocation?: string;
+  totalCopies?: number;
+  availableCopies?: number;
+  price?: number;
+  yearOfPublication?: string;
+  status?: string;
+}
+
+export interface UpdateLibraryBookBody {
+  isbn?: string;
+  title?: string;
+  author?: string;
+  publisher?: string;
+  edition?: string;
+  category?: string;
+  subject?: string;
+  shelfLocation?: string;
+  totalCopies?: number;
+  availableCopies?: number;
+  price?: number;
+  yearOfPublication?: string;
+  status?: string;
+}
+
+export interface LibraryIssuedBook {
+  id: number;
+  bookId: number;
+  memberId: number;
+  memberType: string;
+  issueDate: string;
+  dueDate: string;
+  returnDate?: string | null;
+  fineAmount?: number | null;
+  fineStatus?: string | null;
+  status: string;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface IssueLibraryBookBody {
+  bookId: number;
+  memberId: number;
+  memberType: string;
+  issueDate: string;
+  dueDate: string;
+  remarks?: string;
+}
+
+export interface UpdateLibraryIssuedBody {
+  returnDate?: string;
+  fineAmount?: number;
+  fineStatus?: string;
+  status?: string;
+  remarks?: string;
+}
+
+export interface Event {
+  id: number;
+  title: string;
+  type: string;
+  description?: string | null;
+  departmentId?: number | null;
+  venue?: string | null;
+  startDate: string;
+  endDate?: string | null;
+  coordinatorName?: string | null;
+  coordinatorPhone?: string | null;
+  maxParticipants?: number | null;
+  budget?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateEventBody {
+  title: string;
+  type: string;
+  description?: string;
+  departmentId?: number;
+  venue?: string;
+  startDate: string;
+  endDate?: string;
+  coordinatorName?: string;
+  coordinatorPhone?: string;
+  maxParticipants?: number;
+  budget?: string;
+  status?: string;
+}
+
+export interface UpdateEventBody {
+  title?: string;
+  type?: string;
+  description?: string;
+  departmentId?: number;
+  venue?: string;
+  startDate?: string;
+  endDate?: string;
+  coordinatorName?: string;
+  coordinatorPhone?: string;
+  maxParticipants?: number;
+  budget?: string;
+  status?: string;
+}
+
+export interface EventParticipant {
+  id: number;
+  eventId: number;
+  studentId: number;
+  role: string;
+  registrationDate: string;
+  achievement?: string | null;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateEventParticipantBody {
+  eventId: number;
+  studentId: number;
+  role?: string;
+  registrationDate: string;
+  achievement?: string;
+  remarks?: string;
+}
+
+export interface UpdateEventParticipantBody {
+  role?: string;
+  achievement?: string;
+  remarks?: string;
+}
+
+export interface Announcement {
+  id: number;
+  title: string;
+  content: string;
+  type: string;
+  priority: string;
+  targetAudience: string;
+  departmentId?: number | null;
+  publishDate: string;
+  expiryDate?: string | null;
+  postedBy: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateAnnouncementBody {
+  title: string;
+  content: string;
+  type?: string;
+  priority?: string;
+  targetAudience?: string;
+  departmentId?: number;
+  publishDate: string;
+  expiryDate?: string;
+  postedBy: string;
+  status?: string;
+}
+
+export interface UpdateAnnouncementBody {
+  title?: string;
+  content?: string;
+  type?: string;
+  priority?: string;
+  targetAudience?: string;
+  departmentId?: number;
+  expiryDate?: string;
+  status?: string;
+}
+
+export interface Grievance {
+  id: number;
+  submittedBy: string;
+  submitterType: string;
+  category: string;
+  subject: string;
+  description: string;
+  priority: string;
+  status: string;
+  assignedTo?: string | null;
+  resolution?: string | null;
+  resolvedDate?: string | null;
+  isAnonymous: string;
+  createdAt: string;
+}
+
+export interface CreateGrievanceBody {
+  submittedBy: string;
+  submitterType: string;
+  category: string;
+  subject: string;
+  description: string;
+  priority?: string;
+  isAnonymous?: string;
+}
+
+export interface UpdateGrievanceBody {
+  status?: string;
+  assignedTo?: string;
+  resolution?: string;
+  resolvedDate?: string;
+  priority?: string;
+}
+
+export interface Asset {
+  id: number;
+  assetTag: string;
+  name: string;
+  category: string;
+  departmentId?: number | null;
+  location?: string | null;
+  purchaseDate?: string | null;
+  purchasePrice?: number | null;
+  vendor?: string | null;
+  warrantyExpiry?: string | null;
+  condition: string;
+  assignedTo?: string | null;
+  serialNumber?: string | null;
+  status: string;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateAssetBody {
+  assetTag: string;
+  name: string;
+  category: string;
+  departmentId?: number;
+  location?: string;
+  purchaseDate?: string;
+  purchasePrice?: number;
+  vendor?: string;
+  warrantyExpiry?: string;
+  condition?: string;
+  assignedTo?: string;
+  serialNumber?: string;
+  status?: string;
+  remarks?: string;
+}
+
+export interface UpdateAssetBody {
+  name?: string;
+  category?: string;
+  departmentId?: number;
+  location?: string;
+  purchaseDate?: string;
+  purchasePrice?: number;
+  vendor?: string;
+  warrantyExpiry?: string;
+  condition?: string;
+  assignedTo?: string;
+  serialNumber?: string;
+  status?: string;
+  remarks?: string;
+}
+
+export interface StoreItem {
+  id: number;
+  itemCode: string;
+  name: string;
+  category: string;
+  unit: string;
+  currentStock: number;
+  minimumStock: number;
+  unitPrice?: number | null;
+  lastRestockDate?: string | null;
+  supplier?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateStoreItemBody {
+  itemCode: string;
+  name: string;
+  category: string;
+  unit?: string;
+  currentStock?: number;
+  minimumStock?: number;
+  unitPrice?: number;
+  supplier?: string;
+  status?: string;
+}
+
+export interface UpdateStoreItemBody {
+  name?: string;
+  category?: string;
+  unit?: string;
+  currentStock?: number;
+  minimumStock?: number;
+  unitPrice?: number;
+  lastRestockDate?: string;
+  supplier?: string;
+  status?: string;
+}
+
+export interface TimetableEntry {
+  id: number;
+  departmentId: number;
+  semester: number;
+  dayOfWeek: string;
+  periodNumber: number;
+  startTime: string;
+  endTime: string;
+  subjectId?: number | null;
+  staffId?: number | null;
+  room?: string | null;
+  section?: string | null;
+  academicYear: string;
+  createdAt: string;
+}
+
+export interface CreateTimetableEntryBody {
+  departmentId: number;
+  semester: number;
+  dayOfWeek: string;
+  periodNumber: number;
+  startTime: string;
+  endTime: string;
+  subjectId?: number;
+  staffId?: number;
+  room?: string;
+  section?: string;
+  academicYear: string;
+}
+
+export interface UpdateTimetableEntryBody {
+  dayOfWeek?: string;
+  periodNumber?: number;
+  startTime?: string;
+  endTime?: string;
+  subjectId?: number;
+  staffId?: number;
+  room?: string;
+  section?: string;
+}
+
+export interface Assignment {
+  id: number;
+  title: string;
+  description?: string | null;
+  subjectId: number;
+  staffId: number;
+  maxMarks: number;
+  dueDate: string;
+  type: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateAssignmentBody {
+  title: string;
+  description?: string;
+  subjectId: number;
+  staffId: number;
+  maxMarks?: number;
+  dueDate: string;
+  type?: string;
+  status?: string;
+}
+
+export interface UpdateAssignmentBody {
+  title?: string;
+  description?: string;
+  maxMarks?: number;
+  dueDate?: string;
+  type?: string;
+  status?: string;
+}
+
+export interface AssignmentSubmission {
+  id: number;
+  assignmentId: number;
+  studentId: number;
+  submissionDate: string;
+  marksObtained?: number | null;
+  grade?: string | null;
+  feedback?: string | null;
+  isLate: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateAssignmentSubmissionBody {
+  assignmentId: number;
+  studentId: number;
+  submissionDate: string;
+  isLate?: string;
+  status?: string;
+}
+
+export interface UpdateAssignmentSubmissionBody {
+  marksObtained?: number;
+  grade?: string;
+  feedback?: string;
+  status?: string;
+}
+
+export interface Certificate {
+  id: number;
+  studentId: number;
+  type: string;
+  requestDate: string;
+  issueDate?: string | null;
+  certificateNumber?: string | null;
+  purpose?: string | null;
+  status: string;
+  approvedBy?: string | null;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateCertificateBody {
+  studentId: number;
+  type: string;
+  requestDate: string;
+  purpose?: string;
+  remarks?: string;
+}
+
+export interface UpdateCertificateBody {
+  status?: string;
+  issueDate?: string;
+  certificateNumber?: string;
+  approvedBy?: string;
+  remarks?: string;
+}
+
+export interface StaffLeave {
+  id: number;
+  staffId: number;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  reason: string;
+  status: string;
+  approvedBy?: string | null;
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateStaffLeaveBody {
+  staffId: number;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  reason: string;
+  remarks?: string;
+}
+
+export interface UpdateStaffLeaveBody {
+  status?: string;
+  approvedBy?: string;
+  remarks?: string;
+}
+
 export type GetRecentActivityParams = {
   limit?: number;
 };
@@ -641,4 +1378,83 @@ export type ListExamsParams = {
 export type ListExamResultsParams = {
   examId?: number;
   studentId?: number;
+};
+
+export type ListHostelRoomsParams = {
+  hostelId?: number;
+};
+
+export type ListHostelAllocationsParams = {
+  hostelId?: number;
+};
+
+export type ListHostelComplaintsParams = {
+  hostelId?: number;
+};
+
+export type ListTransportVehiclesParams = {
+  routeId?: number;
+};
+
+export type ListTransportStopsParams = {
+  routeId?: number;
+};
+
+export type ListTransportAllocationsParams = {
+  routeId?: number;
+};
+
+export type ListLibraryBooksParams = {
+  category?: string;
+};
+
+export type ListLibraryIssuedParams = {
+  status?: string;
+};
+
+export type ListEventsParams = {
+  type?: string;
+};
+
+export type ListEventParticipantsParams = {
+  eventId?: number;
+};
+
+export type ListAnnouncementsParams = {
+  type?: string;
+};
+
+export type ListGrievancesParams = {
+  status?: string;
+};
+
+export type ListAssetsParams = {
+  category?: string;
+};
+
+export type ListStoreItemsParams = {
+  category?: string;
+};
+
+export type ListTimetableParams = {
+  departmentId?: number;
+  semester?: number;
+};
+
+export type ListAssignmentsParams = {
+  subjectId?: number;
+};
+
+export type ListAssignmentSubmissionsParams = {
+  assignmentId?: number;
+};
+
+export type ListCertificatesParams = {
+  studentId?: number;
+  type?: string;
+};
+
+export type ListStaffLeavesParams = {
+  staffId?: number;
+  status?: string;
 };
