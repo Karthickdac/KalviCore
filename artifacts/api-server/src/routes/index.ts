@@ -33,6 +33,11 @@ import bulkImportRouter from "./bulkImport";
 import hallTicketsRouter from "./hallTickets";
 import backupRouter from "./backup";
 import idCardsRouter from "./idCards";
+import notificationsRouter from "./notifications";
+import documentsRouter from "./documents";
+import printTemplatesRouter from "./printTemplates";
+import parentPortalRouter from "./parentPortal";
+import dashboardWidgetsRouter from "./dashboardWidgets";
 
 const router: IRouter = Router();
 
@@ -70,5 +75,10 @@ router.use(bulkImportRouter);
 router.use(hallTicketsRouter);
 router.use(backupRouter);
 router.use(idCardsRouter);
+router.use(notificationsRouter);
+router.use(documentsRouter);
+router.use(printTemplatesRouter);
+router.use(parentPortalRouter);
+router.use(dashboardWidgetsRouter);
 
 export default router;

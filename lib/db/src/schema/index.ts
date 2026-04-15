@@ -27,3 +27,6 @@ export * from "./attendanceCondonation";
 export * from "./institutionSettings";
 export * from "./users";
 export * from "./payroll";
+export * from "./notifications";
+export * from "./documents";
+export * from "./dashboardWidgets";

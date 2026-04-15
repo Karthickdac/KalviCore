@@ -36,6 +36,11 @@ import HallTicketsPage from "@/pages/hall-tickets";
 import StudentPortalPage from "@/pages/student-portal";
 import BackupPage from "@/pages/backup";
 import IDCardsPage from "@/pages/id-cards";
+import NotificationsPage from "@/pages/notifications";
+import DocumentsPage from "@/pages/documents";
+import PrintTemplatesPage from "@/pages/print-templates";
+import ParentPortalPage from "@/pages/parent-portal";
+import DashboardSettingsPage from "@/pages/dashboard-settings";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -93,6 +98,11 @@ function AppRoutes() {
         <Route path="/student-portal" component={StudentPortalPage} />
         <Route path="/backup" component={BackupPage} />
         <Route path="/id-cards" component={IDCardsPage} />
+        <Route path="/notifications" component={NotificationsPage} />
+        <Route path="/documents" component={DocumentsPage} />
+        <Route path="/print-templates" component={PrintTemplatesPage} />
+        <Route path="/parent-portal" component={ParentPortalPage} />
+        <Route path="/dashboard-settings" component={DashboardSettingsPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

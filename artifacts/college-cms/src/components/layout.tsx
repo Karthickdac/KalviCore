@@ -7,7 +7,8 @@ import {
   BookMarked, Calendar, Megaphone, Package, Clock, ClipboardList,
   Award, CalendarOff, Settings, ChevronDown, ChevronRight, LogOut,
   Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp,
-  Upload, Ticket, UserCircle, Database, CreditCard
+  Upload, Ticket, UserCircle, Database, CreditCard,
+  BellRing, FolderOpen, Printer, LayoutGrid
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -93,7 +94,9 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Events", href: "/events", icon: Calendar, permission: "events" },
       { name: "Communications", href: "/communications", icon: Megaphone, permission: "communications" },
+      { name: "Notifications", href: "/notifications", icon: BellRing, permission: "communications" },
       { name: "Student Portal", href: "/student-portal", icon: UserCircle, permission: "students" },
+      { name: "Parent Portal", href: "/parent-portal", icon: Home, permission: "students" },
     ],
   },
   {
@@ -103,6 +106,9 @@ const navGroups: NavGroup[] = [
       { name: "User Management", href: "/users", icon: UserCog, permission: "users" },
       { name: "Bulk Import/Export", href: "/bulk-import", icon: Upload, permission: "settings" },
       { name: "Activity Log", href: "/activity-log", icon: Activity, permission: "settings" },
+      { name: "Document Vault", href: "/documents", icon: FolderOpen, permission: "students" },
+      { name: "Print Templates", href: "/print-templates", icon: Printer, permission: "fees" },
+      { name: "Dashboard Settings", href: "/dashboard-settings", icon: LayoutGrid, permission: "dashboard" },
       { name: "Data Backup", href: "/backup", icon: Database, permission: "settings" },
       { name: "Settings", href: "/settings", icon: Settings, permission: "settings" },
     ],
