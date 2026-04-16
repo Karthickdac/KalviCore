@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db, hostelsTable, hostelRoomsTable, hostelAllocationsTable, hostelComplaintsTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -55,10 +56,19 @@ router.delete("/hostel-rooms/:id", async (req, res): Promise<void> => {
 });
 
 router.get("/hostel-allocations", async (req, res): Promise<void> => {
+  const scope = req.user ? getUserScope(req) : null;
   const hostelId = req.query.hostelId ? Number(req.query.hostelId) : undefined;
-  let query = db.select().from(hostelAllocationsTable);
-  if (hostelId) query = query.where(eq(hostelAllocationsTable.hostelId, hostelId)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(hostelAllocationsTable.studentId, scope.studentRecordId));
+  }
+  if (hostelId) conditions.push(eq(hostelAllocationsTable.hostelId, hostelId));
+
+  const records = conditions.length > 0
+    ? await db.select().from(hostelAllocationsTable).where(and(...conditions))
+    : await db.select().from(hostelAllocationsTable);
+  res.json(records);
 });
 
 router.post("/hostel-allocations", async (req, res): Promise<void> => {
@@ -73,10 +83,19 @@ router.patch("/hostel-allocations/:id", async (req, res): Promise<void> => {
 });
 
 router.get("/hostel-complaints", async (req, res): Promise<void> => {
+  const scope = req.user ? getUserScope(req) : null;
   const hostelId = req.query.hostelId ? Number(req.query.hostelId) : undefined;
-  let query = db.select().from(hostelComplaintsTable);
-  if (hostelId) query = query.where(eq(hostelComplaintsTable.hostelId, hostelId)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(hostelComplaintsTable.studentId, scope.studentRecordId));
+  }
+  if (hostelId) conditions.push(eq(hostelComplaintsTable.hostelId, hostelId));
+
+  const records = conditions.length > 0
+    ? await db.select().from(hostelComplaintsTable).where(and(...conditions))
+    : await db.select().from(hostelComplaintsTable);
+  res.json(records);
 });
 
 router.post("/hostel-complaints", async (req, res): Promise<void> => {

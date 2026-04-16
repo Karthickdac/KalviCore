@@ -13,16 +13,26 @@ import {
   DeleteStaffParams,
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/staff", async (req, res): Promise<void> => {
+router.get("/staff", requireAuth, async (req, res): Promise<void> => {
   const query = ListStaffQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
   const conditions: SQL[] = [];
+
+  const scope = req.user ? getUserScope(req) : null;
+  if (scope?.isFaculty && scope.staffRecordId) {
+    conditions.push(eq(staffTable.id, scope.staffRecordId));
+  } else if (scope?.isHOD && scope.departmentId) {
+    conditions.push(eq(staffTable.departmentId, scope.departmentId));
+  }
+
   if (query.data.departmentId) conditions.push(eq(staffTable.departmentId, query.data.departmentId));
   if (query.data.designation) conditions.push(eq(staffTable.designation, query.data.designation));
   if (query.data.search) conditions.push(ilike(staffTable.firstName, `%${query.data.search}%`));

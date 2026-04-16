@@ -1,15 +1,39 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, assignmentsTable, assignmentSubmissionsTable } from "@workspace/db";
+import { eq, inArray } from "drizzle-orm";
+import { db, assignmentsTable, assignmentSubmissionsTable, subjectsTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/assignments", async (req, res): Promise<void> => {
+router.get("/assignments", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const subjectId = req.query.subjectId ? Number(req.query.subjectId) : undefined;
-  let query = db.select().from(assignmentsTable);
-  if (subjectId) query = query.where(eq(assignmentsTable.subjectId, subjectId)) as any;
-  res.json(await query);
+
+  if (!scope.isAdmin && scope.departmentId) {
+    const deptSubjects = await db.select({ id: subjectsTable.id }).from(subjectsTable)
+      .where(eq(subjectsTable.departmentId, scope.departmentId));
+    const subjectIds = deptSubjects.map(s => s.id);
+    if (subjectId) {
+      if (!subjectIds.includes(subjectId)) { res.json([]); return; }
+      res.json(await db.select().from(assignmentsTable).where(eq(assignmentsTable.subjectId, subjectId)));
+      return;
+    }
+    if (subjectIds.length > 0) {
+      res.json(await db.select().from(assignmentsTable).where(inArray(assignmentsTable.subjectId, subjectIds)));
+      return;
+    }
+    res.json([]);
+    return;
+  }
+
+  if (subjectId) {
+    res.json(await db.select().from(assignmentsTable).where(eq(assignmentsTable.subjectId, subjectId)));
+    return;
+  }
+
+  res.json(await db.select().from(assignmentsTable));
 });
 
 router.post("/assignments", async (req, res): Promise<void> => {

@@ -3,13 +3,22 @@ import { db, notificationsTable, studentsTable, staffTable, departmentsTable } f
 import { eq, desc, and, sql, inArray } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
 router.get("/notifications", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
   try {
+    const scope = getUserScope(req);
     const { channel, status } = req.query;
     const conditions: any[] = [];
+
+    if (scope.isStudent) {
+      conditions.push(eq(notificationsTable.type, "Student"));
+    } else if (scope.isFaculty || scope.isStaff) {
+      conditions.push(eq(notificationsTable.type, "Staff"));
+    }
+
     if (channel && channel !== "all") conditions.push(eq(notificationsTable.channel, String(channel)));
     if (status && status !== "all") conditions.push(eq(notificationsTable.status, String(status)));
     const notifications = conditions.length > 0

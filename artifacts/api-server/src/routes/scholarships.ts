@@ -2,15 +2,23 @@ import { Router, type IRouter } from "express";
 import { eq, and } from "drizzle-orm";
 import { db, scholarshipsTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
 router.get("/scholarships", async (req, res): Promise<void> => {
+  const scope = req.user ? getUserScope(req) : null;
   const studentId = req.query.studentId ? Number(req.query.studentId) : undefined;
   const type = req.query.type as string | undefined;
-  const conditions = [];
-  if (studentId) conditions.push(eq(scholarshipsTable.studentId, studentId));
+  const conditions: any[] = [];
+
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(scholarshipsTable.studentId, scope.studentRecordId));
+  } else if (studentId) {
+    conditions.push(eq(scholarshipsTable.studentId, studentId));
+  }
   if (type) conditions.push(eq(scholarshipsTable.type, type));
+
   const query = conditions.length > 0 ? db.select().from(scholarshipsTable).where(and(...conditions)) : db.select().from(scholarshipsTable);
   res.json(await query);
 });

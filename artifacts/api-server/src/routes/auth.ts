@@ -42,7 +42,18 @@ router.post("/auth/logout", (req, res): void => {
 
 router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
   const perms = await getEffectivePermissions(req.user!.role);
-  res.json({ ...req.user, permissions: perms });
+  res.json({
+    id: req.user!.id,
+    username: req.user!.username,
+    email: req.user!.email,
+    fullName: req.user!.fullName,
+    role: req.user!.role,
+    departmentId: req.user!.departmentId,
+    staffRecordId: req.user!.staffRecordId || null,
+    studentRecordId: req.user!.studentRecordId || null,
+    courseId: req.user!.courseId || null,
+    permissions: perms,
+  });
 });
 
 router.get("/auth/roles", (req, res): void => {

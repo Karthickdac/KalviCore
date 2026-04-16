@@ -10,6 +10,9 @@ interface AuthUser {
   fullName: string;
   role: string;
   departmentId: number | null;
+  staffRecordId: number | null;
+  studentRecordId: number | null;
+  courseId: number | null;
   permissions?: string[];
 }
 

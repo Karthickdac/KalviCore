@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { eq, and } from "drizzle-orm";
-import { db, usersTable, ROLE_PERMISSIONS, rolePermissionsTable } from "@workspace/db";
+import { db, usersTable, ROLE_PERMISSIONS, rolePermissionsTable, staffTable, studentsTable } from "@workspace/db";
 
 declare global {
   namespace Express {
@@ -12,9 +12,43 @@ declare global {
         fullName: string;
         role: string;
         departmentId: number | null;
+        staffRecordId?: number | null;
+        studentRecordId?: number | null;
+        courseId?: number | null;
       };
     }
   }
+}
+
+const userContextCache = new Map<number, { staffRecordId: number | null; studentRecordId: number | null; courseId: number | null; expiry: number }>();
+const CONTEXT_CACHE_TTL = 60_000;
+
+export async function resolveUserContext(userId: number, role: string, email: string, departmentId: number | null) {
+  const cached = userContextCache.get(userId);
+  if (cached && cached.expiry > Date.now()) return cached;
+
+  let staffRecordId: number | null = null;
+  let studentRecordId: number | null = null;
+  let courseId: number | null = null;
+
+  if (["HOD", "Faculty", "Staff"].includes(role) && email) {
+    const [staff] = await db.select({ id: staffTable.id }).from(staffTable)
+      .where(eq(staffTable.email, email)).limit(1);
+    if (staff) staffRecordId = staff.id;
+  }
+
+  if (role === "Student" && email) {
+    const [student] = await db.select({ id: studentsTable.id, courseId: studentsTable.courseId })
+      .from(studentsTable).where(eq(studentsTable.email, email)).limit(1);
+    if (student) {
+      studentRecordId = student.id;
+      courseId = student.courseId;
+    }
+  }
+
+  const ctx = { staffRecordId, studentRecordId, courseId, expiry: Date.now() + CONTEXT_CACHE_TTL };
+  userContextCache.set(userId, ctx);
+  return ctx;
 }
 
 const sessionStore = new Map<string, { userId: number; expiresAt: number }>();
@@ -52,7 +86,13 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       departmentId: usersTable.departmentId,
     }).from(usersTable).where(eq(usersTable.id, session.userId));
     if (user) {
-      req.user = user;
+      const ctx = await resolveUserContext(user.id, user.role, user.email, user.departmentId);
+      req.user = {
+        ...user,
+        staffRecordId: ctx.staffRecordId,
+        studentRecordId: ctx.studentRecordId,
+        courseId: ctx.courseId,
+      };
     }
   } catch {}
   next();

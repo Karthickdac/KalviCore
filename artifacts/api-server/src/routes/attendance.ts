@@ -1,8 +1,9 @@
 import { Router, type IRouter } from "express";
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, inArray } from "drizzle-orm";
 import { db, attendanceTable, subjectsTable, studentsTable, departmentsTable, coursesTable } from "@workspace/db";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -10,6 +11,18 @@ router.get("/attendance", requireAuth, requirePermission("attendance"), async (r
   try {
     const { studentId, subjectId, date, departmentId } = req.query;
     const conditions: any[] = [];
+
+    const scope = getUserScope(req);
+    if (scope.isStudent && scope.studentRecordId) {
+      conditions.push(eq(attendanceTable.studentId, scope.studentRecordId));
+    } else if ((scope.isHOD || scope.isFaculty) && scope.departmentId) {
+      const deptStudents = await db.select({ id: studentsTable.id }).from(studentsTable)
+        .where(eq(studentsTable.departmentId, scope.departmentId));
+      if (deptStudents.length > 0) {
+        conditions.push(inArray(attendanceTable.studentId, deptStudents.map(s => s.id)));
+      }
+    }
+
     if (studentId) conditions.push(eq(attendanceTable.studentId, Number(studentId)));
     if (subjectId) conditions.push(eq(attendanceTable.subjectId, Number(subjectId)));
     if (date) conditions.push(eq(attendanceTable.date, String(date)));

@@ -2,13 +2,22 @@ import { Router, type IRouter } from "express";
 import { db, payrollTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/payroll", async (req, res): Promise<void> => {
+router.get("/payroll", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const { staffId, month, year, status } = req.query;
   let conditions: any[] = [];
-  if (staffId) conditions.push(eq(payrollTable.staffId, Number(staffId)));
+
+  if (scope && (scope.isFaculty || scope.isStaff) && scope.staffRecordId) {
+    conditions.push(eq(payrollTable.staffId, scope.staffRecordId));
+  } else if (staffId) {
+    conditions.push(eq(payrollTable.staffId, Number(staffId)));
+  }
+
   if (month) conditions.push(eq(payrollTable.month, Number(month)));
   if (year) conditions.push(eq(payrollTable.year, Number(year)));
   if (status) conditions.push(eq(payrollTable.status, String(status)));

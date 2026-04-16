@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, isNull } from "drizzle-orm";
 import { db, libraryBooksTable, libraryIssuedBooksTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -35,10 +36,19 @@ router.delete("/library-books/:id", async (req, res): Promise<void> => {
 });
 
 router.get("/library-issued", async (req, res): Promise<void> => {
+  const scope = req.user ? getUserScope(req) : null;
   const status = req.query.status as string | undefined;
-  let query = db.select().from(libraryIssuedBooksTable);
-  if (status) query = query.where(eq(libraryIssuedBooksTable.status, status)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(libraryIssuedBooksTable.studentId, scope.studentRecordId));
+  }
+  if (status) conditions.push(eq(libraryIssuedBooksTable.status, status));
+
+  const records = conditions.length > 0
+    ? await db.select().from(libraryIssuedBooksTable).where(and(...conditions))
+    : await db.select().from(libraryIssuedBooksTable);
+  res.json(records);
 });
 
 router.post("/library-issued", async (req, res): Promise<void> => {

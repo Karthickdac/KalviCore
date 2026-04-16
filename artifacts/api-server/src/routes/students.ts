@@ -13,16 +13,26 @@ import {
   DeleteStudentParams,
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/students", async (req, res): Promise<void> => {
+router.get("/students", requireAuth, async (req, res): Promise<void> => {
   const query = ListStudentsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
   const conditions: SQL[] = [];
+
+  const scope = req.user ? getUserScope(req) : null;
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(studentsTable.id, scope.studentRecordId));
+  } else if ((scope?.isHOD || scope?.isFaculty) && scope.departmentId) {
+    conditions.push(eq(studentsTable.departmentId, scope.departmentId));
+  }
+
   if (query.data.departmentId) conditions.push(eq(studentsTable.departmentId, query.data.departmentId));
   if (query.data.year) conditions.push(eq(studentsTable.year, query.data.year));
   if (query.data.community) conditions.push(eq(studentsTable.community, query.data.community));

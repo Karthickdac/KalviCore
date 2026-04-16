@@ -27,3 +27,19 @@ Key architectural decisions include:
 - **Charting Library**: Recharts
 - **OpenAPI Codegen**: Orval
 - **Authentication**: bcrypt (for password hashing)
+
+## Role-Based Data Scoping
+All API endpoints enforce server-side role-based data scoping:
+- **SuperAdmin/Admin/Principal**: Full access to all data across all departments
+- **HOD**: Access limited to their own department's students, staff, timetable, attendance, exams, labs
+- **Faculty**: Access to own department's students/attendance + own staff record, leaves, payroll
+- **Staff (Office)**: Access to all operational data
+- **Student**: Access restricted to own records only (attendance, fees, certificates, grades, library books, hostel allocation, transport, sports enrollments, placement applications)
+
+Key implementation:
+- `resolveUserContext()` in `auth.ts` middleware maps user email → staff/student DB record IDs
+- `getUserScope()` in `scopeFilter.ts` provides role flags and scoped IDs
+- All scoped routes require `requireAuth` middleware — unauthenticated access returns 401
+- User emails in `users` table must match emails in `staff`/`students` tables for identity resolution
+
+Test accounts: college_admin/Admin@123, principal/Principal@123, hod_cse/Hod@123, faculty_cse/Faculty@123, office_staff/Staff@123, student_cse/Student@123

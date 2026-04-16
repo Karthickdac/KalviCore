@@ -1,17 +1,29 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db, certificatesTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/certificates", async (req, res): Promise<void> => {
+router.get("/certificates", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const studentId = req.query.studentId ? Number(req.query.studentId) : undefined;
   const type = req.query.type as string | undefined;
-  let query = db.select().from(certificatesTable);
-  if (studentId) query = query.where(eq(certificatesTable.studentId, studentId)) as any;
-  if (type) query = query.where(eq(certificatesTable.type, type)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(certificatesTable.studentId, scope.studentRecordId));
+  } else if (studentId) {
+    conditions.push(eq(certificatesTable.studentId, studentId));
+  }
+  if (type) conditions.push(eq(certificatesTable.type, type));
+
+  const records = conditions.length > 0
+    ? await db.select().from(certificatesTable).where(and(...conditions))
+    : await db.select().from(certificatesTable);
+  res.json(records);
 });
 
 router.post("/certificates", async (req, res): Promise<void> => {

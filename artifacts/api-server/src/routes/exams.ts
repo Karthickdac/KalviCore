@@ -3,6 +3,7 @@ import { eq, and, desc, sql, count } from "drizzle-orm";
 import { db, examsTable, examResultsTable, subjectsTable, studentsTable, departmentsTable, coursesTable } from "@workspace/db";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -26,8 +27,14 @@ function calculateGrade(marks: number, maxMarks: number, passMarks?: number | nu
 
 router.get("/exams", requireAuth, requirePermission("exams"), async (req, res): Promise<void> => {
   try {
+    const scope = getUserScope(req);
     const { departmentId, courseId, type, semester, status, academicYear } = req.query;
     const conditions: any[] = [];
+
+    if (!scope.isAdmin && scope.departmentId) {
+      conditions.push(eq(examsTable.departmentId, scope.departmentId));
+    }
+
     if (departmentId && departmentId !== "all") conditions.push(eq(examsTable.departmentId, Number(departmentId)));
     if (courseId && courseId !== "all") conditions.push(eq(examsTable.courseId, Number(courseId)));
     if (type && type !== "all") conditions.push(eq(examsTable.type, String(type)));

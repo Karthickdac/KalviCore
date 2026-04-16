@@ -3,6 +3,7 @@ import { eq, and, type SQL } from "drizzle-orm";
 import { db, sportsActivitiesTable, sportsEnrollmentsTable, sportsAchievementsTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
 import { requireAuth, requirePermission } from "../middleware/auth";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -36,10 +37,19 @@ router.delete("/sports-activities/:id", requireAuth, requirePermission("sports_n
 });
 
 router.get("/sports-enrollments", requireAuth, requirePermission("sports_ncc"), async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const activityId = req.query.activityId ? Number(req.query.activityId) : undefined;
-  let query = db.select().from(sportsEnrollmentsTable);
-  if (activityId) query = query.where(eq(sportsEnrollmentsTable.activityId, activityId)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope.isStudent && scope.studentRecordId) {
+    conditions.push(eq(sportsEnrollmentsTable.studentId, scope.studentRecordId));
+  }
+  if (activityId) conditions.push(eq(sportsEnrollmentsTable.activityId, activityId));
+
+  const records = conditions.length > 0
+    ? await db.select().from(sportsEnrollmentsTable).where(and(...conditions))
+    : await db.select().from(sportsEnrollmentsTable);
+  res.json(records);
 });
 
 router.post("/sports-enrollments", requireAuth, requirePermission("sports_ncc"), async (req, res): Promise<void> => {
@@ -59,11 +69,18 @@ router.delete("/sports-enrollments/:id", requireAuth, requirePermission("sports_
 });
 
 router.get("/sports-achievements", requireAuth, requirePermission("sports_ncc"), async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const activityId = req.query.activityId ? Number(req.query.activityId) : undefined;
   const studentId = req.query.studentId ? Number(req.query.studentId) : undefined;
   const conditions: SQL[] = [];
+
+  if (scope.isStudent && scope.studentRecordId) {
+    conditions.push(eq(sportsAchievementsTable.studentId, scope.studentRecordId));
+  } else if (studentId) {
+    conditions.push(eq(sportsAchievementsTable.studentId, studentId));
+  }
   if (activityId) conditions.push(eq(sportsAchievementsTable.activityId, activityId));
-  if (studentId) conditions.push(eq(sportsAchievementsTable.studentId, studentId));
+
   let query = db.select().from(sportsAchievementsTable);
   if (conditions.length > 0) query = query.where(and(...conditions)) as any;
   res.json(await query);

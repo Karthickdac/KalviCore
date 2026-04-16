@@ -1,17 +1,29 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db, staffLeavesTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/staff-leaves", async (req, res): Promise<void> => {
+router.get("/staff-leaves", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const staffId = req.query.staffId ? Number(req.query.staffId) : undefined;
   const status = req.query.status as string | undefined;
-  let query = db.select().from(staffLeavesTable);
-  if (staffId) query = query.where(eq(staffLeavesTable.staffId, staffId)) as any;
-  if (status) query = query.where(eq(staffLeavesTable.status, status)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope && (scope.isFaculty || scope.isStaff) && scope.staffRecordId) {
+    conditions.push(eq(staffLeavesTable.staffId, scope.staffRecordId));
+  } else if (staffId) {
+    conditions.push(eq(staffLeavesTable.staffId, staffId));
+  }
+  if (status) conditions.push(eq(staffLeavesTable.status, status));
+
+  const records = conditions.length > 0
+    ? await db.select().from(staffLeavesTable).where(and(...conditions))
+    : await db.select().from(staffLeavesTable);
+  res.json(records);
 });
 
 router.post("/staff-leaves", async (req, res): Promise<void> => {

@@ -1,12 +1,21 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db, laboratoriesTable, labEquipmentTable, labSchedulesTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
 import { requireAuth, requirePermission } from "../middleware/auth";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
 router.get("/laboratories", requireAuth, requirePermission("laboratory"), async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
+  if ((scope.isHOD || scope.isFaculty) && scope.departmentId) {
+    const labs = await db.select().from(laboratoriesTable)
+      .where(eq(laboratoriesTable.departmentId, scope.departmentId))
+      .orderBy(laboratoriesTable.name);
+    res.json(labs);
+    return;
+  }
   res.json(await db.select().from(laboratoriesTable).orderBy(laboratoriesTable.name));
 });
 

@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, sql } from "drizzle-orm";
 import { db, feeStructuresTable, feePaymentsTable, studentsTable } from "@workspace/db";
+import { requireAuth } from "../middleware/auth";
 import {
   CreateFeeStructureBody,
   ListFeeStructuresResponse,
@@ -12,6 +13,7 @@ import {
   GetStudentDuesResponse,
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -70,14 +72,18 @@ router.post("/fee-structures", async (req, res): Promise<void> => {
   res.status(201).json(mapFeeStructure(structure));
 });
 
-router.get("/fee-payments", async (req, res): Promise<void> => {
+router.get("/fee-payments", requireAuth, async (req, res): Promise<void> => {
   const query = ListFeePaymentsQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
+
+  const scope = req.user ? getUserScope(req) : null;
   let payments;
-  if (query.data.studentId) {
+  if (scope?.isStudent && scope.studentRecordId) {
+    payments = await db.select().from(feePaymentsTable).where(eq(feePaymentsTable.studentId, scope.studentRecordId));
+  } else if (query.data.studentId) {
     payments = await db.select().from(feePaymentsTable).where(eq(feePaymentsTable.studentId, query.data.studentId));
   } else {
     payments = await db.select().from(feePaymentsTable).orderBy(feePaymentsTable.paymentDate).limit(500);

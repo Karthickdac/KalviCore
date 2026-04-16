@@ -3,6 +3,7 @@ import { db, companiesTable, placementDrivesTable, placementApplicationsTable, t
 import { eq, desc, and } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -76,8 +77,13 @@ router.patch("/placement-drives/:id", requireAuth, requirePermission("placements
 
 router.get("/placement-applications", requireAuth, async (req, res): Promise<void> => {
   try {
+    const scope = getUserScope(req);
     const { driveId } = req.query;
     const conditions: any[] = [];
+
+    if (scope.isStudent && scope.studentRecordId) {
+      conditions.push(eq(placementApplicationsTable.studentId, scope.studentRecordId));
+    }
     if (driveId) conditions.push(eq(placementApplicationsTable.driveId, Number(driveId)));
     const apps = conditions.length > 0
       ? await db.select().from(placementApplicationsTable).where(and(...conditions)).orderBy(desc(placementApplicationsTable.appliedAt))
@@ -146,8 +152,13 @@ router.patch("/training-programs/:id", requireAuth, requirePermission("placement
 
 router.get("/training-enrollments", requireAuth, async (req, res): Promise<void> => {
   try {
+    const scope = getUserScope(req);
     const { programId } = req.query;
     const conditions: any[] = [];
+
+    if (scope.isStudent && scope.studentRecordId) {
+      conditions.push(eq(trainingEnrollmentsTable.studentId, scope.studentRecordId));
+    }
     if (programId) conditions.push(eq(trainingEnrollmentsTable.programId, Number(programId)));
     const enrollments = conditions.length > 0
       ? await db.select().from(trainingEnrollmentsTable).where(and(...conditions)).orderBy(desc(trainingEnrollmentsTable.enrolledAt))

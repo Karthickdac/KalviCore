@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { sql, eq, desc } from "drizzle-orm";
+import { sql, eq, desc, and, inArray } from "drizzle-orm";
 import {
   db,
   studentsTable,
@@ -19,33 +19,72 @@ import {
   GetFeeOverviewResponse,
   GetAttendanceOverviewResponse,
 } from "@workspace/api-zod";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/dashboard/summary", async (_req, res): Promise<void> => {
-  const [studentCount] = await db.select({ count: sql<number>`count(*)::int` }).from(studentsTable);
-  const [staffCount] = await db.select({ count: sql<number>`count(*)::int` }).from(staffTable);
-  const [deptCount] = await db.select({ count: sql<number>`count(*)::int` }).from(departmentsTable);
+router.get("/dashboard/summary", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
+  const deptFilter = scope && !scope.isAdmin && scope.departmentId ? scope.departmentId : null;
+
+  const studentWhere = deptFilter ? eq(studentsTable.departmentId, deptFilter) : undefined;
+  const staffWhere = deptFilter ? eq(staffTable.departmentId, deptFilter) : undefined;
+
+  const [studentCount] = await db.select({ count: sql<number>`count(*)::int` }).from(studentsTable).where(studentWhere);
+  const [staffCount] = await db.select({ count: sql<number>`count(*)::int` }).from(staffTable).where(staffWhere);
+  const [deptCount] = deptFilter
+    ? [{ count: 1 }]
+    : await db.select({ count: sql<number>`count(*)::int` }).from(departmentsTable);
   const [courseCount] = await db.select({ count: sql<number>`count(*)::int` }).from(coursesTable);
-  const [activeCount] = await db.select({ count: sql<number>`count(*)::int` }).from(studentsTable).where(eq(studentsTable.status, "Active"));
+  const [activeCount] = deptFilter
+    ? await db.select({ count: sql<number>`count(*)::int` }).from(studentsTable).where(and(eq(studentsTable.status, "Active"), eq(studentsTable.departmentId, deptFilter)))
+    : await db.select({ count: sql<number>`count(*)::int` }).from(studentsTable).where(eq(studentsTable.status, "Active"));
 
-  const [feeCollected] = await db.select({ total: sql<number>`coalesce(sum(amount_paid::numeric), 0)::float` }).from(feePaymentsTable);
+  let feeCollectedTotal = 0;
+  let feeDemandTotal = 0;
+  if (deptFilter) {
+    const deptStudentIds = (await db.select({ id: studentsTable.id }).from(studentsTable).where(eq(studentsTable.departmentId, deptFilter))).map(s => s.id);
+    if (deptStudentIds.length > 0) {
+      const [fc] = await db.select({ total: sql<number>`coalesce(sum(amount_paid::numeric), 0)::float` }).from(feePaymentsTable).where(inArray(feePaymentsTable.studentId, deptStudentIds));
+      feeCollectedTotal = fc.total;
+    }
+  } else {
+    const [fc] = await db.select({ total: sql<number>`coalesce(sum(amount_paid::numeric), 0)::float` }).from(feePaymentsTable);
+    feeCollectedTotal = fc.total;
+  }
   const [feeDemand] = await db.select({ total: sql<number>`coalesce(sum(total_fee::numeric), 0)::float` }).from(feeStructuresTable);
+  feeDemandTotal = feeDemand.total;
 
-  const [attStats] = await db.select({
-    total: sql<number>`count(*)::int`,
-    present: sql<number>`count(*) filter (where ${attendanceTable.status} = 'Present')::int`,
-  }).from(attendanceTable);
+  let attTotal = 0, attPresent = 0;
+  if (deptFilter) {
+    const deptStudentIds = (await db.select({ id: studentsTable.id }).from(studentsTable).where(eq(studentsTable.departmentId, deptFilter))).map(s => s.id);
+    if (deptStudentIds.length > 0) {
+      const [attStats] = await db.select({
+        total: sql<number>`count(*)::int`,
+        present: sql<number>`count(*) filter (where ${attendanceTable.status} = 'Present')::int`,
+      }).from(attendanceTable).where(inArray(attendanceTable.studentId, deptStudentIds));
+      attTotal = attStats.total;
+      attPresent = attStats.present;
+    }
+  } else {
+    const [attStats] = await db.select({
+      total: sql<number>`count(*)::int`,
+      present: sql<number>`count(*) filter (where ${attendanceTable.status} = 'Present')::int`,
+    }).from(attendanceTable);
+    attTotal = attStats.total;
+    attPresent = attStats.present;
+  }
 
-  const avgAttendance = attStats.total > 0 ? Math.round((attStats.present / attStats.total) * 100) : 0;
+  const avgAttendance = attTotal > 0 ? Math.round((attPresent / attTotal) * 100) : 0;
 
   res.json(GetDashboardSummaryResponse.parse({
     totalStudents: studentCount.count,
     totalStaff: staffCount.count,
     totalDepartments: deptCount.count,
     totalCourses: courseCount.count,
-    totalFeeCollected: feeCollected.total,
-    totalFeePending: feeDemand.total - feeCollected.total,
+    totalFeeCollected: feeCollectedTotal,
+    totalFeePending: feeDemandTotal - feeCollectedTotal,
     averageAttendance: avgAttendance,
     activeStudents: activeCount.count,
   }));

@@ -1,7 +1,8 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db, transportRoutesTable, transportVehiclesTable, transportStopsTable, transportAllocationsTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -72,10 +73,19 @@ router.delete("/transport-stops/:id", async (req, res): Promise<void> => {
 });
 
 router.get("/transport-allocations", async (req, res): Promise<void> => {
+  const scope = req.user ? getUserScope(req) : null;
   const routeId = req.query.routeId ? Number(req.query.routeId) : undefined;
-  let query = db.select().from(transportAllocationsTable);
-  if (routeId) query = query.where(eq(transportAllocationsTable.routeId, routeId)) as any;
-  res.json(await query);
+  const conditions: any[] = [];
+
+  if (scope?.isStudent && scope.studentRecordId) {
+    conditions.push(eq(transportAllocationsTable.studentId, scope.studentRecordId));
+  }
+  if (routeId) conditions.push(eq(transportAllocationsTable.routeId, routeId));
+
+  const records = conditions.length > 0
+    ? await db.select().from(transportAllocationsTable).where(and(...conditions))
+    : await db.select().from(transportAllocationsTable);
+  res.json(records);
 });
 
 router.post("/transport-allocations", async (req, res): Promise<void> => {

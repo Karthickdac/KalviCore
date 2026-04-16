@@ -2,14 +2,24 @@ import { Router, type IRouter } from "express";
 import { eq, and } from "drizzle-orm";
 import { db, timetableTable } from "@workspace/db";
 import { logActivity } from "../lib/activity";
+import { getUserScope } from "../lib/scopeFilter";
+import { requireAuth } from "../middleware/auth";
 
 const router: IRouter = Router();
 
-router.get("/timetable", async (req, res): Promise<void> => {
+router.get("/timetable", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
   const deptId = req.query.departmentId ? Number(req.query.departmentId) : undefined;
   const semester = req.query.semester ? Number(req.query.semester) : undefined;
   let query = db.select().from(timetableTable);
-  const conditions = [];
+  const conditions: any[] = [];
+
+  if (scope && !scope.isAdmin) {
+    if (scope.departmentId) {
+      conditions.push(eq(timetableTable.departmentId, scope.departmentId));
+    }
+  }
+
   if (deptId) conditions.push(eq(timetableTable.departmentId, deptId));
   if (semester) conditions.push(eq(timetableTable.semester, semester));
   if (conditions.length > 0) query = query.where(and(...conditions)) as any;
