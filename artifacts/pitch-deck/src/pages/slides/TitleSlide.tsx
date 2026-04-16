@@ -16,7 +16,7 @@ export default function TitleSlide() {
           src={`${base}automystics-logo.png`}
           crossOrigin="anonymous"
           alt="AutoMystics logo"
-          className="h-[8vh] w-auto object-contain"
+          className="h-[14vh] w-auto object-contain"
         />
       </div>
 

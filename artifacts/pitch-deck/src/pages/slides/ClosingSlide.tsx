@@ -16,7 +16,7 @@ export default function ClosingSlide() {
           src={`${base}automystics-logo.png`}
           crossOrigin="anonymous"
           alt="AutoMystics logo"
-          className="h-[10vh] w-auto object-contain mb-[2vh]"
+          className="h-[16vh] w-auto object-contain mb-[2vh]"
         />
         <h2 className="font-display text-[6vw] font-extrabold text-white leading-[0.95] tracking-tighter">
           KalviCore
