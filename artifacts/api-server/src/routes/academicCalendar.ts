@@ -23,7 +23,12 @@ router.get("/academic-calendar", requireAuth, requirePermission("calendar"), asy
 });
 
 router.post("/academic-calendar", requireAuth, requirePermission("calendar"), async (req, res): Promise<void> => {
-  const [event] = await db.insert(academicCalendarTable).values(req.body).returning();
+  const values = {
+    ...req.body,
+    startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+    endDate: req.body.endDate ? new Date(req.body.endDate) : undefined,
+  };
+  const [event] = await db.insert(academicCalendarTable).values(values).returning();
   res.status(201).json(event);
 });
 
