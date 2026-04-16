@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth";
+import { useInstitution } from "@/contexts/institution";
 import { useListStudents, useListStaff } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function IDCardsPage() {
   const { token } = useAuth();
+  const { info: institution } = useInstitution();
   const headers = { Authorization: `Bearer ${token}` };
   const [tab, setTab] = useState("students");
   const [selectedId, setSelectedId] = useState("");
@@ -144,8 +146,8 @@ export default function IDCardsPage() {
             <div className="rounded-xl overflow-hidden shadow-xl border-2 border-blue-200 mb-4">
               {/* Header */}
               <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white px-4 py-3 text-center">
-                <h2 className="text-sm font-bold tracking-wide">ANNA UNIVERSITY AFFILIATED COLLEGE</h2>
-                <p className="text-[10px] opacity-80">Tamil Nadu, India</p>
+                <h2 className="text-sm font-bold tracking-wide">{institution.collegeName || "College"}</h2>
+                <p className="text-[10px] opacity-80">{institution.location || ""}</p>
                 <div className="mt-1 inline-block bg-white/20 rounded-full px-3 py-0.5">
                   <span className="text-xs font-bold">{idCard.type === "Student" ? "STUDENT" : "STAFF"} IDENTITY CARD</span>
                 </div>

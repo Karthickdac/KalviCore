@@ -24,16 +24,12 @@ function useApi(token: string) {
   return { get, headers };
 }
 
-const COLLEGE_NAME = "Madurai Kamaraj University Affiliated College";
-const COLLEGE_LOC = "Tamil Nadu, India";
-const UNIVERSITY = "Madurai Kamaraj University";
-
-function PrintHeader({ title, subTitle }: { title: string; subTitle?: string }) {
+function PrintHeader({ title, subTitle, collegeName, location, affiliatedUniversity }: { title: string; subTitle?: string; collegeName?: string; location?: string; affiliatedUniversity?: string }) {
   return (
     <div className="text-center border-b-2 border-black pb-3 mb-4">
-      <p className="text-[10px] tracking-wider">Affiliated to {UNIVERSITY}</p>
-      <h1 className="text-lg font-bold uppercase">{COLLEGE_NAME}</h1>
-      <p className="text-[10px]">{COLLEGE_LOC}</p>
+      <p className="text-[10px] tracking-wider">Affiliated to {affiliatedUniversity || "University"}</p>
+      <h1 className="text-lg font-bold uppercase">{collegeName || "College"}</h1>
+      <p className="text-[10px]">{location || ""}</p>
       <h2 className="text-base font-bold mt-2 underline uppercase">{title}</h2>
       {subTitle && <p className="text-xs mt-0.5">{subTitle}</p>}
     </div>
@@ -59,6 +55,10 @@ function PrintFooter3({ left, center, right }: { left: string; center: string; r
   );
 }
 
+function instProps(data: any) {
+  return { collegeName: data?.collegeName, location: data?.location, affiliatedUniversity: data?.affiliatedUniversity };
+}
+
 function InfoGrid({ items }: { items: [string, any][] }) {
   return (
     <div className="grid grid-cols-2 gap-1.5 text-xs mb-4">
@@ -74,7 +74,7 @@ function PrintableReceipt({ data }: { data: any }) {
   const r = data.receipt;
   return (
     <div className="max-w-lg mx-auto border-2 border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title="Fee Receipt" />
+      <PrintHeader {...instProps(data)} title="Fee Receipt" />
       <InfoGrid items={[
         ["Receipt No", r.receiptNo], ["Date", r.date ? new Date(r.date).toLocaleDateString("en-IN") : "-"],
         ["Student", r.studentName], ["Roll No", r.rollNumber],
@@ -102,7 +102,7 @@ function PrintablePayslip({ data }: { data: any }) {
   const months = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   return (
     <div className="max-w-lg mx-auto border-2 border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title={`Salary Slip — ${months[p.month] || p.month} ${p.year}`} />
+      <PrintHeader {...instProps(data)} title={`Salary Slip — ${months[p.month] || p.month} ${p.year}`} />
       <InfoGrid items={[
         ["Payslip No", p.payslipNo], ["Staff ID", p.staffId],
         ["Name", p.staffName], ["Department", p.department],
@@ -147,7 +147,7 @@ function PrintableCertificate({ data }: { data: any }) {
   const possessive = c.gender === "Male" ? "His" : "Her";
   return (
     <div className="max-w-lg mx-auto border-[3px] border-double border-black p-8 bg-white text-black font-serif">
-      <PrintHeader title={c.type} subTitle={`No: ${c.certNo}`} />
+      <PrintHeader {...instProps(data)} title={c.type} subTitle={`No: ${c.certNo}`} />
       <div className="text-sm leading-relaxed space-y-4">
         {c.type === "Bonafide Certificate" && (
           <p className="text-justify">This is to certify that <strong>{c.studentName}</strong>, Roll Number <strong>{c.rollNumber}</strong>, {relation} <strong>{c.fatherName}</strong>, is a bonafide student of this institution, pursuing <strong>{c.course}</strong> in the Department of <strong>{c.department}</strong>. {pronoun} is currently in Year <strong>{c.year}</strong>.</p>
@@ -181,7 +181,7 @@ function PrintableAttendanceReport({ data }: { data: any }) {
   const r = data.report;
   return (
     <div className="max-w-lg mx-auto border-2 border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title="Attendance Report" />
+      <PrintHeader {...instProps(data)} title="Attendance Report" />
       <InfoGrid items={[
         ["Student Name", r.studentName], ["Roll Number", r.rollNumber],
         ["Department", r.department], ["Course", r.course],
@@ -236,7 +236,7 @@ function PrintableHallTicket({ data }: { data: any }) {
   const h = data.hallTicket;
   return (
     <div className="max-w-lg mx-auto border-2 border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title="Examination Hall Ticket" subTitle={`No: ${h.htNo}`} />
+      <PrintHeader {...instProps(data)} title="Examination Hall Ticket" subTitle={`No: ${h.htNo}`} />
       <div className="flex gap-4 mb-4">
         <div className="flex-1">
           <InfoGrid items={[
@@ -291,13 +291,13 @@ function PrintableAdmissionLetter({ data }: { data: any }) {
   const a = data.admission;
   return (
     <div className="max-w-lg mx-auto border-2 border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title="Admission Letter" subTitle={`No: ${a.admissionNo}`} />
+      <PrintHeader {...instProps(data)} title="Admission Letter" subTitle={`No: ${a.admissionNo}`} />
       <div className="text-xs mb-3"><strong>Date:</strong> {a.generatedDate}</div>
       <div className="text-sm leading-relaxed space-y-3">
         <p>To,</p>
         <p><strong>{a.studentName}</strong><br />{a.address}</p>
         <p>Dear <strong>{a.studentName}</strong>,</p>
-        <p className="text-justify">We are pleased to inform you that you have been admitted to <strong>{COLLEGE_NAME}</strong>, affiliated to <strong>{UNIVERSITY}</strong>, for the academic year <strong>{a.academicYear}</strong>.</p>
+        <p className="text-justify">We are pleased to inform you that you have been admitted to <strong>{data.collegeName || "this institution"}</strong>, affiliated to <strong>{data.affiliatedUniversity || "the University"}</strong>, for the academic year <strong>{a.academicYear}</strong>.</p>
         <p className="font-bold text-center my-3">Admission Details</p>
         <InfoGrid items={[
           ["Course", a.course], ["Degree", a.degreeType],
@@ -323,7 +323,7 @@ function PrintableMarkStatement({ data }: { data: any }) {
   const m = data.markStatement;
   return (
     <div className="max-w-lg mx-auto border-[3px] border-double border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title="Statement of Marks" subTitle={`Semester ${m.semester} Examination`} />
+      <PrintHeader {...instProps(data)} title="Statement of Marks" subTitle={`Semester ${m.semester} Examination`} />
       <InfoGrid items={[
         ["Reg. No", m.regNo], ["Name", m.studentName],
         ["Father's Name", m.fatherName], ["D.O.B", m.dateOfBirth],
@@ -379,7 +379,7 @@ function PrintableFeeDueNotice({ data }: { data: any }) {
   const n = data.feeDueNotice;
   return (
     <div className="max-w-lg mx-auto border-2 border-black p-6 bg-white text-black font-serif">
-      <PrintHeader title="Fee Due Notice" subTitle={`Notice No: ${n.noticeNo}`} />
+      <PrintHeader {...instProps(data)} title="Fee Due Notice" subTitle={`Notice No: ${n.noticeNo}`} />
       <div className="text-xs mb-3"><strong>Date:</strong> {n.generatedDate}</div>
       <div className="text-sm leading-relaxed space-y-3">
         <p>To,</p>
@@ -425,7 +425,7 @@ function PrintableStudyCertificate({ data }: { data: any }) {
   const relation = s.gender === "Male" ? "S/o" : "D/o";
   return (
     <div className="max-w-lg mx-auto border-[3px] border-double border-black p-8 bg-white text-black font-serif">
-      <PrintHeader title="Study Certificate" subTitle={`No: ${s.certNo}`} />
+      <PrintHeader {...instProps(data)} title="Study Certificate" subTitle={`No: ${s.certNo}`} />
       <div className="text-sm leading-relaxed space-y-4">
         <p className="text-justify">This is to certify that <strong>{s.studentName}</strong>, Roll Number <strong>{s.rollNumber}</strong>, {relation} <strong>{s.fatherName}</strong>, born on <strong>{s.dateOfBirth}</strong>, is a bonafide student of this institution.</p>
         <InfoGrid items={[
@@ -450,7 +450,7 @@ function PrintableMediumCertificate({ data }: { data: any }) {
   const relation = m.gender === "Male" ? "S/o" : "D/o";
   return (
     <div className="max-w-lg mx-auto border-[3px] border-double border-black p-8 bg-white text-black font-serif">
-      <PrintHeader title="Medium of Instruction Certificate" subTitle={`No: ${m.certNo}`} />
+      <PrintHeader {...instProps(data)} title="Medium of Instruction Certificate" subTitle={`No: ${m.certNo}`} />
       <div className="text-sm leading-relaxed space-y-4">
         <p className="text-justify">This is to certify that <strong>{m.studentName}</strong>, Roll Number <strong>{m.rollNumber}</strong>, {relation} <strong>{m.fatherName}</strong>, is a bonafide student of this institution, pursuing <strong>{m.course}</strong> in the Department of <strong>{m.department}</strong>.</p>
         <p className="text-justify">{pronoun} is studying in Year <strong>{m.year}</strong>, Semester <strong>{m.semester}</strong> during the academic year <strong>{m.academicYear}</strong>.</p>
@@ -469,7 +469,7 @@ function PrintableProvisionalCertificate({ data }: { data: any }) {
   const relation = p.gender === "Male" ? "S/o" : "D/o";
   return (
     <div className="max-w-lg mx-auto border-[3px] border-double border-black p-8 bg-white text-black font-serif">
-      <PrintHeader title="Provisional Certificate" subTitle={`No: ${p.certNo}`} />
+      <PrintHeader {...instProps(data)} title="Provisional Certificate" subTitle={`No: ${p.certNo}`} />
       <div className="text-sm leading-relaxed space-y-4">
         <p className="text-justify">This is to certify that <strong>{p.studentName}</strong>, Roll Number <strong>{p.rollNumber}</strong>, {relation} <strong>{p.fatherName}</strong>, born on <strong>{p.dateOfBirth}</strong>, has successfully completed the <strong>{p.degreeType}</strong> degree program in <strong>{p.course}</strong> from the Department of <strong>{p.department}</strong>.</p>
         <InfoGrid items={[
@@ -477,7 +477,7 @@ function PrintableProvisionalCertificate({ data }: { data: any }) {
           ["Overall Percentage", `${p.overallPercentage}%`], ["Class Obtained", p.classObtained],
           ["Academic Year", p.academicYear],
         ]} />
-        <p className="text-justify">This provisional certificate is issued pending the conferment of the degree by <strong>{UNIVERSITY}</strong>.</p>
+        <p className="text-justify">This provisional certificate is issued pending the conferment of the degree by <strong>{data.affiliatedUniversity || "the University"}</strong>.</p>
         <p className="text-justify text-xs">This certificate is valid until the original degree certificate is issued by the university.</p>
       </div>
       <div className="text-[10px] mt-2"><strong>Date:</strong> {p.generatedDate}</div>

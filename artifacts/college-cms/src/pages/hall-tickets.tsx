@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth";
+import { useInstitution } from "@/contexts/institution";
 import { useListStudents, useListExams } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function HallTicketsPage() {
   const { token } = useAuth();
+  const { info: institution } = useInstitution();
   const headers = { Authorization: `Bearer ${token}` };
   const [selectedStudent, setSelectedStudent] = useState("");
   const [selectedExam, setSelectedExam] = useState("");
@@ -123,8 +125,9 @@ export default function HallTicketsPage() {
         <div ref={printRef}>
           <div className="hall-ticket border-[3px] border-double border-foreground p-6 max-w-[700px] mx-auto bg-white text-black">
             <div className="text-center border-b-2 border-black pb-3 mb-4">
-              <h1 className="text-lg font-bold">ANNA UNIVERSITY AFFILIATED COLLEGE</h1>
-              <h2 className="text-sm">Tamil Nadu, India</h2>
+              <h1 className="text-lg font-bold">{institution.collegeName || "College"}</h1>
+              <p className="text-[10px] tracking-wider">Affiliated to {institution.affiliatedUniversity || "University"}</p>
+              <h2 className="text-sm">{institution.location || ""}</h2>
               <h3 className="text-base font-bold underline mt-2">EXAMINATION HALL TICKET</h3>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-4 text-sm">

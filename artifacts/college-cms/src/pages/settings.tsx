@@ -15,11 +15,13 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Save, Plus, Settings2, Building2, Calendar, GraduationCap } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useInstitution } from "@/contexts/institution";
 
 const DEFAULT_SETTINGS = [
   { key: "institution_name", value: "", category: "Institution", description: "Name of the institution" },
   { key: "institution_code", value: "", category: "Institution", description: "AICTE/University code" },
-  { key: "affiliated_university", value: "Anna University", category: "Institution", description: "Affiliated university name" },
+  { key: "affiliated_university", value: "Madurai Kamaraj University", category: "Institution", description: "Affiliated university name" },
+  { key: "institution_location", value: "Tamil Nadu, India", category: "Institution", description: "City/State location" },
   { key: "institution_address", value: "", category: "Institution", description: "Full address" },
   { key: "institution_phone", value: "", category: "Institution", description: "Contact phone" },
   { key: "institution_email", value: "", category: "Institution", description: "Contact email" },
@@ -59,6 +61,7 @@ function SettingsCategory({ category }: { category: string }) {
   const upsertMutation = useUpsertSetting();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { refresh: refreshInstitution } = useInstitution();
   const [values, setValues] = useState<Record<string, string>>({});
 
   const categoryDefaults = DEFAULT_SETTINGS.filter(d => d.category === category);
@@ -73,6 +76,7 @@ function SettingsCategory({ category }: { category: string }) {
     upsertMutation.mutate({ key, data: { value: val, category, description: categoryDefaults.find(d => d.key === key)?.description } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListSettingsQueryKey() });
+        refreshInstitution();
         toast({ title: "Setting saved" });
       },
       onError: () => toast({ title: "Error saving setting", variant: "destructive" }),
@@ -87,6 +91,7 @@ function SettingsCategory({ category }: { category: string }) {
       }
     });
     queryClient.invalidateQueries({ queryKey: getListSettingsQueryKey() });
+    refreshInstitution();
     toast({ title: "All settings saved" });
     setValues({});
   };

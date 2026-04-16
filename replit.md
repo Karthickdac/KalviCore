@@ -64,7 +64,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 
 ### System
 28. **Data Backup** — Full database export (JSON), record counts per table, admin-only access with role enforcement
-29. **Settings** — Institution configuration (name, code, university, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings
+29. **Settings** — Institution configuration (name, code, university, location, contact), academic settings (year, semester, attendance threshold, grading system), fee settings (late fee, reminders, Razorpay toggle), custom key-value settings. Centralized `InstitutionProvider` context fetches from `/api/institution-info` (auth-protected, 30s server cache); all print templates, hall tickets, and ID cards pull dynamic institution data. Settings saves trigger context refresh.
 30. **User Management** — CRUD for system users with RBAC role assignment (SuperAdmin, Admin, Principal, HOD, Faculty, Staff, Student), role hierarchy enforcement
 31. **Notifications** — WhatsApp/Email/SMS notification sending (simulated) to students/staff, notification history with channel and status filtering, stats dashboard with per-channel counts, WhatsApp default channel with visual channel selector
 32. **Document Vault** — Student document metadata management (marksheets, certificates, ID proofs), verification workflow, search by student
@@ -98,7 +98,7 @@ A comprehensive College Management System built for Tamil Nadu, India. Full-stac
 - Community categories: OC, BC, MBC, SC, ST
 - Scholarship tracking (BC/MBC/SC-ST/Merit scholarships)
 - First-graduate flag
-- Anna University affiliation and regulation-wise course management
+- Madurai Kamaraj University affiliation and regulation-wise course management
 - District field for Tamil Nadu districts
 - Aadhar number field
 - Indian Rupee formatting for all fee amounts
