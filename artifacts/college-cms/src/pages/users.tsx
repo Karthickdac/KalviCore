@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Shield, UserCog, Users, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Shield, UserCog, Users, Search, KeyRound, Copy, Check } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const ROLES = ["SuperAdmin", "Admin", "Principal", "HOD", "Faculty", "Staff", "Student"];
@@ -45,6 +45,9 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
+  const [createdUserInfo, setCreatedUserInfo] = useState<{ username: string; email: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
@@ -68,11 +71,37 @@ export default function UsersPage() {
       }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      toast({ title: editingUser ? "User updated" : "User created" });
-      setDialogOpen(false);
-      setEditingUser(null);
+      if (editingUser) {
+        toast({ title: "User updated" });
+        setDialogOpen(false);
+        setEditingUser(null);
+      } else {
+        setDialogOpen(false);
+        if (data.generatedPassword) {
+          setGeneratedPassword(data.generatedPassword);
+          setCreatedUserInfo({ username: data.username, email: data.email });
+        } else {
+          toast({ title: "User created" });
+        }
+      }
+    },
+    onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`${API_BASE}/api/users/${id}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ resetPassword: true }),
+      });
+      if (!res.ok) throw new Error("Failed to reset password");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Password Reset", description: "A new password has been generated and sent to the user's email." });
     },
     onError: (err: Error) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
@@ -110,13 +139,15 @@ export default function UsersPage() {
       fullName: fd.get("fullName"),
       role: formRole,
     };
-    const pw = fd.get("password") as string;
-    if (pw) data.password = pw;
-    if (!editingUser && !pw) {
-      toast({ title: "Password is required", variant: "destructive" });
-      return;
-    }
     createMutation.mutate(data);
+  };
+
+  const handleCopyPassword = () => {
+    if (generatedPassword) {
+      navigator.clipboard.writeText(generatedPassword);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   if (!hasRole("SuperAdmin", "Admin")) {
@@ -145,7 +176,11 @@ export default function UsersPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingUser ? "Edit User" : "Create User"}</DialogTitle>
-              <DialogDescription>{editingUser ? "Update user details and role." : "Add a new system user."}</DialogDescription>
+              <DialogDescription>
+                {editingUser
+                  ? "Update user details and role."
+                  : "Add a new system user. A password will be auto-generated and sent to their email."}
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -154,18 +189,20 @@ export default function UsersPage() {
                   <Input id="fullName" name="fullName" defaultValue={editingUser?.fullName || ""} required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input id="username" name="username" defaultValue={editingUser?.username || ""} required />
+                  <Label htmlFor="username">Username / ID</Label>
+                  <Input id="username" name="username" defaultValue={editingUser?.username || ""} required placeholder="Staff ID / Roll No / Parent ID" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" name="email" type="email" defaultValue={editingUser?.email || ""} required />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password {editingUser && "(leave blank to keep current)"}</Label>
-                <Input id="password" name="password" type="password" required={!editingUser} />
-              </div>
+              {!editingUser && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <KeyRound className="inline w-4 h-4 mr-1.5 -mt-0.5" />
+                  Password will be auto-generated and sent to the user's email. They must change it on first login.
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select value={formRole} onValueChange={setFormRole}>
@@ -177,13 +214,56 @@ export default function UsersPage() {
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "Saving..." : editingUser ? "Update" : "Create"}
+                  {createMutation.isPending ? "Saving..." : editingUser ? "Update" : "Create User"}
                 </Button>
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
       </div>
+
+      <Dialog open={!!generatedPassword} onOpenChange={(o) => { if (!o) { setGeneratedPassword(null); setCreatedUserInfo(null); setCopied(false); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                <Check className="w-5 h-5 text-emerald-600" />
+              </div>
+              User Created Successfully
+            </DialogTitle>
+            <DialogDescription>
+              The following credentials have been generated. Share them with the user securely.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Username:</span>
+                <span className="font-mono font-semibold">{createdUserInfo?.username}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Email:</span>
+                <span className="font-semibold">{createdUserInfo?.email}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Password:</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-semibold text-emerald-600 dark:text-emerald-400">{generatedPassword}</span>
+                  <button onClick={handleCopyPassword} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors">
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-amber-600 dark:text-amber-400">
+              The user will be required to change this password on their first login. This password is also sent to their email address.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => { setGeneratedPassword(null); setCreatedUserInfo(null); }}>Done</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {ROLES.map((role) => (
@@ -225,7 +305,7 @@ export default function UsersPage() {
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Last Login</TableHead>
-                <TableHead className="w-24">Actions</TableHead>
+                <TableHead className="w-32">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -249,11 +329,14 @@ export default function UsersPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingUser(u); setFormRole(u.role); setDialogOpen(true); }}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Edit user" onClick={() => { setEditingUser(u); setFormRole(u.role); setDialogOpen(true); }}>
                         <Pencil className="h-4 w-4" />
                       </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-amber-600" title="Reset password" onClick={() => resetPasswordMutation.mutate(u.id)}>
+                        <KeyRound className="h-4 w-4" />
+                      </Button>
                       {u.role !== "SuperAdmin" && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteMutation.mutate(u.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" title="Delete user" onClick={() => deleteMutation.mutate(u.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}

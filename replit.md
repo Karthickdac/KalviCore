@@ -44,6 +44,14 @@ Key implementation:
 
 Test accounts: college_admin/Admin@123, principal/Principal@123, hod_cse/Hod@123, faculty_cse/Faculty@123, office_staff/Staff@123, student_cse/Student@123
 
+## Authentication & Password Management
+- **Login Page**: Role-based dropdown (Admin, Principal, HOD, Faculty, Staff, Student, Parent). Username field label changes dynamically — "Staff ID" for staff roles, "Roll Number" for Students, "Parent ID" for Parents.
+- **Auto-Generated Passwords**: When admin creates a user, password is auto-generated (10 chars with upper, lower, digits, special). The generated password is shown to the admin and logged for email delivery. No manual password entry during user creation.
+- **First-Login Password Change**: New users have `mustChangePassword=true`. On login, they see a "Change Your Password" screen before accessing the system. After changing, they are logged in normally.
+- **Forgot Password**: Login page has "Forgot Password?" link → enter email → generates a reset token (valid 1 hour). Reset token logged to server console for email delivery.
+- **Admin Password Reset**: Users page has a key icon button per user to reset their password. Generates new auto-password and sets `mustChangePassword=true`.
+- **DB columns**: `must_change_password` (boolean), `reset_token` (text), `reset_token_expiry` (timestamp) on users table.
+
 ## Frontend Role-Based Views
 Student-facing pages show simplified, read-only UIs:
 - **Hostels** (`hostels.tsx`): Students see "My Hostel" with only "My Allocation" and "My Complaints" tabs (can file complaints with auto-populated studentId). Admin sees all 4 tabs with full CRUD.

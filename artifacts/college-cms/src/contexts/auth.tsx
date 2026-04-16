@@ -20,7 +20,11 @@ interface AuthContextType {
   user: AuthUser | null;
   token: string | null;
   isLoading: boolean;
+  mustChangePassword: boolean;
+  changePasswordToken: string | null;
   login: (username: string, password: string) => Promise<void>;
+  changePassword: (newPassword: string) => Promise<void>;
+  clearMustChangePassword: () => void;
   logout: () => void;
   hasPermission: (module: string) => boolean;
   hasRole: (...roles: string[]) => boolean;
@@ -32,6 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("auth_token"));
   const [isLoading, setIsLoading] = useState(true);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [changePasswordToken, setChangePasswordToken] = useState<string | null>(null);
   const tokenRef = useRef<string | null>(token);
 
   useEffect(() => {
@@ -73,6 +79,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(err.error || "Login failed");
     }
     const data = await res.json();
+    if (data.mustChangePassword) {
+      setMustChangePassword(true);
+      setChangePasswordToken(data.changePasswordToken);
+      return;
+    }
     setToken(data.token);
     localStorage.setItem("auth_token", data.token);
     const meRes = await fetch(`${API_BASE}/api/auth/me`, { headers: { Authorization: `Bearer ${data.token}` } });
@@ -82,6 +93,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setUser(data.user);
     }
+  };
+
+  const changePassword = async (newPassword: string) => {
+    if (!changePasswordToken) throw new Error("No change password token");
+    const res = await fetch(`${API_BASE}/api/auth/change-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ changePasswordToken, newPassword }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Password change failed" }));
+      throw new Error(err.error || "Password change failed");
+    }
+    const data = await res.json();
+    setMustChangePassword(false);
+    setChangePasswordToken(null);
+    setToken(data.token);
+    localStorage.setItem("auth_token", data.token);
+    const meRes = await fetch(`${API_BASE}/api/auth/me`, { headers: { Authorization: `Bearer ${data.token}` } });
+    if (meRes.ok) {
+      setUser(await meRes.json());
+    } else {
+      setUser(data.user);
+    }
+  };
+
+  const clearMustChangePassword = () => {
+    setMustChangePassword(false);
+    setChangePasswordToken(null);
   };
 
   const logout = async () => {
@@ -105,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, hasPermission, hasRole }}>
+    <AuthContext.Provider value={{ user, token, isLoading, mustChangePassword, changePasswordToken, login, changePassword, clearMustChangePassword, logout, hasPermission, hasRole }}>
       {children}
     </AuthContext.Provider>
   );
