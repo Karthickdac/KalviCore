@@ -55,7 +55,8 @@ Student-facing pages show simplified, read-only UIs:
 - **Hall Tickets** (`hall-tickets.tsx`): Students see "My Hall Ticket" with auto-selected student (from auth context) and only exam picker. Admin sees full student search + exam picker.
 - **Attendance** (`attendance.tsx`): Students see "My Attendance" with overall %, subject-wise breakdown with progress bars and shortage warnings. No Mark Attendance, Records, Condonation tabs. Admin sees all 4 tabs with full CRUD.
 - **Fees** (`fees.tsx`): Students see "My Fees" with total fee/paid/due cards, Razorpay online payment button, and payment history. No admin tabs (Fee Structures, Instalments, Defaulters, Scholarships). Admin sees all 6 tabs.
-- **Notifications** (`notifications.tsx`): Students see read-only notification feed with type, subject, message, date. No compose/send button, no stats dashboard. Admin/staff see full Notification Center with compose dialog and stats.
+- **Notifications** (`notifications.tsx`): Students see "Noticeboard & Notifications" with two tabs — **Noticeboard** (default, shows active college announcements with priority/type badges) and **My Notifications** (personal notification feed). No compose/send button, no stats dashboard. Admin/staff see full Notification Center with compose dialog and stats.
+- **Parent Portal** (`parent-portal.tsx`): After login, parents see **Noticeboard** tab first (same public endpoint), plus Personal Info, Fee Payments, and Exam Results tabs.
 - Pattern: `const { user } = useAuth(); const isStudent = user?.role === "Student";` — conditionally render tabs, buttons, and table columns.
 
 ## Backend Security

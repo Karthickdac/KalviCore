@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { User, GraduationCap, IndianRupee, BookOpen, LogOut, Phone, Home } from "lucide-react";
+import { User, GraduationCap, IndianRupee, BookOpen, LogOut, Phone, Home, Megaphone, Pin, AlertTriangle, Clock, Users } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -54,6 +54,25 @@ export default function ParentPortalPage() {
     },
     enabled: !!student?.id,
   });
+
+  const { data: noticeboard = [] } = useQuery({
+    queryKey: ["parent-noticeboard"],
+    queryFn: async () => { const r = await fetch(`${API_BASE}/api/noticeboard`); return r.json(); },
+    enabled: !!student,
+  });
+
+  const getPriorityStyle = (p: string) => {
+    if (p === "Urgent") return { badge: "bg-red-500/10 text-red-600 border-red-500/20", icon: <AlertTriangle className="w-4 h-4 text-red-500" /> };
+    if (p === "High") return { badge: "bg-amber-500/10 text-amber-600 border-amber-500/20", icon: <Pin className="w-4 h-4 text-amber-500" /> };
+    return { badge: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: <Megaphone className="w-4 h-4 text-blue-500" /> };
+  };
+
+  const getTypeColor = (t: string) => {
+    if (t === "Academic") return "bg-violet-500/10 text-violet-600 border-violet-500/20";
+    if (t === "Placement") return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
+    if (t === "Administrative") return "bg-orange-500/10 text-orange-600 border-orange-500/20";
+    return "bg-gray-500/10 text-gray-600 border-gray-500/20";
+  };
 
   if (!student) {
     return (
@@ -127,12 +146,51 @@ export default function ParentPortalPage() {
         <Card><CardContent className="p-4 text-center"><BookOpen className="w-6 h-6 mx-auto mb-1 text-purple-500" /><p className="font-bold text-sm">{(results as any[]).length}</p><p className="text-xs text-muted-foreground">Exam Results</p></CardContent></Card>
       </div>
 
-      <Tabs defaultValue="info">
-        <TabsList>
+      <Tabs defaultValue="noticeboard">
+        <TabsList className="flex-wrap h-auto gap-1">
+          <TabsTrigger value="noticeboard" className="gap-1.5"><Megaphone className="w-3.5 h-3.5" />Noticeboard</TabsTrigger>
           <TabsTrigger value="info">Personal Info</TabsTrigger>
           <TabsTrigger value="fees">Fee Payments</TabsTrigger>
           <TabsTrigger value="results">Exam Results</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="noticeboard">
+          <Card>
+            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Megaphone className="w-4 h-4 text-teal-600" />College Noticeboard</CardTitle></CardHeader>
+            <CardContent>
+              {!Array.isArray(noticeboard) || noticeboard.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No active notices at this time.</p>
+              ) : (
+                <div className="space-y-3">
+                  {noticeboard.map((notice: any) => {
+                    const ps = getPriorityStyle(notice.priority);
+                    return (
+                      <div key={notice.id} className={`border rounded-lg p-4 space-y-2 ${notice.priority === "Urgent" ? "border-red-500/30 bg-red-500/5" : "hover:bg-muted/30"} transition-colors`}>
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 shrink-0">{ps.icon}</div>
+                          <div className="flex-1 min-w-0 space-y-1.5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                              <h4 className="font-semibold text-sm">{notice.title}</h4>
+                              <div className="flex items-center gap-1.5">
+                                <Badge variant="outline" className={`text-xs ${ps.badge}`}>{notice.priority}</Badge>
+                                <Badge variant="outline" className={`text-xs ${getTypeColor(notice.type)}`}>{notice.type}</Badge>
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{notice.content}</p>
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1"><Users className="w-3 h-3" />{notice.postedBy}</span>
+                              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{new Date(notice.publishDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="info">
           <Card>

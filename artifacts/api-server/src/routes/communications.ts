@@ -1,10 +1,27 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, and, lte, or, isNull } from "drizzle-orm";
 import { db, announcementsTable, grievancesTable } from "@workspace/db";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
 
 const router: IRouter = Router();
+
+router.get("/noticeboard", async (_req, res): Promise<void> => {
+  const today = new Date().toISOString().split("T")[0];
+  const notices = await db.select().from(announcementsTable)
+    .where(
+      and(
+        eq(announcementsTable.status, "Active"),
+        lte(announcementsTable.publishDate, today),
+      )
+    );
+  const filtered = notices.filter(n => !n.expiryDate || n.expiryDate >= today);
+  filtered.sort((a, b) => {
+    const pOrder: Record<string, number> = { Urgent: 0, High: 1, Normal: 2, Low: 3 };
+    return (pOrder[a.priority] ?? 2) - (pOrder[b.priority] ?? 2);
+  });
+  res.json(filtered);
+});
 
 router.get("/announcements", requireAuth, requirePermission("communications"), async (req, res): Promise<void> => {
   const type = req.query.type as string | undefined;
