@@ -1,13 +1,16 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
+const base = import.meta.env.BASE_URL;
+
 const screens = [
-  '10-hostels.jpg',
-  '11-transport.jpg',
-  '12-library.jpg',
-  '13-events.jpg',
-  '15-inventory.jpg',
-  '39-visitors.jpg'
+  { img: '10-hostels.jpg', label: 'Hostel' },
+  { img: '11-transport.jpg', label: 'Transport' },
+  { img: '12-library.jpg', label: 'Library' },
+  { img: '13-events.jpg', label: 'Events' },
+  { img: '15-inventory.jpg', label: 'Inventory' },
+  { img: '39-visitors.jpg', label: 'Visitors' },
+  { img: '37-placements.jpg', label: 'Placements' },
 ];
 
 export function Scene6() {
@@ -22,54 +25,49 @@ export function Scene6() {
   }, []);
 
   return (
-    <motion.div 
-      className="absolute inset-0 flex flex-col items-center justify-center p-12 bg-gradient-to-b from-[var(--color-bg-dark)] to-[var(--color-primary)]/20"
+    <motion.div
+      className="absolute inset-0 flex flex-col items-center justify-center px-[4vw]"
       initial={{ opacity: 0, y: '-100%' }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ scale: 1.5, opacity: 0 }}
+      exit={{ scale: 1.4, opacity: 0 }}
       transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
     >
-      <motion.h2 
-        className="text-[4vw] font-bold text-white mb-16 text-center z-20"
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-dark)] to-[var(--color-primary)]/15 z-0" />
+
+      <motion.h2
+        className="text-[4.2vw] font-bold text-white mb-2 text-center z-20 relative"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={phase >= 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
         transition={{ duration: 0.6 }}
       >
         Seamless <span className="text-[var(--color-primary)]">Campus Operations</span>
       </motion.h2>
+      <motion.p
+        className="text-[1.1vw] text-white/40 mb-[4vh] text-center z-20 relative"
+        initial={{ opacity: 0 }}
+        animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+      >
+        Hostel, Transport, Library, Events, Inventory, Visitor Management & Placements
+      </motion.p>
 
-      <div className="relative w-full max-w-6xl h-[50vh] flex items-center justify-center perspective-1000">
-        {screens.map((screen, i) => {
-          // Circular arrangement
-          const angle = (i / screens.length) * Math.PI * 2;
-          const radius = 35; // vw
-          const x = Math.cos(angle) * radius;
-          const z = Math.sin(angle) * radius;
-          
-          return (
-            <motion.div
-              key={screen}
-              className="absolute w-[25vw] h-[15vw] rounded-xl overflow-hidden shadow-2xl border border-white/20 origin-center"
-              initial={{ opacity: 0, x: 0, z: -100, scale: 0 }}
-              animate={phase >= 2 ? { 
-                opacity: z > -10 ? 1 : 0.4, 
-                x: `${x}vw`, 
-                z: `${z * 10}px`,
-                rotateY: (x / radius) * 20,
-                scale: z > -10 ? 1.2 : 0.8
-              } : {}}
-              transition={{ type: 'spring', stiffness: 50, damping: 20, delay: i * 0.1 }}
-              style={{ zIndex: Math.round(z + 50) }}
-            >
-              <img 
-                src={`${import.meta.env.BASE_URL}screens/${screen}`} 
-                alt={screen} 
-                className="w-full h-full object-cover object-top"
-              />
-              <div className="absolute inset-0 bg-black/10" />
-            </motion.div>
-          );
-        })}
+      <div className="relative w-full flex flex-wrap items-center justify-center gap-[1.2vw] z-20" style={{ maxWidth: '88vw' }}>
+        {screens.map((s, i) => (
+          <motion.div
+            key={s.img}
+            className="rounded-xl overflow-hidden shadow-2xl border border-white/15 relative"
+            style={{ width: i < 4 ? '20vw' : '20vw', height: '12.5vw' }}
+            initial={{ opacity: 0, y: 80, scale: 0.6, rotateX: 30 }}
+            animate={phase >= 2 ? { opacity: 1, y: 0, scale: 1, rotateX: 0 } : {}}
+            transition={{ type: 'spring', stiffness: 120, damping: 18, delay: i * 0.08 }}
+          >
+            <img src={`${base}screens/${s.img}`} alt={s.label} className="w-full h-full object-cover object-top" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-2 left-3">
+              <span className="text-white/90 text-[0.85vw] font-semibold">{s.label}</span>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </motion.div>
   );
