@@ -124,6 +124,7 @@ const adminNavGroups: NavGroup[] = [
       { name: "Events", href: "/events", icon: Calendar, permission: "events" },
       { name: "Communications", href: "/communications", icon: Megaphone, permission: "communications" },
       { name: "Notifications", href: "/notifications", icon: BellRing, permission: "notifications" },
+      { name: "Notification Templates", href: "/notification-templates", icon: FileText, permission: "notifications" },
       { name: "Student Portal", href: "/student-portal", icon: UserCircle, permission: "students" },
       { name: "Parent Portal", href: "/parent-portal", icon: Home, permission: "students" },
     ],
@@ -200,6 +201,7 @@ const facultyNavGroups: NavGroup[] = [
       { name: "Events", href: "/events", icon: Calendar, permission: "events" },
       { name: "Communications", href: "/communications", icon: Megaphone, permission: "communications" },
       { name: "Notifications", href: "/notifications", icon: BellRing, permission: "notifications" },
+      { name: "Notification Templates", href: "/notification-templates", icon: FileText, permission: "notifications" },
     ],
   },
 ];

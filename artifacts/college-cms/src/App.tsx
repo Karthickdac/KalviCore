@@ -38,6 +38,7 @@ import StudentPortalPage from "@/pages/student-portal";
 import BackupPage from "@/pages/backup";
 import IDCardsPage from "@/pages/id-cards";
 import NotificationsPage from "@/pages/notifications";
+import NotificationTemplatesPage from "@/pages/notification-templates";
 import DocumentsPage from "@/pages/documents";
 import PrintTemplatesPage from "@/pages/print-templates";
 import ParentPortalPage from "@/pages/parent-portal";
@@ -117,6 +118,7 @@ function AppRoutes() {
         <Route path="/backup" component={BackupPage} />
         <Route path="/id-cards" component={IDCardsPage} />
         <Route path="/notifications" component={NotificationsPage} />
+        <Route path="/notification-templates" component={NotificationTemplatesPage} />
         <Route path="/documents" component={DocumentsPage} />
         <Route path="/print-templates" component={PrintTemplatesPage} />
         <Route path="/parent-portal" component={ParentPortalPage} />

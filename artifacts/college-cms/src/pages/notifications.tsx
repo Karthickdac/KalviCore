@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MessageSquare, Send, Bell, CheckCircle, Phone, Users, Building2, Megaphone, Pin, AlertTriangle, Clock } from "lucide-react";
+import { Mail, MessageSquare, Send, Bell, CheckCircle, Phone, Users, Building2, Megaphone, Pin, AlertTriangle, Clock, FileText, Sparkles } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -35,6 +35,7 @@ export default function NotificationsPage() {
   const [type, setType] = useState("General");
   const [filterChannel, setFilterChannel] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [templateId, setTemplateId] = useState("");
 
   const userRole = user?.role || "Staff";
   const userDeptId = user?.departmentId;
@@ -113,6 +114,21 @@ export default function NotificationsPage() {
     if (recipients === "all_students") return isFacultyOrHOD ? "My Dept Students" : "All Students";
     if (recipients === "all_staff") return "All Staff";
     return "Everyone";
+  };
+
+  const { data: templates = [] } = useQuery<any[]>({
+    queryKey: ["notification-templates", channel],
+    queryFn: async () => {
+      const r = await fetch(`${API_BASE}/api/notification-templates?channel=${channel}`, { headers });
+      return r.json();
+    },
+    enabled: !isStudent,
+  });
+
+  const applyTemplate = (id: string) => {
+    setTemplateId(id);
+    const t = (templates as any[]).find((x: any) => String(x.id) === id);
+    if (t) { setSubject(t.subject); setMessage(t.body); }
   };
 
   const { data: noticeboard = [] } = useQuery({
@@ -334,6 +350,27 @@ export default function NotificationsPage() {
                 </div>
               )}
 
+              {Array.isArray(templates) && templates.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-teal-600" />Use Template (optional)</Label>
+                  <Select value={templateId} onValueChange={applyTemplate}>
+                    <SelectTrigger><SelectValue placeholder={`Choose from ${templates.filter((t:any)=>t.isActive).length} ${getChannelLabel()} templates...`} /></SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {templates.filter((t:any)=>t.isActive).map((t: any) => (
+                        <SelectItem key={t.id} value={String(t.id)}>
+                          <span className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">{t.category}</Badge>
+                            {t.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <FileText className="w-2.5 h-2.5" />Variables like <code className="bg-muted px-1 rounded">{`{{student_name}}`}</code> will appear as-is. Edit the message before sending to fill them in.
+                  </p>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>Subject</Label>
                 <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Notification subject..." />
