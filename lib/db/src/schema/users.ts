@@ -40,7 +40,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "fees", "certificates", "fundraising",
     "hostels", "transport", "library", "inventory", "visitors",
     "events", "communications", "notifications",
-    "placements", "id_cards",
+    "placements", "id_cards", "laboratory", "sports_ncc",
     "settings", "users", "print_templates", "dashboard_settings", "access_management",
   ],
   Principal: [
@@ -50,7 +50,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "fees", "certificates", "fundraising",
     "hostels", "transport", "library", "inventory", "visitors",
     "events", "communications", "notifications",
-    "placements", "id_cards",
+    "placements", "id_cards", "laboratory", "sports_ncc",
     "settings", "print_templates", "dashboard_settings",
   ],
   HOD: [
@@ -59,13 +59,14 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "students", "staff", "attendance", "leaves",
     "certificates",
     "events", "communications", "notifications",
-    "placements",
+    "placements", "laboratory", "sports_ncc",
   ],
   Faculty: [
     "dashboard", "calendar",
     "subjects", "timetable", "assignments", "exams",
     "students", "attendance", "leaves",
     "events", "communications", "notifications",
+    "laboratory", "sports_ncc",
   ],
   Staff: [
     "dashboard",
@@ -73,6 +74,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "fees", "certificates",
     "hostels", "transport", "library", "inventory", "visitors",
     "events", "communications",
+    "laboratory", "sports_ncc",
   ],
   Student: [
     "dashboard", "calendar",

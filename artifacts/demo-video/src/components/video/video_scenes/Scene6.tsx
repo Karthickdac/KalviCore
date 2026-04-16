@@ -8,7 +8,7 @@ const screens = [
   { img: '11-transport.jpg', label: 'Transport' },
   { img: '12-library.jpg', label: 'Library' },
   { img: '13-events.jpg', label: 'Events' },
-  { img: '15-inventory.jpg', label: 'Inventory' },
+  { img: '42-sports-ncc.jpg', label: 'Sports & NCC' },
   { img: '39-visitors.jpg', label: 'Visitors' },
   { img: '37-placements.jpg', label: 'Placements' },
 ];
@@ -48,7 +48,7 @@ export function Scene6() {
         animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
         transition={{ delay: 0.3, duration: 0.5 }}
       >
-        Hostel, Transport, Library, Events, Inventory, Visitor Management & Placements
+        Hostel, Transport, Library, Events, Sports & NCC, Visitor Management & Placements
       </motion.p>
 
       <div className="relative w-full flex flex-wrap items-center justify-center gap-[1.2vw] z-20" style={{ maxWidth: '88vw' }}>

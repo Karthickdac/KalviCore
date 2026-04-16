@@ -1578,6 +1578,343 @@ export interface BulkSettingsBody {
   settings: BulkSettingsBodySettingsItem[];
 }
 
+export interface Laboratory {
+  id: number;
+  name: string;
+  code: string;
+  /** @nullable */
+  departmentId?: number | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  capacity?: number | null;
+  labType: string;
+  /** @nullable */
+  inchargeName?: string | null;
+  /** @nullable */
+  inchargePhone?: string | null;
+  /** @nullable */
+  equipment?: string | null;
+  status: string;
+  /** @nullable */
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateLaboratoryBody {
+  name: string;
+  code: string;
+  /** @nullable */
+  departmentId?: number | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  capacity?: number | null;
+  labType?: string;
+  /** @nullable */
+  inchargeName?: string | null;
+  /** @nullable */
+  inchargePhone?: string | null;
+  /** @nullable */
+  equipment?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface UpdateLaboratoryBody {
+  name?: string;
+  code?: string;
+  /** @nullable */
+  departmentId?: number | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  capacity?: number | null;
+  labType?: string;
+  /** @nullable */
+  inchargeName?: string | null;
+  /** @nullable */
+  inchargePhone?: string | null;
+  /** @nullable */
+  equipment?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface LabEquipment {
+  id: number;
+  labId: number;
+  name: string;
+  /** @nullable */
+  model?: string | null;
+  /** @nullable */
+  serialNumber?: string | null;
+  quantity: number;
+  condition: string;
+  /** @nullable */
+  purchaseDate?: string | null;
+  /** @nullable */
+  warrantyExpiry?: string | null;
+  /** @nullable */
+  vendor?: string | null;
+  /** @nullable */
+  cost?: string | null;
+  status: string;
+  /** @nullable */
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateLabEquipmentBody {
+  labId: number;
+  name: string;
+  /** @nullable */
+  model?: string | null;
+  /** @nullable */
+  serialNumber?: string | null;
+  quantity?: number;
+  condition?: string;
+  /** @nullable */
+  purchaseDate?: string | null;
+  /** @nullable */
+  warrantyExpiry?: string | null;
+  /** @nullable */
+  vendor?: string | null;
+  /** @nullable */
+  cost?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface UpdateLabEquipmentBody {
+  name?: string;
+  /** @nullable */
+  model?: string | null;
+  /** @nullable */
+  serialNumber?: string | null;
+  quantity?: number;
+  condition?: string;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface LabSchedule {
+  id: number;
+  labId: number;
+  day: string;
+  startTime: string;
+  endTime: string;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  faculty?: string | null;
+  /** @nullable */
+  batch?: string | null;
+  /** @nullable */
+  semester?: string | null;
+  createdAt: string;
+}
+
+export interface CreateLabScheduleBody {
+  labId: number;
+  day: string;
+  startTime: string;
+  endTime: string;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  faculty?: string | null;
+  /** @nullable */
+  batch?: string | null;
+  /** @nullable */
+  semester?: string | null;
+}
+
+export interface UpdateLabScheduleBody {
+  day?: string;
+  startTime?: string;
+  endTime?: string;
+  /** @nullable */
+  subject?: string | null;
+  /** @nullable */
+  faculty?: string | null;
+  /** @nullable */
+  batch?: string | null;
+  /** @nullable */
+  semester?: string | null;
+}
+
+export interface SportsActivity {
+  id: number;
+  name: string;
+  category: string;
+  type: string;
+  /** @nullable */
+  coach?: string | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  schedule?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  maxMembers?: number | null;
+  /** @nullable */
+  description?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface CreateSportsActivityBody {
+  name: string;
+  category: string;
+  type?: string;
+  /** @nullable */
+  coach?: string | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  schedule?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  maxMembers?: number | null;
+  /** @nullable */
+  description?: string | null;
+  status?: string;
+}
+
+export interface UpdateSportsActivityBody {
+  name?: string;
+  category?: string;
+  type?: string;
+  /** @nullable */
+  coach?: string | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  schedule?: string | null;
+  /** @nullable */
+  season?: string | null;
+  /** @nullable */
+  maxMembers?: number | null;
+  /** @nullable */
+  description?: string | null;
+  status?: string;
+}
+
+export interface SportsEnrollment {
+  id: number;
+  activityId: number;
+  studentId: number;
+  role: string;
+  joinDate: string;
+  /** @nullable */
+  bloodGroup?: string | null;
+  /** @nullable */
+  medicalFitness?: string | null;
+  /** @nullable */
+  achievements?: string | null;
+  status: string;
+  /** @nullable */
+  remarks?: string | null;
+  createdAt: string;
+}
+
+export interface CreateSportsEnrollmentBody {
+  activityId: number;
+  studentId: number;
+  role?: string;
+  joinDate: string;
+  /** @nullable */
+  bloodGroup?: string | null;
+  /** @nullable */
+  medicalFitness?: string | null;
+  /** @nullable */
+  achievements?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface UpdateSportsEnrollmentBody {
+  role?: string;
+  /** @nullable */
+  bloodGroup?: string | null;
+  /** @nullable */
+  medicalFitness?: string | null;
+  /** @nullable */
+  achievements?: string | null;
+  status?: string;
+  /** @nullable */
+  remarks?: string | null;
+}
+
+export interface SportsAchievement {
+  id: number;
+  /** @nullable */
+  activityId?: number | null;
+  /** @nullable */
+  studentId?: number | null;
+  title: string;
+  level: string;
+  /** @nullable */
+  position?: string | null;
+  /** @nullable */
+  eventName?: string | null;
+  /** @nullable */
+  eventDate?: string | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  certificateNumber?: string | null;
+  createdAt: string;
+}
+
+export interface CreateSportsAchievementBody {
+  /** @nullable */
+  activityId?: number | null;
+  /** @nullable */
+  studentId?: number | null;
+  title: string;
+  level: string;
+  /** @nullable */
+  position?: string | null;
+  /** @nullable */
+  eventName?: string | null;
+  /** @nullable */
+  eventDate?: string | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  certificateNumber?: string | null;
+}
+
+export interface UpdateSportsAchievementBody {
+  title?: string;
+  level?: string;
+  /** @nullable */
+  position?: string | null;
+  /** @nullable */
+  eventName?: string | null;
+  /** @nullable */
+  eventDate?: string | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  certificateNumber?: string | null;
+}
+
 export type GetRecentActivityParams = {
   limit?: number;
 };
@@ -1727,4 +2064,25 @@ export type ListScholarshipsParams = {
 export type ListAttendanceCondonationParams = {
   studentId?: number;
   status?: string;
+};
+
+export type ListLabEquipmentParams = {
+  labId?: number;
+};
+
+export type ListLabSchedulesParams = {
+  labId?: number;
+};
+
+export type ListSportsActivitiesParams = {
+  category?: string;
+};
+
+export type ListSportsEnrollmentsParams = {
+  activityId?: number;
+};
+
+export type ListSportsAchievementsParams = {
+  activityId?: number;
+  studentId?: number;
 };

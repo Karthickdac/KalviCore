@@ -42,6 +42,10 @@ tags:
     description: Inventory & asset management
   - name: academics
     description: Academic operations
+  - name: laboratory
+    description: Laboratory management
+  - name: sports
+    description: Sports, NCC & NSS management
 
 paths:
   /healthz:
@@ -2995,6 +2999,458 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/InstitutionSetting"
+
+  /laboratories:
+    get:
+      operationId: listLaboratories
+      tags: [laboratory]
+      summary: List laboratories
+      responses:
+        "200":
+          description: Laboratory list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Laboratory"
+    post:
+      operationId: createLaboratory
+      tags: [laboratory]
+      summary: Create laboratory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLaboratoryBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Laboratory"
+  /laboratories/{id}:
+    get:
+      operationId: getLaboratory
+      tags: [laboratory]
+      summary: Get laboratory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Laboratory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Laboratory"
+    patch:
+      operationId: updateLaboratory
+      tags: [laboratory]
+      summary: Update laboratory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLaboratoryBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Laboratory"
+    delete:
+      operationId: deleteLaboratory
+      tags: [laboratory]
+      summary: Delete laboratory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+  /lab-equipment:
+    get:
+      operationId: listLabEquipment
+      tags: [laboratory]
+      summary: List lab equipment
+      parameters:
+        - name: labId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Equipment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LabEquipment"
+    post:
+      operationId: createLabEquipment
+      tags: [laboratory]
+      summary: Add lab equipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLabEquipmentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabEquipment"
+  /lab-equipment/{id}:
+    patch:
+      operationId: updateLabEquipment
+      tags: [laboratory]
+      summary: Update lab equipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLabEquipmentBody"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteLabEquipment
+      tags: [laboratory]
+      summary: Delete lab equipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+  /lab-schedules:
+    get:
+      operationId: listLabSchedules
+      tags: [laboratory]
+      summary: List lab schedules
+      parameters:
+        - name: labId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Schedule list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LabSchedule"
+    post:
+      operationId: createLabSchedule
+      tags: [laboratory]
+      summary: Create lab schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLabScheduleBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LabSchedule"
+  /lab-schedules/{id}:
+    patch:
+      operationId: updateLabSchedule
+      tags: [laboratory]
+      summary: Update lab schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLabScheduleBody"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteLabSchedule
+      tags: [laboratory]
+      summary: Delete lab schedule
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+  /sports-activities:
+    get:
+      operationId: listSportsActivities
+      tags: [sports]
+      summary: List sports/NCC/NSS activities
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Activity list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportsActivity"
+    post:
+      operationId: createSportsActivity
+      tags: [sports]
+      summary: Create activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSportsActivityBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsActivity"
+  /sports-activities/{id}:
+    get:
+      operationId: getSportsActivity
+      tags: [sports]
+      summary: Get activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Activity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsActivity"
+    patch:
+      operationId: updateSportsActivity
+      tags: [sports]
+      summary: Update activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSportsActivityBody"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteSportsActivity
+      tags: [sports]
+      summary: Delete activity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+  /sports-enrollments:
+    get:
+      operationId: listSportsEnrollments
+      tags: [sports]
+      summary: List enrollments
+      parameters:
+        - name: activityId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Enrollment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportsEnrollment"
+    post:
+      operationId: createSportsEnrollment
+      tags: [sports]
+      summary: Enroll student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSportsEnrollmentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsEnrollment"
+  /sports-enrollments/{id}:
+    patch:
+      operationId: updateSportsEnrollment
+      tags: [sports]
+      summary: Update enrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSportsEnrollmentBody"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteSportsEnrollment
+      tags: [sports]
+      summary: Remove enrollment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+  /sports-achievements:
+    get:
+      operationId: listSportsAchievements
+      tags: [sports]
+      summary: List achievements
+      parameters:
+        - name: activityId
+          in: query
+          schema:
+            type: integer
+        - name: studentId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Achievement list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SportsAchievement"
+    post:
+      operationId: createSportsAchievement
+      tags: [sports]
+      summary: Add achievement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSportsAchievementBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SportsAchievement"
+  /sports-achievements/{id}:
+    patch:
+      operationId: updateSportsAchievement
+      tags: [sports]
+      summary: Update achievement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSportsAchievementBody"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteSportsAchievement
+      tags: [sports]
+      summary: Delete achievement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
 
 components:
   schemas:
@@ -6092,3 +6548,437 @@ components:
                 type: ["string", "null"]
             required: [key, value]
       required: [settings]
+    Laboratory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        code:
+          type: string
+        departmentId:
+          type: ["integer", "null"]
+        location:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        labType:
+          type: string
+        inchargeName:
+          type: ["string", "null"]
+        inchargePhone:
+          type: ["string", "null"]
+        equipment:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, code, labType, status, createdAt]
+    CreateLaboratoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        departmentId:
+          type: ["integer", "null"]
+        location:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        labType:
+          type: string
+        inchargeName:
+          type: ["string", "null"]
+        inchargePhone:
+          type: ["string", "null"]
+        equipment:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+      required: [name, code]
+    UpdateLaboratoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        departmentId:
+          type: ["integer", "null"]
+        location:
+          type: ["string", "null"]
+        capacity:
+          type: ["integer", "null"]
+        labType:
+          type: string
+        inchargeName:
+          type: ["string", "null"]
+        inchargePhone:
+          type: ["string", "null"]
+        equipment:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+    LabEquipment:
+      type: object
+      properties:
+        id:
+          type: integer
+        labId:
+          type: integer
+        name:
+          type: string
+        model:
+          type: ["string", "null"]
+        serialNumber:
+          type: ["string", "null"]
+        quantity:
+          type: integer
+        condition:
+          type: string
+        purchaseDate:
+          type: ["string", "null"]
+        warrantyExpiry:
+          type: ["string", "null"]
+        vendor:
+          type: ["string", "null"]
+        cost:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, labId, name, quantity, condition, status, createdAt]
+    CreateLabEquipmentBody:
+      type: object
+      properties:
+        labId:
+          type: integer
+        name:
+          type: string
+        model:
+          type: ["string", "null"]
+        serialNumber:
+          type: ["string", "null"]
+        quantity:
+          type: integer
+        condition:
+          type: string
+        purchaseDate:
+          type: ["string", "null"]
+        warrantyExpiry:
+          type: ["string", "null"]
+        vendor:
+          type: ["string", "null"]
+        cost:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+      required: [labId, name]
+    UpdateLabEquipmentBody:
+      type: object
+      properties:
+        name:
+          type: string
+        model:
+          type: ["string", "null"]
+        serialNumber:
+          type: ["string", "null"]
+        quantity:
+          type: integer
+        condition:
+          type: string
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+    LabSchedule:
+      type: object
+      properties:
+        id:
+          type: integer
+        labId:
+          type: integer
+        day:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        subject:
+          type: ["string", "null"]
+        faculty:
+          type: ["string", "null"]
+        batch:
+          type: ["string", "null"]
+        semester:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, labId, day, startTime, endTime, createdAt]
+    CreateLabScheduleBody:
+      type: object
+      properties:
+        labId:
+          type: integer
+        day:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        subject:
+          type: ["string", "null"]
+        faculty:
+          type: ["string", "null"]
+        batch:
+          type: ["string", "null"]
+        semester:
+          type: ["string", "null"]
+      required: [labId, day, startTime, endTime]
+    UpdateLabScheduleBody:
+      type: object
+      properties:
+        day:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        subject:
+          type: ["string", "null"]
+        faculty:
+          type: ["string", "null"]
+        batch:
+          type: ["string", "null"]
+        semester:
+          type: ["string", "null"]
+    SportsActivity:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+        coach:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        maxMembers:
+          type: ["integer", "null"]
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, category, type, status, createdAt]
+    CreateSportsActivityBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+        coach:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        maxMembers:
+          type: ["integer", "null"]
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+      required: [name, category]
+    UpdateSportsActivityBody:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+        coach:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        schedule:
+          type: ["string", "null"]
+        season:
+          type: ["string", "null"]
+        maxMembers:
+          type: ["integer", "null"]
+        description:
+          type: ["string", "null"]
+        status:
+          type: string
+    SportsEnrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+        activityId:
+          type: integer
+        studentId:
+          type: integer
+        role:
+          type: string
+        joinDate:
+          type: string
+        bloodGroup:
+          type: ["string", "null"]
+        medicalFitness:
+          type: ["string", "null"]
+        achievements:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, activityId, studentId, role, joinDate, status, createdAt]
+    CreateSportsEnrollmentBody:
+      type: object
+      properties:
+        activityId:
+          type: integer
+        studentId:
+          type: integer
+        role:
+          type: string
+        joinDate:
+          type: string
+        bloodGroup:
+          type: ["string", "null"]
+        medicalFitness:
+          type: ["string", "null"]
+        achievements:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+      required: [activityId, studentId, joinDate]
+    UpdateSportsEnrollmentBody:
+      type: object
+      properties:
+        role:
+          type: string
+        bloodGroup:
+          type: ["string", "null"]
+        medicalFitness:
+          type: ["string", "null"]
+        achievements:
+          type: ["string", "null"]
+        status:
+          type: string
+        remarks:
+          type: ["string", "null"]
+    SportsAchievement:
+      type: object
+      properties:
+        id:
+          type: integer
+        activityId:
+          type: ["integer", "null"]
+        studentId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        level:
+          type: string
+        position:
+          type: ["string", "null"]
+        eventName:
+          type: ["string", "null"]
+        eventDate:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        certificateNumber:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, level, createdAt]
+    CreateSportsAchievementBody:
+      type: object
+      properties:
+        activityId:
+          type: ["integer", "null"]
+        studentId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        level:
+          type: string
+        position:
+          type: ["string", "null"]
+        eventName:
+          type: ["string", "null"]
+        eventDate:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        certificateNumber:
+          type: ["string", "null"]
+      required: [title, level]
+    UpdateSportsAchievementBody:
+      type: object
+      properties:
+        title:
+          type: string
+        level:
+          type: string
+        position:
+          type: ["string", "null"]
+        eventName:
+          type: ["string", "null"]
+        eventDate:
+          type: ["string", "null"]
+        venue:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        certificateNumber:
+          type: ["string", "null"]

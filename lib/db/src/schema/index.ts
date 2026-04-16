@@ -34,3 +34,5 @@ export * from "./placements";
 export * from "./fundraising";
 export * from "./visitors";
 export * from "./rolePermissions";
+export * from "./laboratory";
+export * from "./sportsNcc";

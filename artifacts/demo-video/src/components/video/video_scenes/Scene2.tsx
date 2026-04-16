@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 const base = import.meta.env.BASE_URL;
 
 const stats = [
-  { label: 'Total Modules', value: '40+', color: 'var(--color-primary)' },
+  { label: 'Total Modules', value: '42+', color: 'var(--color-primary)' },
   { label: 'User Roles', value: '6', color: 'var(--color-accent)' },
   { label: 'Print Templates', value: '11', color: 'var(--color-secondary)' },
   { label: 'Report Types', value: '4', color: '#f59e0b' },

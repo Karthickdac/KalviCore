@@ -46,6 +46,8 @@ import PlacementsPage from "@/pages/placements";
 import FundraisingPage from "@/pages/fundraising";
 import VisitorsPage from "@/pages/visitors";
 import AccessManagementPage from "@/pages/access-management";
+import LaboratoryPage from "@/pages/laboratory";
+import SportsNccPage from "@/pages/sports-ncc";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 
@@ -112,6 +114,8 @@ function AppRoutes() {
         <Route path="/fundraising" component={FundraisingPage} />
         <Route path="/visitors" component={VisitorsPage} />
         <Route path="/access-management" component={AccessManagementPage} />
+        <Route path="/laboratory" component={LaboratoryPage} />
+        <Route path="/sports-ncc" component={SportsNccPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

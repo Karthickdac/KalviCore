@@ -42,6 +42,8 @@ import placementsRouter from "./placements";
 import fundraisingRouter from "./fundraising";
 import visitorsRouter from "./visitors";
 import accessManagementRouter from "./accessManagement";
+import laboratoryRouter from "./laboratory";
+import sportsNccRouter from "./sportsNcc";
 
 const router: IRouter = Router();
 
@@ -88,5 +90,7 @@ router.use(placementsRouter);
 router.use(fundraisingRouter);
 router.use(visitorsRouter);
 router.use(accessManagementRouter);
+router.use(laboratoryRouter);
+router.use(sportsNccRouter);
 
 export default router;

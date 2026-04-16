@@ -5,7 +5,7 @@ const base = import.meta.env.BASE_URL;
 const logoPng = `${base}automystics-logo.png`;
 
 const highlights = [
-  '40+ Modules',
+  '42+ Modules',
   '6 User Roles',
   '11 Print Templates',
   'Real-time Analytics',

@@ -8,7 +8,7 @@ const screens = [
   { img: '05-courses.jpg', label: 'Courses' },
   { img: '06-subjects.jpg', label: 'Subjects' },
   { img: '16-timetable.jpg', label: 'Timetable' },
-  { img: '17-assignments.jpg', label: 'Assignments' },
+  { img: '41-laboratory.jpg', label: 'Laboratory' },
   { img: '09-exams.jpg', label: 'Examinations' },
   { img: '24-academic-calendar.jpg', label: 'Calendar' },
 ];

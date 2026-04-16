@@ -9,7 +9,8 @@ import {
   Shield, UserCog, Home, BarChart3, Activity, CalendarDays, Wallet, TrendingUp,
   Upload, Ticket, UserCircle, Database, CreditCard,
   BellRing, FolderOpen, Printer, LayoutGrid,
-  Landmark, Heart, UserCheck, Search, X, MessageSquare, ShieldCheck
+  Landmark, Heart, UserCheck, Search, X, MessageSquare, ShieldCheck,
+  FlaskConical, Trophy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -65,6 +66,16 @@ const navGroups: NavGroup[] = [
       { name: "Hall Tickets", href: "/hall-tickets", icon: Ticket, permission: "exams" },
       { name: "ID Cards", href: "/id-cards", icon: CreditCard, permission: "id_cards" },
       { name: "Training & Placement", href: "/placements", icon: Landmark, permission: "placements" },
+      { name: "Laboratory", href: "/laboratory", icon: FlaskConical, permission: "laboratory" },
+    ],
+  },
+  {
+    label: "Student Activities",
+    icon: Trophy,
+    color: "text-rose-400",
+    dotColor: "bg-rose-500",
+    items: [
+      { name: "Sports, NCC & NSS", href: "/sports-ncc", icon: Trophy, permission: "sports_ncc" },
     ],
   },
   {

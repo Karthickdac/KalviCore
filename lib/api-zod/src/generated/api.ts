@@ -3249,3 +3249,452 @@ export const BulkUpsertSettingsResponseItem = zod.object({
 export const BulkUpsertSettingsResponse = zod.array(
   BulkUpsertSettingsResponseItem,
 );
+
+/**
+ * @summary List laboratories
+ */
+export const ListLaboratoriesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  code: zod.string(),
+  departmentId: zod.number().nullish(),
+  location: zod.string().nullish(),
+  capacity: zod.number().nullish(),
+  labType: zod.string(),
+  inchargeName: zod.string().nullish(),
+  inchargePhone: zod.string().nullish(),
+  equipment: zod.string().nullish(),
+  status: zod.string(),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListLaboratoriesResponse = zod.array(ListLaboratoriesResponseItem);
+
+/**
+ * @summary Create laboratory
+ */
+export const CreateLaboratoryBody = zod.object({
+  name: zod.string(),
+  code: zod.string(),
+  departmentId: zod.number().nullish(),
+  location: zod.string().nullish(),
+  capacity: zod.number().nullish(),
+  labType: zod.string().optional(),
+  inchargeName: zod.string().nullish(),
+  inchargePhone: zod.string().nullish(),
+  equipment: zod.string().nullish(),
+  status: zod.string().optional(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Get laboratory
+ */
+export const GetLaboratoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetLaboratoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  code: zod.string(),
+  departmentId: zod.number().nullish(),
+  location: zod.string().nullish(),
+  capacity: zod.number().nullish(),
+  labType: zod.string(),
+  inchargeName: zod.string().nullish(),
+  inchargePhone: zod.string().nullish(),
+  equipment: zod.string().nullish(),
+  status: zod.string(),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update laboratory
+ */
+export const UpdateLaboratoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLaboratoryBody = zod.object({
+  name: zod.string().optional(),
+  code: zod.string().optional(),
+  departmentId: zod.number().nullish(),
+  location: zod.string().nullish(),
+  capacity: zod.number().nullish(),
+  labType: zod.string().optional(),
+  inchargeName: zod.string().nullish(),
+  inchargePhone: zod.string().nullish(),
+  equipment: zod.string().nullish(),
+  status: zod.string().optional(),
+  remarks: zod.string().nullish(),
+});
+
+export const UpdateLaboratoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  code: zod.string(),
+  departmentId: zod.number().nullish(),
+  location: zod.string().nullish(),
+  capacity: zod.number().nullish(),
+  labType: zod.string(),
+  inchargeName: zod.string().nullish(),
+  inchargePhone: zod.string().nullish(),
+  equipment: zod.string().nullish(),
+  status: zod.string(),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete laboratory
+ */
+export const DeleteLaboratoryParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List lab equipment
+ */
+export const ListLabEquipmentQueryParams = zod.object({
+  labId: zod.coerce.number().optional(),
+});
+
+export const ListLabEquipmentResponseItem = zod.object({
+  id: zod.number(),
+  labId: zod.number(),
+  name: zod.string(),
+  model: zod.string().nullish(),
+  serialNumber: zod.string().nullish(),
+  quantity: zod.number(),
+  condition: zod.string(),
+  purchaseDate: zod.string().nullish(),
+  warrantyExpiry: zod.string().nullish(),
+  vendor: zod.string().nullish(),
+  cost: zod.string().nullish(),
+  status: zod.string(),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListLabEquipmentResponse = zod.array(ListLabEquipmentResponseItem);
+
+/**
+ * @summary Add lab equipment
+ */
+export const CreateLabEquipmentBody = zod.object({
+  labId: zod.number(),
+  name: zod.string(),
+  model: zod.string().nullish(),
+  serialNumber: zod.string().nullish(),
+  quantity: zod.number().optional(),
+  condition: zod.string().optional(),
+  purchaseDate: zod.string().nullish(),
+  warrantyExpiry: zod.string().nullish(),
+  vendor: zod.string().nullish(),
+  cost: zod.string().nullish(),
+  status: zod.string().optional(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Update lab equipment
+ */
+export const UpdateLabEquipmentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLabEquipmentBody = zod.object({
+  name: zod.string().optional(),
+  model: zod.string().nullish(),
+  serialNumber: zod.string().nullish(),
+  quantity: zod.number().optional(),
+  condition: zod.string().optional(),
+  status: zod.string().optional(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Delete lab equipment
+ */
+export const DeleteLabEquipmentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List lab schedules
+ */
+export const ListLabSchedulesQueryParams = zod.object({
+  labId: zod.coerce.number().optional(),
+});
+
+export const ListLabSchedulesResponseItem = zod.object({
+  id: zod.number(),
+  labId: zod.number(),
+  day: zod.string(),
+  startTime: zod.string(),
+  endTime: zod.string(),
+  subject: zod.string().nullish(),
+  faculty: zod.string().nullish(),
+  batch: zod.string().nullish(),
+  semester: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListLabSchedulesResponse = zod.array(ListLabSchedulesResponseItem);
+
+/**
+ * @summary Create lab schedule
+ */
+export const CreateLabScheduleBody = zod.object({
+  labId: zod.number(),
+  day: zod.string(),
+  startTime: zod.string(),
+  endTime: zod.string(),
+  subject: zod.string().nullish(),
+  faculty: zod.string().nullish(),
+  batch: zod.string().nullish(),
+  semester: zod.string().nullish(),
+});
+
+/**
+ * @summary Update lab schedule
+ */
+export const UpdateLabScheduleParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateLabScheduleBody = zod.object({
+  day: zod.string().optional(),
+  startTime: zod.string().optional(),
+  endTime: zod.string().optional(),
+  subject: zod.string().nullish(),
+  faculty: zod.string().nullish(),
+  batch: zod.string().nullish(),
+  semester: zod.string().nullish(),
+});
+
+/**
+ * @summary Delete lab schedule
+ */
+export const DeleteLabScheduleParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List sports/NCC/NSS activities
+ */
+export const ListSportsActivitiesQueryParams = zod.object({
+  category: zod.coerce.string().optional(),
+});
+
+export const ListSportsActivitiesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  category: zod.string(),
+  type: zod.string(),
+  coach: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  schedule: zod.string().nullish(),
+  season: zod.string().nullish(),
+  maxMembers: zod.number().nullish(),
+  description: zod.string().nullish(),
+  status: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListSportsActivitiesResponse = zod.array(
+  ListSportsActivitiesResponseItem,
+);
+
+/**
+ * @summary Create activity
+ */
+export const CreateSportsActivityBody = zod.object({
+  name: zod.string(),
+  category: zod.string(),
+  type: zod.string().optional(),
+  coach: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  schedule: zod.string().nullish(),
+  season: zod.string().nullish(),
+  maxMembers: zod.number().nullish(),
+  description: zod.string().nullish(),
+  status: zod.string().optional(),
+});
+
+/**
+ * @summary Get activity
+ */
+export const GetSportsActivityParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetSportsActivityResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  category: zod.string(),
+  type: zod.string(),
+  coach: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  schedule: zod.string().nullish(),
+  season: zod.string().nullish(),
+  maxMembers: zod.number().nullish(),
+  description: zod.string().nullish(),
+  status: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update activity
+ */
+export const UpdateSportsActivityParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateSportsActivityBody = zod.object({
+  name: zod.string().optional(),
+  category: zod.string().optional(),
+  type: zod.string().optional(),
+  coach: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  schedule: zod.string().nullish(),
+  season: zod.string().nullish(),
+  maxMembers: zod.number().nullish(),
+  description: zod.string().nullish(),
+  status: zod.string().optional(),
+});
+
+/**
+ * @summary Delete activity
+ */
+export const DeleteSportsActivityParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List enrollments
+ */
+export const ListSportsEnrollmentsQueryParams = zod.object({
+  activityId: zod.coerce.number().optional(),
+});
+
+export const ListSportsEnrollmentsResponseItem = zod.object({
+  id: zod.number(),
+  activityId: zod.number(),
+  studentId: zod.number(),
+  role: zod.string(),
+  joinDate: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  medicalFitness: zod.string().nullish(),
+  achievements: zod.string().nullish(),
+  status: zod.string(),
+  remarks: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListSportsEnrollmentsResponse = zod.array(
+  ListSportsEnrollmentsResponseItem,
+);
+
+/**
+ * @summary Enroll student
+ */
+export const CreateSportsEnrollmentBody = zod.object({
+  activityId: zod.number(),
+  studentId: zod.number(),
+  role: zod.string().optional(),
+  joinDate: zod.string(),
+  bloodGroup: zod.string().nullish(),
+  medicalFitness: zod.string().nullish(),
+  achievements: zod.string().nullish(),
+  status: zod.string().optional(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Update enrollment
+ */
+export const UpdateSportsEnrollmentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateSportsEnrollmentBody = zod.object({
+  role: zod.string().optional(),
+  bloodGroup: zod.string().nullish(),
+  medicalFitness: zod.string().nullish(),
+  achievements: zod.string().nullish(),
+  status: zod.string().optional(),
+  remarks: zod.string().nullish(),
+});
+
+/**
+ * @summary Remove enrollment
+ */
+export const DeleteSportsEnrollmentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List achievements
+ */
+export const ListSportsAchievementsQueryParams = zod.object({
+  activityId: zod.coerce.number().optional(),
+  studentId: zod.coerce.number().optional(),
+});
+
+export const ListSportsAchievementsResponseItem = zod.object({
+  id: zod.number(),
+  activityId: zod.number().nullish(),
+  studentId: zod.number().nullish(),
+  title: zod.string(),
+  level: zod.string(),
+  position: zod.string().nullish(),
+  eventName: zod.string().nullish(),
+  eventDate: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  description: zod.string().nullish(),
+  certificateNumber: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListSportsAchievementsResponse = zod.array(
+  ListSportsAchievementsResponseItem,
+);
+
+/**
+ * @summary Add achievement
+ */
+export const CreateSportsAchievementBody = zod.object({
+  activityId: zod.number().nullish(),
+  studentId: zod.number().nullish(),
+  title: zod.string(),
+  level: zod.string(),
+  position: zod.string().nullish(),
+  eventName: zod.string().nullish(),
+  eventDate: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  description: zod.string().nullish(),
+  certificateNumber: zod.string().nullish(),
+});
+
+/**
+ * @summary Update achievement
+ */
+export const UpdateSportsAchievementParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateSportsAchievementBody = zod.object({
+  title: zod.string().optional(),
+  level: zod.string().optional(),
+  position: zod.string().nullish(),
+  eventName: zod.string().nullish(),
+  eventDate: zod.string().nullish(),
+  venue: zod.string().nullish(),
+  description: zod.string().nullish(),
+  certificateNumber: zod.string().nullish(),
+});
+
+/**
+ * @summary Delete achievement
+ */
+export const DeleteSportsAchievementParams = zod.object({
+  id: zod.coerce.number(),
+});
