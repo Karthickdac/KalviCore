@@ -25,6 +25,36 @@ function normalizeDate(raw: string | undefined | null, fallback: string): string
   return fallback;
 }
 
+function extractDbError(err: any): string {
+  const pgErr = err?.cause || err;
+  const code = pgErr?.code || err?.code;
+  const detail = pgErr?.detail || err?.detail || "";
+  const constraint = pgErr?.constraint || err?.constraint || "";
+
+  if (code === "23505" || detail.includes("already exists") || constraint.includes("unique")) {
+    return `Duplicate entry: ${detail || "roll number or email already exists"}`;
+  }
+  if (code === "23503" || detail.includes("not present") || constraint.includes("fkey")) {
+    const match = detail.match(/Key \((\w+)\)=\((\d+)\) is not present/);
+    if (match) return `Invalid ${match[1].replace(/_/g, " ")}: ID ${match[2]} does not exist. Check the ID Reference for valid values.`;
+    return `Invalid reference: ${detail || "a referenced department or course ID does not exist in the database"}`;
+  }
+  if (code === "23502") {
+    return `Missing required field: ${pgErr?.column || detail || "unknown"}`;
+  }
+  if (code === "22P02") {
+    return `Invalid data type: ${detail || "check that numeric fields contain numbers"}`;
+  }
+
+  const msg = pgErr?.message || err?.message || String(err);
+  if (msg.startsWith("Failed query:")) {
+    const pgMsg = detail || pgErr?.message;
+    if (pgMsg && !pgMsg.startsWith("Failed query:")) return pgMsg;
+    return "Database insert failed. Check that all IDs (departmentId, courseId) exist and required fields are provided.";
+  }
+  return msg.length > 200 ? msg.substring(0, 200) : msg;
+}
+
 router.post("/bulk-import/students", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
   try {
     const { students } = req.body;
@@ -53,14 +83,7 @@ router.post("/bulk-import/students", requireAuth, requirePermission("settings"),
         });
         inserted++;
       } catch (err: any) {
-        let errMsg = err.message || String(err);
-        if (err.detail) errMsg = err.detail;
-        else if (err.constraint) errMsg = `Constraint violation: ${err.constraint}`;
-        if (errMsg.includes("duplicate") || err.code === "23505") errMsg = "Duplicate roll number or email";
-        else if (errMsg.includes("foreign key") || err.code === "23503") errMsg = `Invalid reference: ${err.detail || "department or course ID not found in database"}`;
-        else if (err.code === "23502") errMsg = `Missing required field: ${err.column || err.detail || "unknown"}`;
-        else if (errMsg.length > 200) errMsg = errMsg.substring(0, 200);
-        errors.push({ row: i + 1, error: errMsg });
+        errors.push({ row: i + 1, error: extractDbError(err) });
       }
     }
     await logActivity("bulk_import_students", `Imported ${inserted} students, ${errors.length} errors`, "");
@@ -99,14 +122,7 @@ router.post("/bulk-import/staff", requireAuth, requirePermission("settings"), as
         });
         inserted++;
       } catch (err: any) {
-        let errMsg = err.message || String(err);
-        if (err.detail) errMsg = err.detail;
-        else if (err.constraint) errMsg = `Constraint violation: ${err.constraint}`;
-        if (errMsg.includes("duplicate") || err.code === "23505") errMsg = "Duplicate staff ID or email";
-        else if (errMsg.includes("foreign key") || err.code === "23503") errMsg = `Invalid reference: ${err.detail || "department ID not found in database"}`;
-        else if (err.code === "23502") errMsg = `Missing required field: ${err.column || err.detail || "unknown"}`;
-        else if (errMsg.length > 200) errMsg = errMsg.substring(0, 200);
-        errors.push({ row: i + 1, error: errMsg });
+        errors.push({ row: i + 1, error: extractDbError(err) });
       }
     }
     await logActivity("bulk_import_staff", `Imported ${inserted} staff, ${errors.length} errors`, "");
