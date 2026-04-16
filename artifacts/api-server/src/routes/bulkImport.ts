@@ -5,6 +5,26 @@ import { requireAuth, requirePermission } from "../middleware/auth";
 
 const router: IRouter = Router();
 
+function normalizeDate(raw: string | undefined | null, fallback: string): string {
+  if (!raw) return fallback;
+  const s = raw.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^\d{2}-\d{2}-\d{4}$/.test(s)) {
+    const [d, m, y] = s.split("-");
+    return `${y}-${m}-${d}`;
+  }
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+    const [d, m, y] = s.split("/");
+    return `${y}-${m}-${d}`;
+  }
+  if (/^\d{4}\/\d{2}\/\d{2}$/.test(s)) {
+    return s.replace(/\//g, "-");
+  }
+  const parsed = new Date(s);
+  if (!isNaN(parsed.getTime())) return parsed.toISOString().split("T")[0];
+  return fallback;
+}
+
 router.post("/bulk-import/students", requireAuth, requirePermission("settings"), async (req, res): Promise<void> => {
   try {
     const { students } = req.body;
@@ -27,9 +47,9 @@ router.post("/bulk-import/students", requireAuth, requirePermission("settings"),
           phone: s.phone || null, departmentId: Number(s.departmentId), courseId: Number(s.courseId),
           year: Number(s.year || 1), semester: Number(s.semester || 1),
           admissionType: s.admissionType || "Government", community: s.community || "OC",
-          gender: s.gender || "Male", dateOfBirth: s.dateOfBirth || "2000-01-01",
+          gender: s.gender || "Male", dateOfBirth: normalizeDate(s.dateOfBirth, "2000-01-01"),
           address: s.address || null, fatherName: s.fatherName || null, guardianPhone: s.guardianPhone || null,
-          admissionDate: s.admissionDate || new Date().toISOString().split("T")[0],
+          admissionDate: normalizeDate(s.admissionDate, new Date().toISOString().split("T")[0]),
         });
         inserted++;
       } catch (err: any) {
@@ -67,7 +87,7 @@ router.post("/bulk-import/staff", requireAuth, requirePermission("settings"), as
           qualification: s.qualification || null, specialization: s.specialization || null,
           experience: s.experience ? Number(s.experience) : null,
           salary: s.salary ? String(s.salary) : null,
-          joiningDate: s.joiningDate || new Date().toISOString().split("T")[0],
+          joiningDate: normalizeDate(s.joiningDate, new Date().toISOString().split("T")[0]),
           gender: s.gender || "Male", employmentType: s.employmentType || "Permanent",
         });
         inserted++;
