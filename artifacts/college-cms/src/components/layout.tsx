@@ -147,6 +147,63 @@ const adminNavGroups: NavGroup[] = [
   },
 ];
 
+const facultyNavGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    icon: Home,
+    color: "text-blue-400",
+    dotColor: "bg-blue-500",
+    items: [
+      { name: "Dashboard", href: "/", icon: LayoutDashboard, permission: "dashboard" },
+      { name: "Academic Calendar", href: "/academic-calendar", icon: CalendarDays, permission: "calendar" },
+    ],
+  },
+  {
+    label: "Teaching",
+    icon: GraduationCap,
+    color: "text-violet-400",
+    dotColor: "bg-violet-500",
+    items: [
+      { name: "My Subjects", href: "/subjects", icon: FileText, permission: "subjects" },
+      { name: "Timetable", href: "/timetable", icon: Clock, permission: "timetable" },
+      { name: "Assignments", href: "/assignments", icon: ClipboardList, permission: "assignments" },
+      { name: "Exams & Results", href: "/exams", icon: FileText, permission: "exams" },
+      { name: "Laboratory", href: "/laboratory", icon: FlaskConical, permission: "laboratory" },
+    ],
+  },
+  {
+    label: "My Students",
+    icon: Users,
+    color: "text-emerald-400",
+    dotColor: "bg-emerald-500",
+    items: [
+      { name: "Students", href: "/students", icon: Users, permission: "students" },
+      { name: "Attendance", href: "/attendance", icon: CalendarCheck, permission: "attendance" },
+      { name: "Sports, NCC & NSS", href: "/sports-ncc", icon: Trophy, permission: "sports_ncc" },
+    ],
+  },
+  {
+    label: "Staff",
+    icon: Briefcase,
+    color: "text-amber-400",
+    dotColor: "bg-amber-500",
+    items: [
+      { name: "My Leaves", href: "/leaves", icon: CalendarOff, permission: "leaves" },
+    ],
+  },
+  {
+    label: "Communication",
+    icon: MessageSquare,
+    color: "text-pink-400",
+    dotColor: "bg-pink-500",
+    items: [
+      { name: "Events", href: "/events", icon: Calendar, permission: "events" },
+      { name: "Communications", href: "/communications", icon: Megaphone, permission: "communications" },
+      { name: "Notifications", href: "/notifications", icon: BellRing, permission: "notifications" },
+    ],
+  },
+];
+
 const studentNavGroups: NavGroup[] = [
   {
     label: "My Campus",
@@ -189,12 +246,12 @@ let _sidebarScrollTop = 0;
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout, hasPermission } = useAuth();
-  const isStudent = user?.role === "Student";
-  const navGroups = isStudent ? studentNavGroups : adminNavGroups;
+  const role = user?.role;
+  const navGroups = role === "Student" ? studentNavGroups : role === "Faculty" ? facultyNavGroups : adminNavGroups;
 
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    (isStudent ? studentNavGroups : adminNavGroups).forEach((g) => { initial[g.label] = true; });
+    navGroups.forEach((g) => { initial[g.label] = true; });
     return initial;
   });
   const [searchQuery, setSearchQuery] = useState("");
