@@ -139,7 +139,7 @@ export default function LibrarianPortalPage() {
           </nav>
         </ScrollArea>
         <div className="border-t p-2 space-y-1">
-          <button onClick={() => { setStaff(null); setStaffId(""); setPhone(""); }} className={`w-full flex items-center gap-3 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors ${sidebarCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"}`} title={sidebarCollapsed ? "Exit Portal" : undefined}>
+          <button onClick={() => { setStaff(null); setUsername(""); setPassword(""); }} className={`w-full flex items-center gap-3 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors ${sidebarCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"}`} title={sidebarCollapsed ? "Exit Portal" : undefined}>
             <LogOut className="w-4 h-4" />{!sidebarCollapsed && <span>Exit Portal</span>}
           </button>
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="hidden lg:flex w-full items-center gap-3 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors justify-center px-2 py-2">
