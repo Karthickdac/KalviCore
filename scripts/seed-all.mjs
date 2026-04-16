@@ -123,17 +123,23 @@ async function seed() {
     { s: "13:00", e: "14:00" }, { s: "14:00", e: "15:00" },
   ];
   let ttCount = 0;
+  const classRoomMap = {};
+  let nextRoom = 101;
   for (let d = 0; d < 5; d++) {
     for (let t = 0; t < 5; t++) {
       const subIdx = (d * 5 + t) % subjects.length;
       const sub = subjects[subIdx];
       if (sub) {
+        const classKey = `${sub.departmentId || 6}-${sub.semester || 1}`;
+        if (!classRoomMap[classKey]) {
+          classRoomMap[classKey] = `Room ${nextRoom++}`;
+        }
         const r = await post("/timetable", {
           subjectId: sub.id, staffId: staffIds[t % staffIds.length],
           departmentId: sub.departmentId || 6,
           dayOfWeek: days[d], periodNumber: t + 1,
           startTime: timeSlots[t].s, endTime: timeSlots[t].e,
-          room: `Room ${100 + d * 10 + t}`, semester: sub.semester || 1,
+          room: classRoomMap[classKey], semester: sub.semester || 1,
           section: "A", academicYear: "2024-25",
         });
         if (r) ttCount++;
