@@ -23,3 +23,9 @@ id = "w6xE-8J6r3kJ8Mms_oy8s"
 uri = "file://KalviCore-Screen-Documentation.md"
 type = "text"
 title = "KalviCore - Complete Screen Documentation"
+
+[[outputs]]
+id = "A_arQhXrLYMiE9t9qzSbm"
+uri = "file://KalviCore-Screen-Documentation.docx"
+type = "word_document"
+title = "KalviCore - Complete Screen Documentation (Word)"
