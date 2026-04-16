@@ -95,6 +95,21 @@ router.post("/portal/login", async (req, res): Promise<void> => {
   }
 });
 
+router.get("/portal/students", async (_req, res): Promise<void> => {
+  try {
+    const rows = await db.select({
+      id: studentsTable.id,
+      firstName: studentsTable.firstName,
+      lastName: studentsTable.lastName,
+      rollNumber: studentsTable.rollNumber,
+      email: studentsTable.email,
+    }).from(studentsTable).orderBy(studentsTable.firstName);
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/librarian-portal/books", async (_req, res): Promise<void> => {
   try {
     const books = await db.select().from(libraryBooksTable);

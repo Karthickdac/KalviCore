@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import {
   Building2, LogOut, ArrowLeft, LayoutDashboard, BedDouble, Users,
-  AlertTriangle, ChevronLeft, ChevronRight, Menu
+  AlertTriangle, ChevronLeft, ChevronRight, Menu, Plus, Pencil, Trash2,
 } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
@@ -24,6 +32,18 @@ const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: "allocations", label: "Allocations", icon: <Users className="w-4 h-4" /> },
   { id: "complaints", label: "Complaints", icon: <AlertTriangle className="w-4 h-4" /> },
 ];
+
+async function apiFetch(path: string, opts: RequestInit = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...opts,
+    headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
+  });
+  if (!res.ok) {
+    const d = await res.json().catch(() => ({}));
+    throw new Error(d.error || `Request failed (${res.status})`);
+  }
+  return res.json();
+}
 
 export default function WardenPortalPage() {
   const [username, setUsername] = useState("");
@@ -45,25 +65,25 @@ export default function WardenPortalPage() {
       });
       if (!res.ok) { const d = await res.json(); setError(d.error || "Invalid credentials"); setLoading(false); return; }
       const data = await res.json();
-      setStaff({ id: data.user.staffRecordId, staffId: data.user.staffId || data.user.username, name: data.user.fullName, email: data.user.email, department: data.user.department, departmentId: data.user.departmentId });
+      setStaff({ id: data.user.staffRecordId, staffId: data.user.staffId || data.user.username, name: data.user.fullName, email: data.user.email });
     } catch { setError("Connection failed"); }
     setLoading(false);
   };
 
   const { data: stats } = useQuery({
-    queryKey: ["warden-stats"], queryFn: async () => { const r = await fetch(`${API_BASE}/api/warden-portal/stats`); return r.json(); }, enabled: !!staff,
+    queryKey: ["warden-stats"], queryFn: () => apiFetch(`/api/warden-portal/stats`), enabled: !!staff,
   });
-  const { data: hostels = [] } = useQuery({
-    queryKey: ["warden-hostels"], queryFn: async () => { const r = await fetch(`${API_BASE}/api/warden-portal/hostels`); return r.json(); }, enabled: !!staff,
+  const { data: hostels = [] } = useQuery<any[]>({
+    queryKey: ["warden-hostels"], queryFn: () => apiFetch(`/api/hostels`), enabled: !!staff,
   });
-  const { data: rooms = [] } = useQuery({
-    queryKey: ["warden-rooms"], queryFn: async () => { const r = await fetch(`${API_BASE}/api/warden-portal/rooms`); return r.json(); }, enabled: !!staff,
+  const { data: rooms = [] } = useQuery<any[]>({
+    queryKey: ["warden-rooms"], queryFn: () => apiFetch(`/api/hostel-rooms`), enabled: !!staff,
   });
-  const { data: allocations = [] } = useQuery({
-    queryKey: ["warden-allocations"], queryFn: async () => { const r = await fetch(`${API_BASE}/api/warden-portal/allocations`); return r.json(); }, enabled: !!staff,
+  const { data: allocations = [] } = useQuery<any[]>({
+    queryKey: ["warden-allocations"], queryFn: () => apiFetch(`/api/warden-portal/allocations`), enabled: !!staff,
   });
-  const { data: complaints = [] } = useQuery({
-    queryKey: ["warden-complaints"], queryFn: async () => { const r = await fetch(`${API_BASE}/api/warden-portal/complaints`); return r.json(); }, enabled: !!staff,
+  const { data: complaints = [] } = useQuery<any[]>({
+    queryKey: ["warden-complaints"], queryFn: () => apiFetch(`/api/warden-portal/complaints`), enabled: !!staff,
   });
 
   if (!staff) {
@@ -154,7 +174,7 @@ export default function WardenPortalPage() {
                     <Table>
                       <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Subject</TableHead><TableHead>Date</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
                       <TableBody>
-                        {(complaints as any[]).slice(0, 5).map((c: any) => (
+                        {complaints.slice(0, 5).map((c: any) => (
                           <TableRow key={c.id}>
                             <TableCell className="text-sm">{c.studentName}<span className="text-xs text-muted-foreground ml-1">({c.rollNumber})</span></TableCell>
                             <TableCell className="text-sm font-medium">{c.subject || c.complaintType || "-"}</TableCell>
@@ -170,103 +190,413 @@ export default function WardenPortalPage() {
             </div>
           )}
 
-          {activeSection === "hostels" && (
-            <Card>
-              <CardContent className="p-0">
-                {hostels.length === 0 ? <p className="text-center py-8 text-muted-foreground">No hostels found.</p> : (
-                  <Table>
-                    <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Type</TableHead><TableHead>Blocks</TableHead><TableHead>Rooms</TableHead><TableHead>Warden</TableHead><TableHead>Phone</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
-                    <TableBody>
-                      {(hostels as any[]).map((h: any) => (
-                        <TableRow key={h.id}>
-                          <TableCell className="font-medium text-sm">{h.name}</TableCell>
-                          <TableCell><Badge variant="outline">{h.type}</Badge></TableCell>
-                          <TableCell className="text-sm">{h.totalBlocks}</TableCell>
-                          <TableCell className="text-sm">{h.totalRooms}</TableCell>
-                          <TableCell className="text-sm">{h.wardenName || "-"}</TableCell>
-                          <TableCell className="text-sm">{h.wardenPhone || "-"}</TableCell>
-                          <TableCell><Badge variant={h.status === "Active" ? "default" : "outline"}>{h.status}</Badge></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeSection === "rooms" && (
-            <Card>
-              <CardContent className="p-0">
-                {rooms.length === 0 ? <p className="text-center py-8 text-muted-foreground">No rooms found.</p> : (
-                  <Table>
-                    <TableHeader><TableRow><TableHead>Room No.</TableHead><TableHead>Hostel</TableHead><TableHead>Floor</TableHead><TableHead>Type</TableHead><TableHead>Capacity</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
-                    <TableBody>
-                      {(rooms as any[]).map((r: any) => (
-                        <TableRow key={r.id}>
-                          <TableCell className="font-medium text-sm">{r.roomNumber}</TableCell>
-                          <TableCell className="text-sm">{r.hostelName}</TableCell>
-                          <TableCell className="text-sm">{r.floor || "-"}</TableCell>
-                          <TableCell><Badge variant="outline">{r.roomType || "Standard"}</Badge></TableCell>
-                          <TableCell className="text-sm">{r.capacity}</TableCell>
-                          <TableCell><Badge variant={r.status === "Available" ? "default" : "outline"}>{r.status}</Badge></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeSection === "allocations" && (
-            <Card>
-              <CardContent className="p-0">
-                {allocations.length === 0 ? <p className="text-center py-8 text-muted-foreground">No allocations found.</p> : (
-                  <Table>
-                    <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Roll No.</TableHead><TableHead>Hostel</TableHead><TableHead>Room</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
-                    <TableBody>
-                      {(allocations as any[]).map((a: any) => (
-                        <TableRow key={a.id}>
-                          <TableCell className="font-medium text-sm">{a.studentName}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{a.rollNumber}</TableCell>
-                          <TableCell className="text-sm">{a.hostelName}</TableCell>
-                          <TableCell className="text-sm">{a.roomNumber}</TableCell>
-                          <TableCell><Badge variant={a.status === "Active" ? "default" : "outline"}>{a.status}</Badge></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {activeSection === "complaints" && (
-            <Card>
-              <CardContent className="p-0">
-                {complaints.length === 0 ? <p className="text-center py-8 text-muted-foreground">No complaints found.</p> : (
-                  <Table>
-                    <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Roll No.</TableHead><TableHead>Subject</TableHead><TableHead>Description</TableHead><TableHead>Date</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
-                    <TableBody>
-                      {(complaints as any[]).map((c: any) => (
-                        <TableRow key={c.id}>
-                          <TableCell className="font-medium text-sm">{c.studentName}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{c.rollNumber}</TableCell>
-                          <TableCell className="text-sm">{c.subject || c.complaintType || "-"}</TableCell>
-                          <TableCell className="text-sm max-w-xs truncate">{c.description || "-"}</TableCell>
-                          <TableCell className="text-sm">{c.complaintDate ? new Date(c.complaintDate).toLocaleDateString("en-IN") : "-"}</TableCell>
-                          <TableCell><Badge variant={c.status === "Resolved" ? "outline" : c.status === "Pending" ? "destructive" : "default"}>{c.status}</Badge></TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          )}
+          {activeSection === "hostels" && <HostelsSection hostels={hostels} />}
+          {activeSection === "rooms" && <RoomsSection rooms={rooms} hostels={hostels} />}
+          {activeSection === "allocations" && <AllocationsSection allocations={allocations} hostels={hostels} rooms={rooms} />}
+          {activeSection === "complaints" && <ComplaintsSection complaints={complaints} />}
         </div>
       </main>
     </div>
+  );
+}
+
+function DeleteButton({ onConfirm, title }: { onConfirm: () => void; title: string }) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {title}?</AlertDialogTitle>
+          <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function HostelsSection({ hostels }: { hostels: any[] }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
+  const [form, setForm] = useState<any>({});
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["warden-hostels"] });
+    qc.invalidateQueries({ queryKey: ["warden-stats"] });
+  };
+
+  const save = useMutation({
+    mutationFn: () => {
+      const body = {
+        name: form.name,
+        type: form.type || "Boys",
+        totalBlocks: form.totalBlocks ? Number(form.totalBlocks) : 1,
+        totalRooms: form.totalRooms ? Number(form.totalRooms) : 0,
+        wardenName: form.wardenName || null,
+        wardenPhone: form.wardenPhone || null,
+        status: form.status || "Active",
+      };
+      return editing
+        ? apiFetch(`/api/hostels/${editing.id}`, { method: "PATCH", body: JSON.stringify(body) })
+        : apiFetch(`/api/hostels`, { method: "POST", body: JSON.stringify(body) });
+    },
+    onSuccess: () => { toast({ title: editing ? "Hostel updated" : "Hostel added" }); invalidate(); setOpen(false); setEditing(null); setForm({}); },
+    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  const del = useMutation({
+    mutationFn: (id: number) => apiFetch(`/api/hostels/${id}`, { method: "DELETE" }),
+    onSuccess: () => { toast({ title: "Hostel deleted" }); invalidate(); },
+    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  const openAdd = () => { setEditing(null); setForm({ type: "Boys", status: "Active" }); setOpen(true); };
+  const openEdit = (h: any) => { setEditing(h); setForm({ ...h }); setOpen(true); };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base">Manage Hostels</CardTitle>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild><Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700"><Plus className="w-4 h-4 mr-2" />Add Hostel</Button></DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{editing ? "Edit Hostel" : "Add Hostel"}</DialogTitle><DialogDescription>Configure a hostel.</DialogDescription></DialogHeader>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5 col-span-2"><Label>Hostel Name *</Label><Input value={form.name || ""} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Type</Label>
+                <Select value={form.type || "Boys"} onValueChange={v => setForm({ ...form, type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="Boys">Boys</SelectItem><SelectItem value="Girls">Girls</SelectItem><SelectItem value="Co-ed">Co-ed</SelectItem></SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Status</Label>
+                <Select value={form.status || "Active"} onValueChange={v => setForm({ ...form, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="Active">Active</SelectItem><SelectItem value="Inactive">Inactive</SelectItem></SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Total Blocks</Label><Input type="number" value={form.totalBlocks ?? ""} onChange={e => setForm({ ...form, totalBlocks: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Total Rooms</Label><Input type="number" value={form.totalRooms ?? ""} onChange={e => setForm({ ...form, totalRooms: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Warden Name</Label><Input value={form.wardenName || ""} onChange={e => setForm({ ...form, wardenName: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Warden Phone</Label><Input value={form.wardenPhone || ""} onChange={e => setForm({ ...form, wardenPhone: e.target.value })} /></div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={() => save.mutate()} disabled={save.isPending || !form.name} className="bg-indigo-600 hover:bg-indigo-700">{save.isPending ? "Saving..." : "Save"}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent className="p-0">
+        {hostels.length === 0 ? <p className="text-center py-8 text-muted-foreground">No hostels found.</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Type</TableHead><TableHead>Blocks</TableHead><TableHead>Rooms</TableHead><TableHead>Warden</TableHead><TableHead>Phone</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+            <TableBody>
+              {hostels.map((h: any) => (
+                <TableRow key={h.id}>
+                  <TableCell className="font-medium text-sm">{h.name}</TableCell>
+                  <TableCell><Badge variant="outline">{h.type}</Badge></TableCell>
+                  <TableCell className="text-sm">{h.totalBlocks}</TableCell>
+                  <TableCell className="text-sm">{h.totalRooms}</TableCell>
+                  <TableCell className="text-sm">{h.wardenName || "-"}</TableCell>
+                  <TableCell className="text-sm">{h.wardenPhone || "-"}</TableCell>
+                  <TableCell><Badge variant={h.status === "Active" ? "default" : "outline"}>{h.status}</Badge></TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(h)}><Pencil className="w-4 h-4" /></Button>
+                    <DeleteButton title="hostel" onConfirm={() => del.mutate(h.id)} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function RoomsSection({ rooms, hostels }: { rooms: any[]; hostels: any[] }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
+  const [form, setForm] = useState<any>({});
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["warden-rooms"] });
+    qc.invalidateQueries({ queryKey: ["warden-stats"] });
+  };
+
+  const save = useMutation({
+    mutationFn: () => {
+      const body = {
+        roomNumber: form.roomNumber,
+        hostelId: Number(form.hostelId),
+        floor: form.floor || null,
+        roomType: form.roomType || "Standard",
+        capacity: form.capacity ? Number(form.capacity) : 1,
+        status: form.status || "Available",
+      };
+      return editing
+        ? apiFetch(`/api/hostel-rooms/${editing.id}`, { method: "PATCH", body: JSON.stringify(body) })
+        : apiFetch(`/api/hostel-rooms`, { method: "POST", body: JSON.stringify(body) });
+    },
+    onSuccess: () => { toast({ title: editing ? "Room updated" : "Room added" }); invalidate(); setOpen(false); setEditing(null); setForm({}); },
+    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  const del = useMutation({
+    mutationFn: (id: number) => apiFetch(`/api/hostel-rooms/${id}`, { method: "DELETE" }),
+    onSuccess: () => { toast({ title: "Room deleted" }); invalidate(); },
+    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  const openAdd = () => { setEditing(null); setForm({ roomType: "Standard", status: "Available", capacity: 1 }); setOpen(true); };
+  const openEdit = (r: any) => { setEditing(r); setForm({ ...r }); setOpen(true); };
+  const hostelName = (id: number) => hostels.find(h => h.id === id)?.name || "-";
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base">Manage Rooms</CardTitle>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild><Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700"><Plus className="w-4 h-4 mr-2" />Add Room</Button></DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{editing ? "Edit Room" : "Add Room"}</DialogTitle><DialogDescription>Configure a hostel room.</DialogDescription></DialogHeader>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5"><Label>Room Number *</Label><Input value={form.roomNumber || ""} onChange={e => setForm({ ...form, roomNumber: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Floor</Label><Input value={form.floor || ""} onChange={e => setForm({ ...form, floor: e.target.value })} placeholder="e.g., 1, G" /></div>
+              <div className="space-y-1.5 col-span-2"><Label>Hostel *</Label>
+                <Select value={form.hostelId ? String(form.hostelId) : ""} onValueChange={v => setForm({ ...form, hostelId: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select hostel" /></SelectTrigger>
+                  <SelectContent>{hostels.map(h => <SelectItem key={h.id} value={String(h.id)}>{h.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Room Type</Label>
+                <Select value={form.roomType || "Standard"} onValueChange={v => setForm({ ...form, roomType: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="Standard">Standard</SelectItem><SelectItem value="Single">Single</SelectItem><SelectItem value="Double">Double</SelectItem><SelectItem value="Triple">Triple</SelectItem><SelectItem value="AC">AC</SelectItem></SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Capacity *</Label><Input type="number" value={form.capacity ?? ""} onChange={e => setForm({ ...form, capacity: e.target.value })} /></div>
+              <div className="space-y-1.5 col-span-2"><Label>Status</Label>
+                <Select value={form.status || "Available"} onValueChange={v => setForm({ ...form, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="Available">Available</SelectItem><SelectItem value="Occupied">Occupied</SelectItem><SelectItem value="Maintenance">Maintenance</SelectItem></SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={() => save.mutate()} disabled={save.isPending || !form.roomNumber || !form.hostelId} className="bg-indigo-600 hover:bg-indigo-700">{save.isPending ? "Saving..." : "Save"}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent className="p-0">
+        {rooms.length === 0 ? <p className="text-center py-8 text-muted-foreground">No rooms found.</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Room No.</TableHead><TableHead>Hostel</TableHead><TableHead>Floor</TableHead><TableHead>Type</TableHead><TableHead>Capacity</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+            <TableBody>
+              {rooms.map((r: any) => (
+                <TableRow key={r.id}>
+                  <TableCell className="font-medium text-sm">{r.roomNumber}</TableCell>
+                  <TableCell className="text-sm">{r.hostelName || hostelName(r.hostelId)}</TableCell>
+                  <TableCell className="text-sm">{r.floor || "-"}</TableCell>
+                  <TableCell><Badge variant="outline">{r.roomType || "Standard"}</Badge></TableCell>
+                  <TableCell className="text-sm">{r.capacity}</TableCell>
+                  <TableCell><Badge variant={r.status === "Available" ? "default" : "outline"}>{r.status}</Badge></TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(r)}><Pencil className="w-4 h-4" /></Button>
+                    <DeleteButton title="room" onConfirm={() => del.mutate(r.id)} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function AllocationsSection({ allocations, hostels, rooms }: { allocations: any[]; hostels: any[]; rooms: any[] }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any>(null);
+  const [form, setForm] = useState<any>({});
+
+  const { data: students = [] } = useQuery<any[]>({
+    queryKey: ["all-students-warden"], queryFn: () => apiFetch(`/api/portal/students`),
+  });
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["warden-allocations"] });
+    qc.invalidateQueries({ queryKey: ["warden-stats"] });
+  };
+
+  const save = useMutation({
+    mutationFn: () => {
+      const body = {
+        studentId: Number(form.studentId),
+        hostelId: Number(form.hostelId),
+        roomId: Number(form.roomId),
+        status: form.status || "Active",
+        allocationDate: form.allocationDate || new Date().toISOString().slice(0, 10),
+      };
+      return editing
+        ? apiFetch(`/api/hostel-allocations/${editing.id}`, { method: "PATCH", body: JSON.stringify(body) })
+        : apiFetch(`/api/hostel-allocations`, { method: "POST", body: JSON.stringify(body) });
+    },
+    onSuccess: () => { toast({ title: editing ? "Allocation updated" : "Allocation created" }); invalidate(); setOpen(false); setEditing(null); setForm({}); },
+    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  const openAdd = () => { setEditing(null); setForm({ status: "Active" }); setOpen(true); };
+  const openEdit = (a: any) => { setEditing(a); setForm({ ...a }); setOpen(true); };
+  const studentLabel = (s: any) => `${s.firstName || ""} ${s.lastName || ""} (${s.rollNumber || s.id})`.trim();
+  const filteredRooms = form.hostelId ? rooms.filter(r => r.hostelId === Number(form.hostelId)) : rooms;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base">Manage Allocations</CardTitle>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild><Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700"><Plus className="w-4 h-4 mr-2" />Add Allocation</Button></DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{editing ? "Edit Allocation" : "Add Allocation"}</DialogTitle><DialogDescription>Allocate a student to a hostel room.</DialogDescription></DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5"><Label>Student *</Label>
+                <Select value={form.studentId ? String(form.studentId) : ""} onValueChange={v => setForm({ ...form, studentId: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select student" /></SelectTrigger>
+                  <SelectContent className="max-h-72">{students.map((s: any) => <SelectItem key={s.id} value={String(s.id)}>{studentLabel(s)}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Hostel *</Label>
+                <Select value={form.hostelId ? String(form.hostelId) : ""} onValueChange={v => setForm({ ...form, hostelId: v, roomId: undefined })}>
+                  <SelectTrigger><SelectValue placeholder="Select hostel" /></SelectTrigger>
+                  <SelectContent>{hostels.map(h => <SelectItem key={h.id} value={String(h.id)}>{h.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Room *</Label>
+                <Select value={form.roomId ? String(form.roomId) : ""} onValueChange={v => setForm({ ...form, roomId: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select room" /></SelectTrigger>
+                  <SelectContent className="max-h-72">{filteredRooms.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.roomNumber} ({r.roomType})</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5"><Label>Status</Label>
+                <Select value={form.status || "Active"} onValueChange={v => setForm({ ...form, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="Active">Active</SelectItem><SelectItem value="Vacated">Vacated</SelectItem><SelectItem value="Transferred">Transferred</SelectItem></SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button onClick={() => save.mutate()} disabled={save.isPending || !form.studentId || !form.hostelId || !form.roomId} className="bg-indigo-600 hover:bg-indigo-700">{save.isPending ? "Saving..." : "Save"}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </CardHeader>
+      <CardContent className="p-0">
+        {allocations.length === 0 ? <p className="text-center py-8 text-muted-foreground">No allocations found.</p> : (
+          <Table>
+            <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Roll No.</TableHead><TableHead>Hostel</TableHead><TableHead>Room</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+            <TableBody>
+              {allocations.map((a: any) => (
+                <TableRow key={a.id}>
+                  <TableCell className="font-medium text-sm">{a.studentName}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{a.rollNumber}</TableCell>
+                  <TableCell className="text-sm">{a.hostelName}</TableCell>
+                  <TableCell className="text-sm">{a.roomNumber}</TableCell>
+                  <TableCell><Badge variant={a.status === "Active" ? "default" : "outline"}>{a.status}</Badge></TableCell>
+                  <TableCell className="text-right"><Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(a)}><Pencil className="w-4 h-4" /></Button></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ComplaintsSection({ complaints }: { complaints: any[] }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [editing, setEditing] = useState<any>(null);
+  const [status, setStatus] = useState("Pending");
+  const [resolution, setResolution] = useState("");
+
+  const update = useMutation({
+    mutationFn: () => apiFetch(`/api/hostel-complaints/${editing.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status, resolution: resolution || null, resolvedAt: status === "Resolved" ? new Date().toISOString() : null }),
+    }),
+    onSuccess: () => {
+      toast({ title: "Complaint updated" });
+      qc.invalidateQueries({ queryKey: ["warden-complaints"] });
+      qc.invalidateQueries({ queryKey: ["warden-stats"] });
+      setEditing(null);
+    },
+    onError: (e: any) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
+  });
+
+  return (
+    <>
+      <Card>
+        <CardHeader><CardTitle className="text-base">Manage Complaints</CardTitle></CardHeader>
+        <CardContent className="p-0">
+          {complaints.length === 0 ? <p className="text-center py-8 text-muted-foreground">No complaints found.</p> : (
+            <Table>
+              <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Roll No.</TableHead><TableHead>Subject</TableHead><TableHead>Description</TableHead><TableHead>Date</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+              <TableBody>
+                {complaints.map((c: any) => (
+                  <TableRow key={c.id}>
+                    <TableCell className="font-medium text-sm">{c.studentName}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{c.rollNumber}</TableCell>
+                    <TableCell className="text-sm">{c.subject || c.complaintType || "-"}</TableCell>
+                    <TableCell className="text-sm max-w-xs truncate">{c.description || "-"}</TableCell>
+                    <TableCell className="text-sm">{c.complaintDate ? new Date(c.complaintDate).toLocaleDateString("en-IN") : "-"}</TableCell>
+                    <TableCell><Badge variant={c.status === "Resolved" ? "outline" : c.status === "Pending" ? "destructive" : "default"}>{c.status}</Badge></TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(c); setStatus(c.status || "Pending"); setResolution(c.resolution || ""); }}><Pencil className="w-4 h-4" /></Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Update Complaint</DialogTitle><DialogDescription>{editing?.subject}</DialogDescription></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5"><Label>Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="Pending">Pending</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Resolved">Resolved</SelectItem></SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5"><Label>Resolution Notes</Label><Textarea value={resolution} onChange={e => setResolution(e.target.value)} rows={3} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
+            <Button onClick={() => update.mutate()} disabled={update.isPending} className="bg-indigo-600 hover:bg-indigo-700">{update.isPending ? "Saving..." : "Update"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
