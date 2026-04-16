@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Printer, FileText, Receipt, Award, ClipboardList, GraduationCap, BookOpen, AlertCircle, UserCheck, Landmark, Loader2 } from "lucide-react";
+import { Printer, FileText, Receipt, Award, ClipboardList, GraduationCap, BookOpen, AlertCircle, UserCheck, Landmark, Loader2, ChevronsUpDown, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -57,6 +59,37 @@ function PrintFooter3({ left, center, right }: { left: string; center: string; r
 
 function instProps(data: any) {
   return { collegeName: data?.collegeName, location: data?.location, affiliatedUniversity: data?.affiliatedUniversity };
+}
+
+function SearchableCombobox({ value, onValueChange, placeholder, options }: { value: string; onValueChange: (v: string) => void; placeholder: string; options: { value: string; label: string }[] }) {
+  const [open, setOpen] = useState(false);
+  const selectedLabel = options.find(o => o.value === value)?.label;
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between font-normal h-10 text-left">
+          <span className="truncate">{selectedLabel || <span className="text-muted-foreground">{placeholder}</span>}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={`Search ${placeholder.toLowerCase().replace("select ", "")}...`} />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              {options.map(o => (
+                <CommandItem key={o.value} value={o.label} onSelect={() => { onValueChange(o.value); setOpen(false); }}>
+                  <Check className={cn("mr-2 h-4 w-4", value === o.value ? "opacity-100" : "opacity-0")} />
+                  <span className="truncate">{o.label}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function InfoGrid({ items }: { items: [string, any][] }) {
@@ -617,48 +650,47 @@ export default function PrintTemplatesPage() {
                   <div className="space-y-1.5 flex-1 min-w-[250px]">
                     <Label>{isStudentTab ? "Student" : t.value === "fee-receipt" ? "Fee Payment" : t.value === "payslip" ? "Payroll Record" : "Certificate"}</Label>
                     {t.value === "fee-receipt" && (
-                      <Select value={selectedId} onValueChange={setSelectedId}>
-                        <SelectTrigger><SelectValue placeholder="Select a payment record..." /></SelectTrigger>
-                        <SelectContent>
-                          {feePayments.map(p => <SelectItem key={p.id} value={String(p.id)}>Payment #{p.id} — ₹{Number(p.amount || 0).toLocaleString("en-IN")} ({p.paymentMode})</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableCombobox
+                        value={selectedId}
+                        onValueChange={setSelectedId}
+                        placeholder="Select a payment record..."
+                        options={feePayments.map(p => ({ value: String(p.id), label: `Payment #${p.id} — ₹${Number(p.amount || 0).toLocaleString("en-IN")} (${p.paymentMode})` }))}
+                      />
                     )}
                     {t.value === "payslip" && (
-                      <Select value={selectedId} onValueChange={setSelectedId}>
-                        <SelectTrigger><SelectValue placeholder="Select a payroll record..." /></SelectTrigger>
-                        <SelectContent>
-                          {payrolls.map(p => <SelectItem key={p.id} value={String(p.id)}>Payroll #{p.id} — Month {p.month}/{p.year} ({p.status})</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableCombobox
+                        value={selectedId}
+                        onValueChange={setSelectedId}
+                        placeholder="Select a payroll record..."
+                        options={payrolls.map(p => ({ value: String(p.id), label: `Payroll #${p.id} — Month ${p.month}/${p.year} (${p.status})` }))}
+                      />
                     )}
                     {t.value === "certificate" && (
-                      <Select value={selectedId} onValueChange={setSelectedId}>
-                        <SelectTrigger><SelectValue placeholder="Select a certificate..." /></SelectTrigger>
-                        <SelectContent>
-                          {certificates.map(c => <SelectItem key={c.id} value={String(c.id)}>#{c.id} — {c.type} ({c.status})</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableCombobox
+                        value={selectedId}
+                        onValueChange={setSelectedId}
+                        placeholder="Select a certificate..."
+                        options={certificates.map(c => ({ value: String(c.id), label: `#${c.id} — ${c.type} (${c.status})` }))}
+                      />
                     )}
                     {isStudentTab && (
-                      <Select value={selectedId} onValueChange={setSelectedId}>
-                        <SelectTrigger><SelectValue placeholder="Select a student..." /></SelectTrigger>
-                        <SelectContent>
-                          {students.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} — {s.firstName} {s.lastName}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableCombobox
+                        value={selectedId}
+                        onValueChange={setSelectedId}
+                        placeholder="Select a student..."
+                        options={students.map(s => ({ value: String(s.id), label: `${s.rollNumber} — ${s.firstName} ${s.lastName}` }))}
+                      />
                     )}
                   </div>
                   {showSemesterFilter && (
-                    <div className="space-y-1.5 w-[140px]">
+                    <div className="space-y-1.5 w-[160px]">
                       <Label>Semester</Label>
-                      <Select value={semesterFilter} onValueChange={setSemesterFilter}>
-                        <SelectTrigger><SelectValue placeholder="All" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All</SelectItem>
-                          {[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={String(s)}>Semester {s}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+                      <SearchableCombobox
+                        value={semesterFilter}
+                        onValueChange={setSemesterFilter}
+                        placeholder="All Semesters"
+                        options={[{ value: "all", label: "All" }, ...[1,2,3,4,5,6,7,8].map(s => ({ value: String(s), label: `Semester ${s}` }))]}
+                      />
                     </div>
                   )}
                 </div>
