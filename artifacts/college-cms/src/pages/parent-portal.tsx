@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { User, GraduationCap, IndianRupee, BookOpen, LogOut, Phone, Home, Megaphone, Pin, AlertTriangle, Clock, Users } from "lucide-react";
+import { User, GraduationCap, IndianRupee, BookOpen, LogOut, Phone, Home, Megaphone, Pin, AlertTriangle, Clock, Users, ArrowLeft } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -78,6 +79,9 @@ export default function ParentPortalPage() {
     return (
       <div className="space-y-6">
         <div>
+          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2">
+            <ArrowLeft className="w-4 h-4" />Back to Login
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight">Parent Portal</h1>
           <p className="text-muted-foreground">Parents can view their child's information using roll number and registered phone number.</p>
         </div>

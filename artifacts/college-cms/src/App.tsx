@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,6 +55,7 @@ const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, isLoading } = useAuth();
+  const [location] = useLocation();
 
   if (isLoading) {
     return (
@@ -68,6 +69,9 @@ function AppRoutes() {
   }
 
   if (!user) {
+    if (location === "/parent-portal") {
+      return <ParentPortalPage />;
+    }
     return <LoginPage />;
   }
 
