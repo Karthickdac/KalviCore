@@ -74,9 +74,11 @@ export default function BulkImportPage() {
   };
 
   const downloadTemplate = (type: string) => {
+    const deptId = refData.departments[0]?.id || 1;
+    const courseId = refData.courses[0]?.id || 1;
     const templates: Record<string, string> = {
-      students: "firstName,lastName,rollNumber,email,phone,departmentId,courseId,year,semester,admissionType,community,gender,dateOfBirth,admissionDate,address,fatherName,guardianPhone\nJohn,Doe,21TAM001,john@example.com,9876543210,1,1,1,1,Government,OC,Male,2003-05-15,2021-08-01,Madurai,James Doe,9876543211",
-      staff: "firstName,lastName,staffId,email,phone,departmentId,designation,qualification,specialization,experience,salary,joiningDate,gender,employmentType\nSmith,Kumar,FAC001,smith@college.edu,9876543210,1,Professor,Ph.D,AI & ML,15,120000,2020-06-01,Male,Permanent",
+      students: `firstName,lastName,rollNumber,email,phone,departmentId,courseId,year,semester,admissionType,community,gender,dateOfBirth,admissionDate,address,fatherName,guardianPhone\nJohn,Doe,21TAM001,john@example.com,9876543210,${deptId},${courseId},1,1,Government,OC,Male,15-05-2003,01-08-2021,Madurai,James Doe,9876543211`,
+      staff: `firstName,lastName,staffId,email,phone,departmentId,designation,qualification,specialization,experience,salary,joiningDate,gender,employmentType\nSmith,Kumar,FAC001,smith@college.edu,9876543210,${deptId},Professor,Ph.D,AI & ML,15,120000,01-06-2020,Male,Permanent`,
     };
     const blob = new Blob([templates[type] || ""], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
