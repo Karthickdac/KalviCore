@@ -53,7 +53,14 @@ router.post("/bulk-import/students", requireAuth, requirePermission("settings"),
         });
         inserted++;
       } catch (err: any) {
-        errors.push({ row: i + 1, error: err.message?.includes("duplicate") ? "Duplicate roll number or email" : err.message });
+        let errMsg = err.message || String(err);
+        if (err.detail) errMsg = err.detail;
+        else if (err.constraint) errMsg = `Constraint violation: ${err.constraint}`;
+        if (errMsg.includes("duplicate") || err.code === "23505") errMsg = "Duplicate roll number or email";
+        else if (errMsg.includes("foreign key") || err.code === "23503") errMsg = `Invalid reference: ${err.detail || "department or course ID not found in database"}`;
+        else if (err.code === "23502") errMsg = `Missing required field: ${err.column || err.detail || "unknown"}`;
+        else if (errMsg.length > 200) errMsg = errMsg.substring(0, 200);
+        errors.push({ row: i + 1, error: errMsg });
       }
     }
     await logActivity("bulk_import_students", `Imported ${inserted} students, ${errors.length} errors`, "");
@@ -92,7 +99,14 @@ router.post("/bulk-import/staff", requireAuth, requirePermission("settings"), as
         });
         inserted++;
       } catch (err: any) {
-        errors.push({ row: i + 1, error: err.message?.includes("duplicate") ? "Duplicate staff ID or email" : err.message });
+        let errMsg = err.message || String(err);
+        if (err.detail) errMsg = err.detail;
+        else if (err.constraint) errMsg = `Constraint violation: ${err.constraint}`;
+        if (errMsg.includes("duplicate") || err.code === "23505") errMsg = "Duplicate staff ID or email";
+        else if (errMsg.includes("foreign key") || err.code === "23503") errMsg = `Invalid reference: ${err.detail || "department ID not found in database"}`;
+        else if (err.code === "23502") errMsg = `Missing required field: ${err.column || err.detail || "unknown"}`;
+        else if (errMsg.length > 200) errMsg = errMsg.substring(0, 200);
+        errors.push({ row: i + 1, error: errMsg });
       }
     }
     await logActivity("bulk_import_staff", `Imported ${inserted} staff, ${errors.length} errors`, "");

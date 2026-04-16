@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Download, FileText, CheckCircle, XCircle, AlertTriangle, Users, Briefcase } from "lucide-react";
+import { Upload, Download, FileText, CheckCircle, XCircle, AlertTriangle, Users, Briefcase, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -30,6 +31,16 @@ export default function BulkImportPage() {
   const [tab, setTab] = useState("students");
   const [preview, setPreview] = useState<Record<string, string>[]>([]);
   const [result, setResult] = useState<{ inserted: number; errors: { row: number; error: string }[]; total: number } | null>(null);
+  const [refData, setRefData] = useState<{ departments: { id: number; name: string }[]; courses: { id: number; name: string; departmentId: number }[] }>({ departments: [], courses: [] });
+  const [showRef, setShowRef] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+    Promise.all([
+      fetch(`${API_BASE}/api/departments`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.json() : []),
+      fetch(`${API_BASE}/api/courses`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.json() : []),
+    ]).then(([deps, courses]) => setRefData({ departments: deps, courses }));
+  }, [token]);
 
   const importMutation = useMutation({
     mutationFn: async ({ type, data }: { type: string; data: any[] }) => {
@@ -96,6 +107,33 @@ export default function BulkImportPage() {
 
         {["students", "staff"].map(type => (
           <TabsContent key={type} value={type} className="space-y-4">
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                <span className="font-medium">Important:</span> Use numeric IDs for departmentId{type === "students" ? " and courseId" : ""}. Dates can be in YYYY-MM-DD, DD-MM-YYYY, or DD/MM/YYYY format.
+                <Button variant="link" size="sm" className="h-auto p-0 ml-1" onClick={() => setShowRef(!showRef)}>
+                  {showRef ? "Hide" : "Show"} ID Reference
+                </Button>
+                {showRef && (
+                  <div className="mt-2 grid md:grid-cols-2 gap-3">
+                    <div>
+                      <p className="font-medium text-xs mb-1">Departments:</p>
+                      <div className="text-xs space-y-0.5 max-h-32 overflow-y-auto">
+                        {refData.departments.map(d => <div key={d.id}>ID {d.id} → {d.name}</div>)}
+                      </div>
+                    </div>
+                    {type === "students" && (
+                      <div>
+                        <p className="font-medium text-xs mb-1">Courses:</p>
+                        <div className="text-xs space-y-0.5 max-h-32 overflow-y-auto">
+                          {refData.courses.map((c: any) => <div key={c.id}>ID {c.id} → {c.name}</div>)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </AlertDescription>
+            </Alert>
             <div className="grid md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
