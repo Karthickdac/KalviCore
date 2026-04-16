@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "ybPocI1FUldZQPFrqvBTl"
@@ -12,3 +11,15 @@ id = "CatvyDpFgOemWrgccRhIs"
 uri = "file://artifacts/pitch-deck/public/dashboard-view.png"
 type = "image"
 title = "generated_image"
+
+[[outputs]]
+id = "xVYggZcBgxEO9naVA5LAw"
+uri = "file://.local/outputs/College-Manager-Tamil.pptx"
+type = "slides"
+title = "College Manager Tamil.pptx"
+
+[[outputs]]
+id = "w6xE-8J6r3kJ8Mms_oy8s"
+uri = "file://KalviCore-Screen-Documentation.md"
+type = "text"
+title = "KalviCore - Complete Screen Documentation"
