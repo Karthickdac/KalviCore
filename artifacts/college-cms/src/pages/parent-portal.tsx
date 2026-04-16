@@ -29,9 +29,10 @@ const sidebarItems: { id: ParentSection; label: string; icon: React.ReactNode }[
 
 export default function ParentPortalPage() {
   const { toast } = useToast();
-  const [rollNumber, setRollNumber] = useState("");
-  const [guardianPhone, setGuardianPhone] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [student, setStudent] = useState<any>(null);
+  const [portalUser, setPortalUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeSection, setActiveSection] = useState<ParentSection>("dashboard");
@@ -42,13 +43,24 @@ export default function ParentPortalPage() {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/parent-portal/login`, {
+      const res = await fetch(`${API_BASE}/api/portal/login`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rollNumber, guardianPhone }),
+        body: JSON.stringify({ username, password }),
       });
       if (!res.ok) { const d = await res.json(); setError(d.error || "Invalid credentials"); setLoading(false); return; }
       const data = await res.json();
-      setStudent(data.student);
+      setPortalUser(data.user);
+      if (data.user.studentRecordId) {
+        const studentRes = await fetch(`${API_BASE}/api/parent-portal/student/${data.user.studentRecordId}`);
+        if (studentRes.ok) {
+          const studentData = await studentRes.json();
+          setStudent(studentData);
+        } else {
+          setStudent({ id: data.user.studentRecordId, rollNumber: data.user.rollNumber, firstName: data.user.fullName, lastName: "", email: data.user.email });
+        }
+      } else {
+        setStudent({ id: null, rollNumber: "-", firstName: data.user.fullName, lastName: "", email: data.user.email });
+      }
       setActiveSection("dashboard");
     } catch { setError("Connection failed"); }
     setLoading(false);
@@ -56,16 +68,16 @@ export default function ParentPortalPage() {
 
   const handleLogout = () => {
     setStudent(null);
-    setRollNumber("");
-    setGuardianPhone("");
+    setPortalUser(null);
+    setUsername("");
+    setPassword("");
     setActiveSection("dashboard");
   };
 
   const { data: feeData } = useQuery({
     queryKey: ["parent-fees", student?.id],
     queryFn: async () => {
-      const params = new URLSearchParams({ rollNumber: student.rollNumber, guardianPhone: student.guardianPhone });
-      const r = await fetch(`${API_BASE}/api/parent-portal/fees/${student.id}?${params}`);
+      const r = await fetch(`${API_BASE}/api/parent-portal/fees/${student.id}`);
       return r.json();
     },
     enabled: !!student?.id,
@@ -74,8 +86,7 @@ export default function ParentPortalPage() {
   const { data: results = [] } = useQuery({
     queryKey: ["parent-results", student?.id],
     queryFn: async () => {
-      const params = new URLSearchParams({ rollNumber: student.rollNumber, guardianPhone: student.guardianPhone });
-      const r = await fetch(`${API_BASE}/api/parent-portal/results/${student.id}?${params}`);
+      const r = await fetch(`${API_BASE}/api/parent-portal/results/${student.id}`);
       return r.json();
     },
     enabled: !!student?.id,
@@ -114,21 +125,21 @@ export default function ParentPortalPage() {
                 <Home className="w-8 h-8 text-white" />
               </div>
               <CardTitle className="text-xl">Parent Portal</CardTitle>
-              <CardDescription>Enter your child's roll number and your registered phone number.</CardDescription>
+              <CardDescription>Enter your username and password to access.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 {error && <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20">{error}</div>}
                 <div className="space-y-2">
-                  <Label>Student Roll Number</Label>
-                  <Input value={rollNumber} onChange={e => setRollNumber(e.target.value)} placeholder="e.g., 22CS001" required />
+                  <Label>Username</Label>
+                  <Input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter your username" required />
                 </div>
                 <div className="space-y-2">
-                  <Label>Guardian Phone Number</Label>
-                  <Input value={guardianPhone} onChange={e => setGuardianPhone(e.target.value)} placeholder="e.g., 9876600001" required />
+                  <Label>Password</Label>
+                  <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" required />
                 </div>
                 <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
-                  {loading ? "Verifying..." : "View Student Info"}
+                  {loading ? "Verifying..." : "Access Portal"}
                 </Button>
               </form>
             </CardContent>

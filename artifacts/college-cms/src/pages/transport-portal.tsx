@@ -26,8 +26,8 @@ const sidebarItems: { id: Section; label: string; icon: React.ReactNode }[] = [
 ];
 
 export default function TransportPortalPage() {
-  const [staffId, setStaffId] = useState("");
-  const [phone, setPhone] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [staff, setStaff] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -39,13 +39,13 @@ export default function TransportPortalPage() {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/staff-portal/login`, {
+      const res = await fetch(`${API_BASE}/api/portal/login`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ staffId, phone }),
+        body: JSON.stringify({ username, password }),
       });
       if (!res.ok) { const d = await res.json(); setError(d.error || "Invalid credentials"); setLoading(false); return; }
       const data = await res.json();
-      setStaff(data.staff);
+      setStaff({ id: data.user.staffRecordId, staffId: data.user.staffId || data.user.username, name: data.user.fullName, email: data.user.email, department: data.user.department, departmentId: data.user.departmentId });
     } catch { setError("Connection failed"); }
     setLoading(false);
   };
@@ -79,13 +79,13 @@ export default function TransportPortalPage() {
                 <Bus className="w-8 h-8 text-white" />
               </div>
               <CardTitle className="text-xl">Transport Manager Portal</CardTitle>
-              <CardDescription>Enter your Staff ID and registered phone number.</CardDescription>
+              <CardDescription>Enter your username and password to access.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 {error && <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg border border-destructive/20">{error}</div>}
-                <div className="space-y-2"><Label>Staff ID</Label><Input value={staffId} onChange={e => setStaffId(e.target.value)} placeholder="e.g., FAC001" required /></div>
-                <div className="space-y-2"><Label>Phone Number</Label><Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g., 9876543210" required /></div>
+                <div className="space-y-2"><Label>Username</Label><Input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter your username" required /></div>
+                <div className="space-y-2"><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" required /></div>
                 <Button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700" disabled={loading}>{loading ? "Verifying..." : "Access Portal"}</Button>
               </form>
             </CardContent>

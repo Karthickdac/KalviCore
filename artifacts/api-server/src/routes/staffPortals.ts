@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
-import { db, staffTable, departmentsTable, libraryBooksTable, libraryIssuedBooksTable, hostelsTable, hostelRoomsTable, hostelAllocationsTable, hostelComplaintsTable, transportRoutesTable, transportVehiclesTable, transportStopsTable, transportAllocationsTable, studentsTable } from "@workspace/db";
+import { db, staffTable, departmentsTable, usersTable, libraryBooksTable, libraryIssuedBooksTable, hostelsTable, hostelRoomsTable, hostelAllocationsTable, hostelComplaintsTable, transportRoutesTable, transportVehiclesTable, transportStopsTable, transportAllocationsTable, studentsTable } from "@workspace/db";
 import { eq, and, sql } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 const router: IRouter = Router();
 
@@ -41,6 +42,54 @@ router.post("/staff-portal/login", async (req, res): Promise<void> => {
       ? await db.select().from(departmentsTable).where(eq(departmentsTable.id, staff.departmentId))
       : [null];
     res.json({ staff: staffResponse(staff, dept) });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/portal/login", async (req, res): Promise<void> => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      res.status(400).json({ error: "Username and password are required" });
+      return;
+    }
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.username, username));
+    if (!user || !user.isActive) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+    const staffRecords = await db.select().from(staffTable).where(eq(staffTable.email, user.email));
+    const staffRecord = staffRecords[0] || null;
+    const studentRecords = await db.select().from(studentsTable).where(eq(studentsTable.email, user.email));
+    const studentRecord = studentRecords[0] || null;
+    let departmentName = "-";
+    const deptId = staffRecord?.departmentId || user.departmentId;
+    if (deptId) {
+      const [dept] = await db.select().from(departmentsTable).where(eq(departmentsTable.id, deptId));
+      if (dept) departmentName = dept.name;
+    }
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        departmentId: user.departmentId,
+        department: departmentName,
+        staffId: staffRecord?.staffId || null,
+        staffRecordId: staffRecord?.id || null,
+        studentRecordId: studentRecord?.id || null,
+        rollNumber: studentRecord?.rollNumber || null,
+        studentName: studentRecord ? `${studentRecord.firstName} ${studentRecord.lastName}` : null,
+      },
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
