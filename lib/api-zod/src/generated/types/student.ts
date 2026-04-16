@@ -53,6 +53,8 @@ export interface Student {
   courseId: number;
   year: number;
   semester: number;
+  /** @nullable */
+  batch: string | null;
   admissionDate: Date;
   admissionType: string;
   /** @nullable */

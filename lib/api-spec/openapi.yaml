@@ -3269,6 +3269,8 @@ components:
           type: integer
         semester:
           type: integer
+        batch:
+          type: ["string", "null"]
         admissionDate:
           type: string
           format: date
@@ -3329,6 +3331,7 @@ components:
         - courseId
         - year
         - semester
+        - batch
         - admissionDate
         - admissionType
         - scholarshipStatus
@@ -3403,6 +3406,8 @@ components:
           type: integer
         semester:
           type: integer
+        batch:
+          type: ["string", "null"]
         admissionDate:
           type: string
         admissionType:
@@ -3499,6 +3504,8 @@ components:
           type: integer
         semester:
           type: integer
+        batch:
+          type: ["string", "null"]
         scholarshipStatus:
           type: ["string", "null"]
         firstGraduate:

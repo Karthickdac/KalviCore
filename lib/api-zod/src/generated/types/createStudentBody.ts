@@ -52,6 +52,8 @@ export interface CreateStudentBody {
   courseId: number;
   year: number;
   semester: number;
+  /** @nullable */
+  batch?: string | null;
   admissionDate: string;
   admissionType: string;
   /** @nullable */

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useListStudents, useCreateStudent, useUpdateStudent, useDeleteStudent, getListStudentsQueryKey, useListDepartments, useListCourses, useListDisciplinaryRecords, useCreateDisciplinaryRecord, getListDisciplinaryRecordsQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ const formSchema = z.object({
   courseId: z.coerce.number().min(1, "Course is required"),
   year: z.coerce.number().min(1).max(4),
   semester: z.coerce.number().min(1).max(8),
+  batch: z.string().optional().nullable(),
   admissionDate: z.string().min(1, "Admission date is required"),
   admissionType: z.string().min(1, "Admission type is required"),
   scholarshipStatus: z.string().optional().nullable(),
@@ -82,6 +83,7 @@ function StudentList() {
   const [search, setSearch] = useState("");
   const [deptFilter, setDeptFilter] = useState<string>("");
   const [communityFilter, setCommunityFilter] = useState<string>("");
+  const [batchFilter, setBatchFilter] = useState<string>("");
   const { data: students, isLoading } = useListStudents({
     search: search || undefined,
     departmentId: deptFilter && deptFilter !== "all" ? Number(deptFilter) : undefined,
@@ -90,6 +92,10 @@ function StudentList() {
   const { data: departments } = useListDepartments();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+
+  const filteredStudents = batchFilter && batchFilter !== "all"
+    ? students?.filter(s => s.batch === batchFilter)
+    : students;
 
   const statusColor = (s: string) => {
     switch (s) {
@@ -131,6 +137,16 @@ function StudentList() {
                 <SelectItem value="ST">ST</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={batchFilter} onValueChange={setBatchFilter}>
+              <SelectTrigger className="w-[160px]" data-testid="select-batch-filter"><SelectValue placeholder="All Batches" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Batches</SelectItem>
+                {(() => {
+                  const batches = [...new Set(students?.map(s => s.batch).filter(Boolean) || [])].sort().reverse();
+                  return batches.map(b => <SelectItem key={b!} value={b!}>{b}</SelectItem>);
+                })()}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -139,6 +155,7 @@ function StudentList() {
               <TableRow>
                 <TableHead>Roll No</TableHead>
                 <TableHead>Name</TableHead>
+                <TableHead>Batch</TableHead>
                 <TableHead>Community</TableHead>
                 <TableHead>Year/Sem</TableHead>
                 <TableHead>Admission</TableHead>
@@ -148,14 +165,15 @@ function StudentList() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={7} className="text-center">Loading...</TableCell></TableRow>
-              ) : students?.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">No students found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center">Loading...</TableCell></TableRow>
+              ) : filteredStudents?.length === 0 ? (
+                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">No students found.</TableCell></TableRow>
               ) : (
-                students?.map((s) => (
+                filteredStudents?.map((s) => (
                   <TableRow key={s.id} data-testid={`row-student-${s.id}`}>
                     <TableCell className="font-medium">{s.rollNumber}</TableCell>
                     <TableCell>{s.firstName} {s.lastName}</TableCell>
+                    <TableCell>{s.batch ? <Badge variant="outline" className="font-mono text-xs">{s.batch}</Badge> : <span className="text-muted-foreground text-xs">—</span>}</TableCell>
                     <TableCell><Badge variant="outline">{s.community}</Badge></TableCell>
                     <TableCell>{s.year} / {s.semester}</TableCell>
                     <TableCell>{s.admissionType}</TableCell>
@@ -216,6 +234,7 @@ function StudentDialog({ student, open, onOpenChange, trigger }: any) {
       courseId: student?.courseId || 0,
       year: student?.year || 1,
       semester: student?.semester || 1,
+      batch: student?.batch || "",
       admissionDate: student?.admissionDate || new Date().toISOString().split('T')[0],
       admissionType: student?.admissionType || "Government",
       scholarshipStatus: student?.scholarshipStatus || "",
@@ -231,6 +250,21 @@ function StudentDialog({ student, open, onOpenChange, trigger }: any) {
       status: student?.status || "Active",
     },
   });
+
+  const watchedCourseId = form.watch("courseId");
+  const watchedAdmissionDate = form.watch("admissionDate");
+
+  useEffect(() => {
+    if (watchedCourseId && watchedAdmissionDate && courses) {
+      const selectedCourse = courses.find((c: any) => c.id === watchedCourseId);
+      if (selectedCourse) {
+        const admYear = new Date(watchedAdmissionDate).getFullYear();
+        const duration = selectedCourse.duration || 3;
+        const endYear = admYear + duration;
+        form.setValue("batch", `${admYear}-${endYear}`);
+      }
+    }
+  }, [watchedCourseId, watchedAdmissionDate, courses]);
 
   const onSubmit = (data: any) => {
     const cleanData = {
@@ -252,6 +286,7 @@ function StudentDialog({ student, open, onOpenChange, trigger }: any) {
       guardianPhone: data.guardianPhone || null,
       guardianOccupation: data.guardianOccupation || null,
       annualIncome: data.annualIncome || null,
+      batch: data.batch || null,
       scholarshipStatus: data.scholarshipStatus || null,
     };
     const mutation = student ? updateMutation : createMutation;
@@ -386,6 +421,9 @@ function StudentDialog({ student, open, onOpenChange, trigger }: any) {
                   )} />
                   <FormField control={form.control} name="semester" render={({ field }) => (
                     <FormItem><FormLabel>Semester *</FormLabel><FormControl><Input type="number" min={1} max={8} {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="batch" render={({ field }) => (
+                    <FormItem><FormLabel>Batch</FormLabel><FormControl><Input {...field} value={field.value || ""} placeholder="2024-2027" readOnly={true} tabIndex={-1} className="bg-muted cursor-not-allowed" /></FormControl><FormMessage /><p className="text-[10px] text-muted-foreground">Auto-calculated from admission date + course duration</p></FormItem>
                   )} />
                   <FormField control={form.control} name="admissionDate" render={({ field }) => (
                     <FormItem><FormLabel>Admission Date *</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>

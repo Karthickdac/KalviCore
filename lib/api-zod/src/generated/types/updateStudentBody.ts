@@ -50,6 +50,8 @@ export interface UpdateStudentBody {
   year?: number;
   semester?: number;
   /** @nullable */
+  batch?: string | null;
+  /** @nullable */
   scholarshipStatus?: string | null;
   firstGraduate?: boolean;
   admissionStatus?: string;

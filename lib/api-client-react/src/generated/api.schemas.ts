@@ -149,6 +149,8 @@ export interface Student {
   courseId: number;
   year: number;
   semester: number;
+  /** @nullable */
+  batch: string | null;
   admissionDate: string;
   admissionType: string;
   /** @nullable */
@@ -218,6 +220,8 @@ export interface CreateStudentBody {
   courseId: number;
   year: number;
   semester: number;
+  /** @nullable */
+  batch?: string | null;
   admissionDate: string;
   admissionType: string;
   /** @nullable */
@@ -283,6 +287,8 @@ export interface UpdateStudentBody {
   courseId?: number;
   year?: number;
   semester?: number;
+  /** @nullable */
+  batch?: string | null;
   /** @nullable */
   scholarshipStatus?: string | null;
   firstGraduate?: boolean;

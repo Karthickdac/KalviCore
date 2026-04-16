@@ -34,6 +34,7 @@ export const studentsTable = pgTable("students", {
   courseId: integer("course_id").notNull().references(() => coursesTable.id),
   year: integer("year").notNull(),
   semester: integer("semester").notNull(),
+  batch: text("batch"),
   admissionDate: text("admission_date").notNull(),
   admissionType: text("admission_type").notNull(),
   scholarshipStatus: text("scholarship_status"),
