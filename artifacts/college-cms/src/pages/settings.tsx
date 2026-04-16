@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Save, Plus, Settings2, Building2, Calendar, GraduationCap } from "lucide-react";
+import { Save, Plus, Settings2, Building2, Calendar, GraduationCap, Mail, MessageCircle, Eye, EyeOff } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useInstitution } from "@/contexts/institution";
 
@@ -39,30 +39,55 @@ const DEFAULT_SETTINGS = [
   { key: "max_late_fee", value: "5000", category: "Fees", description: "Maximum late fee (INR)" },
   { key: "fee_due_reminder_days", value: "7", category: "Fees", description: "Days before due date to send reminder" },
   { key: "razorpay_enabled", value: "true", category: "Fees", description: "Enable Razorpay payments" },
-];
+  { key: "email_enabled", value: "false", category: "Email", description: "Enable email delivery (true/false)" },
+  { key: "email_smtp_host", value: "", category: "Email", description: "SMTP server hostname (e.g., smtp.gmail.com)" },
+  { key: "email_smtp_port", value: "587", category: "Email", description: "SMTP server port (e.g., 587 or 465)" },
+  { key: "email_smtp_secure", value: "false", category: "Email", description: "Use TLS/SSL (true for port 465, false for 587)" },
+  { key: "email_smtp_user", value: "", category: "Email", description: "SMTP username / email account" },
+  { key: "email_smtp_password", value: "", category: "Email", description: "SMTP password or app password", secret: true },
+  { key: "email_from_address", value: "", category: "Email", description: "Default 'From' email address" },
+  { key: "email_from_name", value: "", category: "Email", description: "Default 'From' display name" },
+  { key: "whatsapp_enabled", value: "false", category: "WhatsApp", description: "Enable WhatsApp delivery (true/false)" },
+  { key: "whatsapp_provider", value: "meta", category: "WhatsApp", description: "Provider: meta (WhatsApp Cloud API), twilio, or gupshup" },
+  { key: "whatsapp_api_url", value: "https://graph.facebook.com/v20.0", category: "WhatsApp", description: "API base URL" },
+  { key: "whatsapp_api_token", value: "", category: "WhatsApp", description: "API access token / bearer token", secret: true },
+  { key: "whatsapp_phone_number_id", value: "", category: "WhatsApp", description: "WhatsApp phone number ID" },
+  { key: "whatsapp_business_account_id", value: "", category: "WhatsApp", description: "WhatsApp business account ID" },
+  { key: "whatsapp_from_number", value: "", category: "WhatsApp", description: "Sender WhatsApp number with country code (e.g., +919876543210)" },
+] as Array<{ key: string; value: string; category: string; description: string; secret?: boolean }>;
 
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div><h2 className="text-2xl font-bold tracking-tight">Settings & Configuration</h2><p className="text-muted-foreground">Configure institution details, academic settings, and system preferences.</p></div>
       <Tabs defaultValue="institution">
-        <TabsList><TabsTrigger value="institution"><Building2 className="w-4 h-4 mr-1" />Institution</TabsTrigger><TabsTrigger value="academic"><GraduationCap className="w-4 h-4 mr-1" />Academic</TabsTrigger><TabsTrigger value="fees"><Calendar className="w-4 h-4 mr-1" />Fees</TabsTrigger><TabsTrigger value="all"><Settings2 className="w-4 h-4 mr-1" />All Settings</TabsTrigger></TabsList>
+        <TabsList className="flex-wrap h-auto">
+          <TabsTrigger value="institution"><Building2 className="w-4 h-4 mr-1" />Institution</TabsTrigger>
+          <TabsTrigger value="academic"><GraduationCap className="w-4 h-4 mr-1" />Academic</TabsTrigger>
+          <TabsTrigger value="fees"><Calendar className="w-4 h-4 mr-1" />Fees</TabsTrigger>
+          <TabsTrigger value="email"><Mail className="w-4 h-4 mr-1" />Email (SMTP)</TabsTrigger>
+          <TabsTrigger value="whatsapp"><MessageCircle className="w-4 h-4 mr-1" />WhatsApp</TabsTrigger>
+          <TabsTrigger value="all"><Settings2 className="w-4 h-4 mr-1" />All Settings</TabsTrigger>
+        </TabsList>
         <TabsContent value="institution"><SettingsCategory category="Institution" /></TabsContent>
         <TabsContent value="academic"><SettingsCategory category="Academic" /></TabsContent>
         <TabsContent value="fees"><SettingsCategory category="Fees" /></TabsContent>
+        <TabsContent value="email"><SettingsCategory category="Email" helpText="Configure SMTP server for sending emails (notifications, password resets, alerts). For Gmail, use smtp.gmail.com with port 587 and an App Password." /></TabsContent>
+        <TabsContent value="whatsapp"><SettingsCategory category="WhatsApp" helpText="Configure WhatsApp Business API for sending notifications. Supports Meta WhatsApp Cloud API, Twilio, and Gupshup providers." /></TabsContent>
         <TabsContent value="all"><AllSettings /></TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function SettingsCategory({ category }: { category: string }) {
+function SettingsCategory({ category, helpText }: { category: string; helpText?: string }) {
   const { data: settings, isLoading } = useListSettings();
   const upsertMutation = useUpsertSetting();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { refresh: refreshInstitution } = useInstitution();
   const [values, setValues] = useState<Record<string, string>>({});
+  const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
 
   const categoryDefaults = DEFAULT_SETTINGS.filter(d => d.category === category);
   const categorySettings = categoryDefaults.map(def => {
@@ -99,22 +124,47 @@ function SettingsCategory({ category }: { category: string }) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <div><CardTitle>{category} Settings</CardTitle><CardDescription>Configure {category.toLowerCase()} parameters</CardDescription></div>
+        <div>
+          <CardTitle>{category} Settings</CardTitle>
+          <CardDescription>{helpText || `Configure ${category.toLowerCase()} parameters`}</CardDescription>
+        </div>
         <Button onClick={handleSaveAll} disabled={Object.keys(values).length === 0}><Save className="w-4 h-4 mr-2" />Save All</Button>
       </CardHeader>
       <CardContent>
         {isLoading ? <p>Loading...</p> : (
           <div className="space-y-4">
-            {categorySettings.map(s => (
-              <div key={s.key} className="grid grid-cols-3 gap-4 items-center">
-                <div>
-                  <p className="font-medium text-sm">{s.description}</p>
-                  <p className="text-xs text-muted-foreground">{s.key}</p>
+            {categorySettings.map(s => {
+              const isSecret = !!s.secret;
+              const isVisible = showSecrets[s.key];
+              return (
+                <div key={s.key} className="grid grid-cols-3 gap-4 items-center">
+                  <div>
+                    <p className="font-medium text-sm">{s.description}</p>
+                    <p className="text-xs text-muted-foreground">{s.key}</p>
+                  </div>
+                  <div className="col-span-1 relative">
+                    <Input
+                      type={isSecret && !isVisible ? "password" : "text"}
+                      value={values[s.key] ?? s.value}
+                      onChange={(e) => setValues(prev => ({ ...prev, [s.key]: e.target.value }))}
+                      className={isSecret ? "pr-9" : ""}
+                      placeholder={isSecret ? "••••••••" : ""}
+                      autoComplete="off"
+                    />
+                    {isSecret && (
+                      <button
+                        type="button"
+                        onClick={() => setShowSecrets(prev => ({ ...prev, [s.key]: !prev[s.key] }))}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    )}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => handleSave(s.key)} disabled={values[s.key] === undefined}><Save className="w-3 h-3 mr-1" />Save</Button>
                 </div>
-                <Input value={values[s.key] ?? s.value} onChange={(e) => setValues(prev => ({ ...prev, [s.key]: e.target.value }))} className="col-span-1" />
-                <Button variant="outline" size="sm" onClick={() => handleSave(s.key)} disabled={values[s.key] === undefined}><Save className="w-3 h-3 mr-1" />Save</Button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>
