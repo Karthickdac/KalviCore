@@ -1,0 +1,58 @@
+[
+  {
+    "id": "a1b2c3d4-1111-4aaa-bbbb-100000000001",
+    "position": 1,
+    "filepath": "src/pages/slides/TitleSlide.tsx",
+    "title": "KalviCore",
+    "description": "Title slide introducing KalviCore — Complete Campus, One Intelligent System.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-2222-4aaa-bbbb-200000000002",
+    "position": 2,
+    "filepath": "src/pages/slides/ProblemSlide.tsx",
+    "title": "The Challenge",
+    "description": "The fragmented, manual, and opaque state of college management today.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-3333-4aaa-bbbb-300000000003",
+    "position": 3,
+    "filepath": "src/pages/slides/SolutionSlide.tsx",
+    "title": "The Solution",
+    "description": "KalviCore unifies 38+ modules into a single, role-based platform.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-4444-4aaa-bbbb-400000000004",
+    "position": 4,
+    "filepath": "src/pages/slides/ModulesSlide.tsx",
+    "title": "Platform Modules",
+    "description": "Six pillars: Academics, Finance, People, Campus, Documents, Administration.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-5555-4aaa-bbbb-500000000005",
+    "position": 5,
+    "filepath": "src/pages/slides/DifferentiatorsSlide.tsx",
+    "title": "Why KalviCore",
+    "description": "Key differentiators: Tamil Nadu focus, RBAC, zero fragmentation, instant documents.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-6666-4aaa-bbbb-600000000006",
+    "position": 6,
+    "filepath": "src/pages/slides/SecuritySlide.tsx",
+    "title": "Architecture",
+    "description": "Enterprise-grade technology stack — React, Express, PostgreSQL, and security.",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-7777-4aaa-bbbb-700000000007",
+    "position": 7,
+    "filepath": "src/pages/slides/ClosingSlide.tsx",
+    "title": "Closing",
+    "description": "Call to action and contact information.",
+    "speakerNotes": ""
+  }
+]
