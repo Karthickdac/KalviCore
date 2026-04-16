@@ -80,5 +80,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     "dashboard", "calendar",
     "timetable", "assignments", "exams",
     "attendance", "fees", "library", "events",
+    "notifications", "sports_ncc", "certificates",
+    "hostels", "transport",
   ],
 };
