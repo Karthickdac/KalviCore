@@ -38,7 +38,7 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const navGroups: NavGroup[] = [
+const adminNavGroups: NavGroup[] = [
   {
     label: "Overview",
     icon: Home,
@@ -147,6 +147,33 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+const studentNavGroups: NavGroup[] = [
+  {
+    label: "My Campus",
+    icon: GraduationCap,
+    color: "text-teal-400",
+    dotColor: "bg-teal-500",
+    items: [
+      { name: "Dashboard", href: "/", icon: LayoutDashboard, permission: "dashboard" },
+      { name: "My Timetable", href: "/timetable", icon: Clock, permission: "timetable" },
+      { name: "My Attendance", href: "/attendance", icon: CalendarCheck, permission: "attendance" },
+      { name: "My Exams", href: "/exams", icon: FileText, permission: "exams" },
+      { name: "Hall Tickets", href: "/hall-tickets", icon: Ticket, permission: "exams" },
+      { name: "CGPA Tracker", href: "/cgpa", icon: TrendingUp, permission: "exams" },
+      { name: "Assignments", href: "/assignments", icon: ClipboardList, permission: "assignments" },
+      { name: "My Fees", href: "/fees", icon: IndianRupee, permission: "fees" },
+      { name: "Library", href: "/library", icon: BookMarked, permission: "library" },
+      { name: "Hostel", href: "/hostels", icon: Building2, permission: "hostels" },
+      { name: "Transport", href: "/transport", icon: Bus, permission: "transport" },
+      { name: "Events", href: "/events", icon: Calendar, permission: "events" },
+      { name: "Notifications", href: "/notifications", icon: BellRing, permission: "notifications" },
+      { name: "Certificates", href: "/certificates", icon: Award, permission: "certificates" },
+      { name: "Sports, NCC & NSS", href: "/sports-ncc", icon: Trophy, permission: "sports_ncc" },
+      { name: "Academic Calendar", href: "/academic-calendar", icon: CalendarDays, permission: "calendar" },
+    ],
+  },
+];
+
 const ROLE_BADGE_COLORS: Record<string, string> = {
   SuperAdmin: "bg-red-500/15 text-red-400 border-red-500/20",
   Admin: "bg-orange-500/15 text-orange-400 border-orange-500/20",
@@ -162,9 +189,12 @@ let _sidebarScrollTop = 0;
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { user, logout, hasPermission } = useAuth();
+  const isStudent = user?.role === "Student";
+  const navGroups = isStudent ? studentNavGroups : adminNavGroups;
+
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    navGroups.forEach((g) => { initial[g.label] = true; });
+    (isStudent ? studentNavGroups : adminNavGroups).forEach((g) => { initial[g.label] = true; });
     return initial;
   });
   const [searchQuery, setSearchQuery] = useState("");
@@ -186,7 +216,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         }),
       }))
       .filter((group) => group.items.length > 0);
-  }, [searchQuery, hasPermission]);
+  }, [searchQuery, hasPermission, navGroups]);
 
   const roleBadge = ROLE_BADGE_COLORS[user?.role || ""] || "bg-gray-500/15 text-gray-400 border-gray-500/20";
 
