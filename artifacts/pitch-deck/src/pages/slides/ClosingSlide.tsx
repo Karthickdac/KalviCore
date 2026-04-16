@@ -12,7 +12,12 @@ export default function ClosingSlide() {
       <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,61,54,0.94) 0%, rgba(13,148,136,0.85) 50%, rgba(10,61,54,0.92) 100%)" }} />
 
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="w-[5vw] h-[0.35vh] bg-warm rounded-full mb-[3vh]" />
+        <img
+          src={`${base}automystics-logo.png`}
+          crossOrigin="anonymous"
+          alt="AutoMystics logo"
+          className="h-[10vh] w-auto object-contain mb-[2vh]"
+        />
         <h2 className="font-display text-[6vw] font-extrabold text-white leading-[0.95] tracking-tighter">
           KalviCore
         </h2>

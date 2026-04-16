@@ -11,6 +11,15 @@ export default function TitleSlide() {
       />
       <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(10,61,54,0.92) 0%, rgba(13,148,136,0.78) 50%, rgba(10,61,54,0.88) 100%)" }} />
 
+      <div className="absolute top-[5vh] right-[5vw]">
+        <img
+          src={`${base}automystics-logo.png`}
+          crossOrigin="anonymous"
+          alt="AutoMystics logo"
+          className="h-[8vh] w-auto object-contain"
+        />
+      </div>
+
       <div className="absolute top-[6vh] left-[6vw] flex items-center gap-[1vw]">
         <div className="w-[3vw] h-[0.35vh] bg-warm rounded-full" />
         <span className="font-display text-[1.4vw] font-medium text-teal-light tracking-widest uppercase">Introducing</span>
