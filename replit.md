@@ -56,7 +56,12 @@ Student-facing pages show simplified, read-only UIs:
 - **Attendance** (`attendance.tsx`): Students see "My Attendance" with overall %, subject-wise breakdown with progress bars and shortage warnings. No Mark Attendance, Records, Condonation tabs. Admin sees all 4 tabs with full CRUD.
 - **Fees** (`fees.tsx`): Students see "My Fees" with total fee/paid/due cards, Razorpay online payment button, and payment history. No admin tabs (Fee Structures, Instalments, Defaulters, Scholarships). Admin sees all 6 tabs.
 - **Notifications** (`notifications.tsx`): Students see "Noticeboard & Notifications" with two tabs — **Noticeboard** (default, shows active college announcements with priority/type badges) and **My Notifications** (personal notification feed). No compose/send button, no stats dashboard. Admin/staff see full Notification Center with compose dialog and stats.
-- **Parent Portal** (`parent-portal.tsx`): After login, parents see **Noticeboard** tab first (same public endpoint), plus Personal Info, Fee Payments, and Exam Results tabs.
+- **Parent Portal** (`parent-portal.tsx`): Standalone portal (no main auth). Login with roll number + guardian phone. Sidebar: Dashboard, Noticeboard, Student Info, Fee Payments, Exam Results. Green theme.
+- **Librarian Portal** (`librarian-portal.tsx`): Standalone portal. Login with staff ID + phone. Sidebar: Dashboard (stats), Book Catalog (search), Issued Books. Amber/orange theme.
+- **Hostel Warden Portal** (`warden-portal.tsx`): Standalone portal. Login with staff ID + phone. Sidebar: Dashboard (stats), Hostels, Rooms, Allocations, Complaints. Indigo/violet theme.
+- **Transport Manager Portal** (`transport-portal.tsx`): Standalone portal. Login with staff ID + phone. Sidebar: Dashboard (stats), Routes, Vehicles, Stops, Allocations. Cyan/teal theme.
+- **Faculty Sidebar**: Faculty role sees focused sidebar with 5 groups: Overview (Dashboard, Calendar), Teaching (Subjects, Timetable, Assignments, Exams, Lab), My Students (Students, Attendance, Sports), Staff (My Leaves), Communication (Events, Communications, Notifications).
+- All portals accessible from login page "Portals" section without main auth. Backend routes: `/api/staff-portal/login` (shared staff login), `/api/librarian-portal/*`, `/api/warden-portal/*`, `/api/transport-portal/*`.
 - Pattern: `const { user } = useAuth(); const isStudent = user?.role === "Student";` — conditionally render tabs, buttons, and table columns.
 
 ## Backend Security

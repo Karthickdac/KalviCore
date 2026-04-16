@@ -41,6 +41,9 @@ import NotificationsPage from "@/pages/notifications";
 import DocumentsPage from "@/pages/documents";
 import PrintTemplatesPage from "@/pages/print-templates";
 import ParentPortalPage from "@/pages/parent-portal";
+import LibrarianPortalPage from "@/pages/librarian-portal";
+import WardenPortalPage from "@/pages/warden-portal";
+import TransportPortalPage from "@/pages/transport-portal";
 import DashboardSettingsPage from "@/pages/dashboard-settings";
 import PlacementsPage from "@/pages/placements";
 import FundraisingPage from "@/pages/fundraising";
@@ -69,9 +72,13 @@ function AppRoutes() {
   }
 
   if (!user) {
-    if (location === "/parent-portal") {
-      return <ParentPortalPage />;
-    }
+    const portalRoutes: Record<string, React.ReactNode> = {
+      "/parent-portal": <ParentPortalPage />,
+      "/librarian-portal": <LibrarianPortalPage />,
+      "/warden-portal": <WardenPortalPage />,
+      "/transport-portal": <TransportPortalPage />,
+    };
+    if (portalRoutes[location]) return <>{portalRoutes[location]}</>;
     return <LoginPage />;
   }
 

@@ -44,6 +44,7 @@ import visitorsRouter from "./visitors";
 import accessManagementRouter from "./accessManagement";
 import laboratoryRouter from "./laboratory";
 import sportsNccRouter from "./sportsNcc";
+import staffPortalsRouter from "./staffPortals";
 
 const router: IRouter = Router();
 
@@ -92,5 +93,6 @@ router.use(visitorsRouter);
 router.use(accessManagementRouter);
 router.use(laboratoryRouter);
 router.use(sportsNccRouter);
+router.use(staffPortalsRouter);
 
 export default router;

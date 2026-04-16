@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Eye, EyeOff, Shield, BookOpen, Users, Briefcase, UserCheck, User, Home } from "lucide-react";
+import { Loader2, Eye, EyeOff, Shield, BookOpen, Users, Briefcase, UserCheck, User, Home, Library, Building2, Bus } from "lucide-react";
 
 const DEMO_ACCOUNTS = [
   { label: "Admin", username: "college_admin", password: "Admin@123", icon: Shield, color: "from-orange-500 to-amber-600", desc: "Full system access" },
@@ -144,16 +144,31 @@ export default function LoginPage() {
                   <span className="text-[9px] text-white/30 leading-tight">{account.desc}</span>
                 </button>
               ))}
-              <button
-                onClick={() => navigate("/parent-portal")}
-                className="group relative flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.07] hover:border-white/[0.12] transition-all duration-200 col-span-3"
-              >
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                  <Home className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-[11px] font-semibold text-white/70 group-hover:text-white/90 transition-colors">Parent Portal</span>
-                <span className="text-[9px] text-white/30 leading-tight">View child's info & noticeboard</span>
-              </button>
+            </div>
+            <div className="flex items-center gap-3 mt-4 mb-3">
+              <div className="h-px flex-1 bg-white/[0.08]" />
+              <span className="text-xs text-white/30 font-medium uppercase tracking-wider">Portals</span>
+              <div className="h-px flex-1 bg-white/[0.08]" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { path: "/parent-portal", label: "Parent Portal", desc: "Child's info & noticeboard", icon: Home, color: "from-green-500 to-emerald-600" },
+                { path: "/librarian-portal", label: "Librarian", desc: "Books & issued records", icon: Library, color: "from-amber-500 to-orange-600" },
+                { path: "/warden-portal", label: "Hostel Warden", desc: "Rooms & complaints", icon: Building2, color: "from-indigo-500 to-violet-600" },
+                { path: "/transport-portal", label: "Transport Mgr", desc: "Routes & vehicles", icon: Bus, color: "from-cyan-500 to-teal-600" },
+              ].map((portal) => (
+                <button
+                  key={portal.path}
+                  onClick={() => navigate(portal.path)}
+                  className="group relative flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.07] hover:border-white/[0.12] transition-all duration-200"
+                >
+                  <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${portal.color} flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform`}>
+                    <portal.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-white/70 group-hover:text-white/90 transition-colors">{portal.label}</span>
+                  <span className="text-[9px] text-white/30 leading-tight">{portal.desc}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
