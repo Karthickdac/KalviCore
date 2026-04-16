@@ -43,3 +43,10 @@ Key implementation:
 - User emails in `users` table must match emails in `staff`/`students` tables for identity resolution
 
 Test accounts: college_admin/Admin@123, principal/Principal@123, hod_cse/Hod@123, faculty_cse/Faculty@123, office_staff/Staff@123, student_cse/Student@123
+
+## Frontend Role-Based Views
+Student-facing pages show simplified, read-only UIs:
+- **Hostels** (`hostels.tsx`): Students see "My Hostel" with only "My Allocation" and "My Complaints" tabs (can file complaints with auto-populated studentId). Admin sees all 4 tabs with full CRUD.
+- **Transport** (`transport.tsx`): Students see "My Transport" with only "My Allocation" tab. Admin sees all 4 tabs (Routes/Vehicles/Stops/Allocations).
+- **Library** (`library.tsx`): Students see "Library" with read-only Catalog (no add/delete) and "My Books" tab (own issued books only, no issue/return buttons). Admin sees full "Library Management" with all CRUD actions.
+- Pattern: `const { user } = useAuth(); const isStudent = user?.role === "Student";` — conditionally render tabs, buttons, and table columns.

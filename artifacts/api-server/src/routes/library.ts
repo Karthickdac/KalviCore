@@ -41,7 +41,8 @@ router.get("/library-issued", async (req, res): Promise<void> => {
   const conditions: any[] = [];
 
   if (scope?.isStudent && scope.studentRecordId) {
-    conditions.push(eq(libraryIssuedBooksTable.studentId, scope.studentRecordId));
+    conditions.push(eq(libraryIssuedBooksTable.memberId, scope.studentRecordId));
+    conditions.push(eq(libraryIssuedBooksTable.memberType, "Student"));
   }
   if (status) conditions.push(eq(libraryIssuedBooksTable.status, status));
 

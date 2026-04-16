@@ -13,15 +13,23 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Building2, BedDouble, Users, AlertTriangle, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/auth";
 
 export default function Hostels() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
   return (
     <div className="space-y-6">
-      <div><h2 className="text-2xl font-bold tracking-tight">Hostel Management</h2><p className="text-muted-foreground">Manage hostels, rooms, allocations, and complaints.</p></div>
-      <Tabs defaultValue="hostels">
-        <TabsList><TabsTrigger value="hostels"><Building2 className="w-4 h-4 mr-1" />Hostels</TabsTrigger><TabsTrigger value="rooms"><BedDouble className="w-4 h-4 mr-1" />Rooms</TabsTrigger><TabsTrigger value="allocations"><Users className="w-4 h-4 mr-1" />Allocations</TabsTrigger><TabsTrigger value="complaints"><AlertTriangle className="w-4 h-4 mr-1" />Complaints</TabsTrigger></TabsList>
-        <TabsContent value="hostels"><HostelList /></TabsContent>
-        <TabsContent value="rooms"><RoomList /></TabsContent>
+      <div><h2 className="text-2xl font-bold tracking-tight">{isStudent ? "My Hostel" : "Hostel Management"}</h2><p className="text-muted-foreground">{isStudent ? "View your hostel allocation and file complaints." : "Manage hostels, rooms, allocations, and complaints."}</p></div>
+      <Tabs defaultValue={isStudent ? "allocations" : "hostels"}>
+        <TabsList>
+          {!isStudent && <TabsTrigger value="hostels"><Building2 className="w-4 h-4 mr-1" />Hostels</TabsTrigger>}
+          {!isStudent && <TabsTrigger value="rooms"><BedDouble className="w-4 h-4 mr-1" />Rooms</TabsTrigger>}
+          <TabsTrigger value="allocations"><Users className="w-4 h-4 mr-1" />{isStudent ? "My Allocation" : "Allocations"}</TabsTrigger>
+          <TabsTrigger value="complaints"><AlertTriangle className="w-4 h-4 mr-1" />{isStudent ? "My Complaints" : "Complaints"}</TabsTrigger>
+        </TabsList>
+        {!isStudent && <TabsContent value="hostels"><HostelList /></TabsContent>}
+        {!isStudent && <TabsContent value="rooms"><RoomList /></TabsContent>}
         <TabsContent value="allocations"><AllocationList /></TabsContent>
         <TabsContent value="complaints"><ComplaintList /></TabsContent>
       </Tabs>
@@ -119,6 +127,8 @@ function RoomList() {
 }
 
 function AllocationList() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
   const { data: allocations, isLoading } = useListHostelAllocations();
   const { data: students } = useListStudents();
   const { data: hostels } = useListHostels();
@@ -135,34 +145,42 @@ function AllocationList() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Allocations</CardTitle>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Allocate</Button></DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Allocate Room</DialogTitle></DialogHeader>
-            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} - {s.firstName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
-              <FormField control={form.control} name="hostelId" render={({ field }) => (<FormItem><FormLabel>Hostel *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{hostels?.map(h => <SelectItem key={h.id} value={String(h.id)}>{h.name}</SelectItem>)}</SelectContent></Select></FormItem>)} />
-              <FormField control={form.control} name="roomId" render={({ field }) => (<FormItem><FormLabel>Room *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{rooms?.filter(r => r.status === 'Available').map(r => <SelectItem key={r.id} value={String(r.id)}>{r.roomNumber} ({r.roomType})</SelectItem>)}</SelectContent></Select></FormItem>)} />
-              <FormField control={form.control} name="messType" render={({ field }) => (<FormItem><FormLabel>Mess Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Veg">Veg</SelectItem><SelectItem value="Non-Veg">Non-Veg</SelectItem><SelectItem value="Special">Special</SelectItem></SelectContent></Select></FormItem>)} />
-              <DialogFooter><Button type="submit" disabled={createM.isPending}>Allocate</Button></DialogFooter>
-            </form></Form>
-          </DialogContent>
-        </Dialog>
+        <CardTitle>{isStudent ? "My Allocation" : "Allocations"}</CardTitle>
+        {!isStudent && (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Allocate</Button></DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Allocate Room</DialogTitle></DialogHeader>
+              <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} - {s.firstName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                <FormField control={form.control} name="hostelId" render={({ field }) => (<FormItem><FormLabel>Hostel *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{hostels?.map(h => <SelectItem key={h.id} value={String(h.id)}>{h.name}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                <FormField control={form.control} name="roomId" render={({ field }) => (<FormItem><FormLabel>Room *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{rooms?.filter(r => r.status === 'Available').map(r => <SelectItem key={r.id} value={String(r.id)}>{r.roomNumber} ({r.roomType})</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                <FormField control={form.control} name="messType" render={({ field }) => (<FormItem><FormLabel>Mess Type</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Veg">Veg</SelectItem><SelectItem value="Non-Veg">Non-Veg</SelectItem><SelectItem value="Special">Special</SelectItem></SelectContent></Select></FormItem>)} />
+                <DialogFooter><Button type="submit" disabled={createM.isPending}>Allocate</Button></DialogFooter>
+              </form></Form>
+            </DialogContent>
+          </Dialog>
+        )}
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Hostel</TableHead><TableHead>Room</TableHead><TableHead>Year</TableHead><TableHead>Mess</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
-          <TableBody>{isLoading ? <TableRow><TableCell colSpan={6} className="text-center">Loading...</TableCell></TableRow> : allocations?.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No allocations.</TableCell></TableRow> : allocations?.map(a => (
-            <TableRow key={a.id}><TableCell>{getStudentName(a.studentId)}</TableCell><TableCell>{getHostelName(a.hostelId)}</TableCell><TableCell>{getRoomNumber(a.roomId)}</TableCell><TableCell>{a.academicYear}</TableCell><TableCell>{a.messType || '-'}</TableCell><TableCell><Badge variant={a.status === 'Active' ? 'default' : 'secondary'}>{a.status}</Badge></TableCell></TableRow>
-          ))}</TableBody>
-        </Table>
+        {isStudent && allocations?.length === 0 && !isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">No hostel allocation found for your account.</div>
+        ) : (
+          <Table>
+            <TableHeader><TableRow>{!isStudent && <TableHead>Student</TableHead>}<TableHead>Hostel</TableHead><TableHead>Room</TableHead><TableHead>Year</TableHead><TableHead>Mess</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+            <TableBody>{isLoading ? <TableRow><TableCell colSpan={isStudent ? 5 : 6} className="text-center">Loading...</TableCell></TableRow> : allocations?.length === 0 ? <TableRow><TableCell colSpan={isStudent ? 5 : 6} className="text-center text-muted-foreground">No allocations.</TableCell></TableRow> : allocations?.map(a => (
+              <TableRow key={a.id}>{!isStudent && <TableCell>{getStudentName(a.studentId)}</TableCell>}<TableCell>{getHostelName(a.hostelId)}</TableCell><TableCell>{getRoomNumber(a.roomId)}</TableCell><TableCell>{a.academicYear}</TableCell><TableCell>{a.messType || '-'}</TableCell><TableCell><Badge variant={a.status === 'Active' ? 'default' : 'secondary'}>{a.status}</Badge></TableCell></TableRow>
+            ))}</TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );
 }
 
 function ComplaintList() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
   const { data: complaints, isLoading } = useListHostelComplaints();
   const { data: students } = useListStudents();
   const { data: hostels } = useListHostels();
@@ -172,18 +190,23 @@ function ComplaintList() {
   const createM = useCreateHostelComplaint();
   const updateM = useUpdateHostelComplaint();
   const form = useForm({ defaultValues: { studentId: 0, hostelId: 0, category: "Maintenance", subject: "", description: "", priority: "Medium" } });
-  const onSubmit = (data: any) => { createM.mutate({ data }, { onSuccess: () => { qc.invalidateQueries({ queryKey: getListHostelComplaintsQueryKey() }); toast({ title: "Complaint filed" }); setIsOpen(false); form.reset(); }, onError: () => toast({ title: "Error", variant: "destructive" }) }); };
+  const onSubmit = (data: any) => {
+    const payload = isStudent && user?.studentRecordId ? { ...data, studentId: user.studentRecordId } : data;
+    createM.mutate({ data: payload }, { onSuccess: () => { qc.invalidateQueries({ queryKey: getListHostelComplaintsQueryKey() }); toast({ title: "Complaint filed" }); setIsOpen(false); form.reset(); }, onError: () => toast({ title: "Error", variant: "destructive" }) });
+  };
   const getStudentName = (id: number) => { const s = students?.find(st => st.id === id); return s ? `${s.firstName} ${s.lastName}` : '-'; };
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Complaints</CardTitle>
+        <CardTitle>{isStudent ? "My Complaints" : "Complaints"}</CardTitle>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />File Complaint</Button></DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>File Complaint</DialogTitle></DialogHeader>
             <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} - {s.firstName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+              {!isStudent && (
+                <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} - {s.firstName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+              )}
               <FormField control={form.control} name="hostelId" render={({ field }) => (<FormItem><FormLabel>Hostel *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{hostels?.map(h => <SelectItem key={h.id} value={String(h.id)}>{h.name}</SelectItem>)}</SelectContent></Select></FormItem>)} />
               <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="Maintenance">Maintenance</SelectItem><SelectItem value="Electrical">Electrical</SelectItem><SelectItem value="Plumbing">Plumbing</SelectItem><SelectItem value="Mess">Mess</SelectItem><SelectItem value="Security">Security</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent></Select></FormItem>)} />
               <FormField control={form.control} name="subject" render={({ field }) => (<FormItem><FormLabel>Subject *</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
@@ -196,9 +219,9 @@ function ComplaintList() {
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Category</TableHead><TableHead>Subject</TableHead><TableHead>Priority</TableHead><TableHead>Status</TableHead><TableHead>Action</TableHead></TableRow></TableHeader>
-          <TableBody>{isLoading ? <TableRow><TableCell colSpan={6} className="text-center">Loading...</TableCell></TableRow> : complaints?.length === 0 ? <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">No complaints.</TableCell></TableRow> : complaints?.map(c => (
-            <TableRow key={c.id}><TableCell>{getStudentName(c.studentId)}</TableCell><TableCell>{c.category}</TableCell><TableCell>{c.subject}</TableCell><TableCell><Badge variant={c.priority === 'Critical' ? 'destructive' : c.priority === 'High' ? 'destructive' : 'secondary'}>{c.priority}</Badge></TableCell><TableCell><Badge variant={c.status === 'Resolved' ? 'default' : c.status === 'Open' ? 'destructive' : 'secondary'}>{c.status}</Badge></TableCell><TableCell>{c.status !== 'Resolved' && <Button variant="outline" size="sm" onClick={() => updateM.mutate({ id: c.id, data: { status: 'Resolved', resolvedDate: new Date().toISOString().split('T')[0] } }, { onSuccess: () => qc.invalidateQueries({ queryKey: getListHostelComplaintsQueryKey() }) })}>Resolve</Button>}</TableCell></TableRow>
+          <TableHeader><TableRow>{!isStudent && <TableHead>Student</TableHead>}<TableHead>Category</TableHead><TableHead>Subject</TableHead><TableHead>Priority</TableHead><TableHead>Status</TableHead>{!isStudent && <TableHead>Action</TableHead>}</TableRow></TableHeader>
+          <TableBody>{isLoading ? <TableRow><TableCell colSpan={isStudent ? 4 : 6} className="text-center">Loading...</TableCell></TableRow> : complaints?.length === 0 ? <TableRow><TableCell colSpan={isStudent ? 4 : 6} className="text-center text-muted-foreground">No complaints.</TableCell></TableRow> : complaints?.map(c => (
+            <TableRow key={c.id}>{!isStudent && <TableCell>{getStudentName(c.studentId)}</TableCell>}<TableCell>{c.category}</TableCell><TableCell>{c.subject}</TableCell><TableCell><Badge variant={c.priority === 'Critical' ? 'destructive' : c.priority === 'High' ? 'destructive' : 'secondary'}>{c.priority}</Badge></TableCell><TableCell><Badge variant={c.status === 'Resolved' ? 'default' : c.status === 'Open' ? 'destructive' : 'secondary'}>{c.status}</Badge></TableCell>{!isStudent && <TableCell>{c.status !== 'Resolved' && <Button variant="outline" size="sm" onClick={() => updateM.mutate({ id: c.id, data: { status: 'Resolved', resolvedDate: new Date().toISOString().split('T')[0] } }, { onSuccess: () => qc.invalidateQueries({ queryKey: getListHostelComplaintsQueryKey() }) })}>Resolve</Button>}</TableCell>}</TableRow>
           ))}</TableBody>
         </Table>
       </CardContent>

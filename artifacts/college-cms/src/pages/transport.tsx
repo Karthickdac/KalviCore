@@ -13,16 +13,24 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Route, Bus, MapPin, Users, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/auth";
 
 export default function Transport() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
   return (
     <div className="space-y-6">
-      <div><h2 className="text-2xl font-bold tracking-tight">Transport Management</h2><p className="text-muted-foreground">Manage routes, vehicles, stops, and student allocations.</p></div>
-      <Tabs defaultValue="routes">
-        <TabsList><TabsTrigger value="routes"><Route className="w-4 h-4 mr-1" />Routes</TabsTrigger><TabsTrigger value="vehicles"><Bus className="w-4 h-4 mr-1" />Vehicles</TabsTrigger><TabsTrigger value="stops"><MapPin className="w-4 h-4 mr-1" />Stops</TabsTrigger><TabsTrigger value="allocations"><Users className="w-4 h-4 mr-1" />Allocations</TabsTrigger></TabsList>
-        <TabsContent value="routes"><RouteList /></TabsContent>
-        <TabsContent value="vehicles"><VehicleList /></TabsContent>
-        <TabsContent value="stops"><StopList /></TabsContent>
+      <div><h2 className="text-2xl font-bold tracking-tight">{isStudent ? "My Transport" : "Transport Management"}</h2><p className="text-muted-foreground">{isStudent ? "View your transport allocation and route details." : "Manage routes, vehicles, stops, and student allocations."}</p></div>
+      <Tabs defaultValue={isStudent ? "allocations" : "routes"}>
+        <TabsList>
+          {!isStudent && <TabsTrigger value="routes"><Route className="w-4 h-4 mr-1" />Routes</TabsTrigger>}
+          {!isStudent && <TabsTrigger value="vehicles"><Bus className="w-4 h-4 mr-1" />Vehicles</TabsTrigger>}
+          {!isStudent && <TabsTrigger value="stops"><MapPin className="w-4 h-4 mr-1" />Stops</TabsTrigger>}
+          <TabsTrigger value="allocations"><Users className="w-4 h-4 mr-1" />{isStudent ? "My Allocation" : "Allocations"}</TabsTrigger>
+        </TabsList>
+        {!isStudent && <TabsContent value="routes"><RouteList /></TabsContent>}
+        {!isStudent && <TabsContent value="vehicles"><VehicleList /></TabsContent>}
+        {!isStudent && <TabsContent value="stops"><StopList /></TabsContent>}
         <TabsContent value="allocations"><TransportAllocations /></TabsContent>
       </Tabs>
     </div>
@@ -143,6 +151,8 @@ function StopList() {
 }
 
 function TransportAllocations() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
   const { data: allocations, isLoading } = useListTransportAllocations();
   const { data: students } = useListStudents();
   const { data: routes } = useListTransportRoutes();
@@ -158,21 +168,28 @@ function TransportAllocations() {
   const getStopName = (id: number) => stops?.find(s => s.id === id)?.stopName || '-';
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between"><CardTitle>Student Allocations</CardTitle>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}><DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Allocate</Button></DialogTrigger>
-          <DialogContent><DialogHeader><DialogTitle>Allocate Transport</DialogTitle></DialogHeader>
-            <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-              <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} - {s.firstName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
-              <FormField control={form.control} name="routeId" render={({ field }) => (<FormItem><FormLabel>Route *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{routes?.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.routeNumber} - {r.routeName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
-              <FormField control={form.control} name="stopId" render={({ field }) => (<FormItem><FormLabel>Stop *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{stops?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.stopName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
-              <DialogFooter><Button type="submit" disabled={createM.isPending}>Allocate</Button></DialogFooter>
-            </form></Form></DialogContent></Dialog>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>{isStudent ? "My Transport Allocation" : "Student Allocations"}</CardTitle>
+        {!isStudent && (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}><DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2" />Allocate</Button></DialogTrigger>
+            <DialogContent><DialogHeader><DialogTitle>Allocate Transport</DialogTitle></DialogHeader>
+              <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                <FormField control={form.control} name="studentId" render={({ field }) => (<FormItem><FormLabel>Student *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{students?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.rollNumber} - {s.firstName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                <FormField control={form.control} name="routeId" render={({ field }) => (<FormItem><FormLabel>Route *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{routes?.map(r => <SelectItem key={r.id} value={String(r.id)}>{r.routeNumber} - {r.routeName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                <FormField control={form.control} name="stopId" render={({ field }) => (<FormItem><FormLabel>Stop *</FormLabel><Select onValueChange={(v) => field.onChange(Number(v))} value={String(field.value)}><FormControl><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></FormControl><SelectContent>{stops?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.stopName}</SelectItem>)}</SelectContent></Select></FormItem>)} />
+                <DialogFooter><Button type="submit" disabled={createM.isPending}>Allocate</Button></DialogFooter>
+              </form></Form></DialogContent></Dialog>
+        )}
       </CardHeader>
       <CardContent>
-        <Table><TableHeader><TableRow><TableHead>Student</TableHead><TableHead>Route</TableHead><TableHead>Stop</TableHead><TableHead>Year</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
-          <TableBody>{isLoading ? <TableRow><TableCell colSpan={5} className="text-center">Loading...</TableCell></TableRow> : allocations?.length === 0 ? <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No allocations.</TableCell></TableRow> : allocations?.map(a => (
-            <TableRow key={a.id}><TableCell>{getStudentName(a.studentId)}</TableCell><TableCell>{getRouteName(a.routeId)}</TableCell><TableCell>{getStopName(a.stopId)}</TableCell><TableCell>{a.academicYear}</TableCell><TableCell><Badge>{a.status}</Badge></TableCell></TableRow>
-          ))}</TableBody></Table>
+        {isStudent && allocations?.length === 0 && !isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">No transport allocation found for your account.</div>
+        ) : (
+          <Table><TableHeader><TableRow>{!isStudent && <TableHead>Student</TableHead>}<TableHead>Route</TableHead><TableHead>Stop</TableHead><TableHead>Year</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+            <TableBody>{isLoading ? <TableRow><TableCell colSpan={isStudent ? 4 : 5} className="text-center">Loading...</TableCell></TableRow> : allocations?.length === 0 ? <TableRow><TableCell colSpan={isStudent ? 4 : 5} className="text-center text-muted-foreground">No allocations.</TableCell></TableRow> : allocations?.map(a => (
+              <TableRow key={a.id}>{!isStudent && <TableCell>{getStudentName(a.studentId)}</TableCell>}<TableCell>{getRouteName(a.routeId)}</TableCell><TableCell>{getStopName(a.stopId)}</TableCell><TableCell>{a.academicYear}</TableCell><TableCell><Badge>{a.status}</Badge></TableCell></TableRow>
+            ))}</TableBody></Table>
+        )}
       </CardContent>
     </Card>
   );
