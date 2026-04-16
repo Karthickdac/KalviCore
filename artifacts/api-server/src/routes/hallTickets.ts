@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { db, examsTable, studentsTable, subjectsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
+import { getUserScope } from "../lib/scopeFilter";
 
 const router: IRouter = Router();
 
@@ -10,6 +11,12 @@ router.get("/hall-tickets/:studentId/:examId", requireAuth, requirePermission("e
     const studentId = Number(req.params.studentId);
     const examId = Number(req.params.examId);
     if (isNaN(studentId) || isNaN(examId)) { res.status(400).json({ error: "Invalid ID" }); return; }
+
+    const scope = getUserScope(req);
+    if (scope?.isStudent && scope.studentRecordId !== studentId) {
+      res.status(403).json({ error: "You can only view your own hall ticket" });
+      return;
+    }
 
     const [student] = await db.select().from(studentsTable).where(eq(studentsTable.id, studentId));
     if (!student) { res.status(404).json({ error: "Student not found" }); return; }
@@ -52,6 +59,12 @@ router.get("/hall-tickets/student/:studentId", requireAuth, requirePermission("e
   try {
     const studentId = Number(req.params.studentId);
     if (isNaN(studentId)) { res.status(400).json({ error: "Invalid student ID" }); return; }
+
+    const scope = getUserScope(req);
+    if (scope?.isStudent && scope.studentRecordId !== studentId) {
+      res.status(403).json({ error: "You can only view your own hall tickets" });
+      return;
+    }
 
     const [student] = await db.select().from(studentsTable).where(eq(studentsTable.id, studentId));
     if (!student) { res.status(404).json({ error: "Student not found" }); return; }

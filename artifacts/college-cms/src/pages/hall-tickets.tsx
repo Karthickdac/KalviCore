@@ -15,10 +15,11 @@ import { Printer, Search, FileText, GraduationCap } from "lucide-react";
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
 export default function HallTicketsPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isStudent = user?.role === "Student";
   const { info: institution } = useInstitution();
   const headers = { Authorization: `Bearer ${token}` };
-  const [selectedStudent, setSelectedStudent] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState(() => isStudent && user?.studentRecordId ? String(user.studentRecordId) : "");
   const [selectedExam, setSelectedExam] = useState("");
   const [search, setSearch] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
@@ -76,38 +77,40 @@ export default function HallTicketsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Hall Tickets</h1>
-          <p className="text-muted-foreground">Generate and print exam hall tickets.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{isStudent ? "My Hall Ticket" : "Hall Tickets"}</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">{isStudent ? "View and print your exam hall ticket." : "Generate and print exam hall tickets."}</p>
         </div>
-        {hallTicket && <Button onClick={handlePrint}><Printer className="mr-2 h-4 w-4" />Print Hall Ticket</Button>}
+        {hallTicket && <Button onClick={handlePrint} className="w-full sm:w-auto"><Printer className="mr-2 h-4 w-4" />Print Hall Ticket</Button>}
       </div>
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Select Student & Exam</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm sm:text-base">{isStudent ? "Select Exam" : "Select Student & Exam"}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Student</Label>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by name or roll number..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8" />
-              </div>
-              {search && (
-                <div className="max-h-40 overflow-y-auto border rounded-md">
-                  {filteredStudents.slice(0, 8).map((s: any) => (
-                    <button key={s.id} className={`w-full text-left px-3 py-2 hover:bg-accent text-sm ${String(s.id) === selectedStudent ? "bg-accent" : ""}`}
-                      onClick={() => { setSelectedStudent(String(s.id)); setSearch(""); }}>
-                      <span className="font-medium">{s.rollNumber}</span> — {s.firstName} {s.lastName}
-                    </button>
-                  ))}
+          <div className={`grid gap-4 ${isStudent ? "" : "md:grid-cols-2"}`}>
+            {!isStudent && (
+              <div className="space-y-2">
+                <Label>Student</Label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Search by name or roll number..." value={search} onChange={e => setSearch(e.target.value)} className="pl-8" />
                 </div>
-              )}
-              {selectedStudent && !search && (
-                <Badge variant="secondary">{(() => { const st = (students as any[]).find(s => String(s.id) === selectedStudent); return st ? `${st.firstName} ${st.lastName}` : ""; })()}</Badge>
-              )}
-            </div>
+                {search && (
+                  <div className="max-h-40 overflow-y-auto border rounded-md">
+                    {filteredStudents.slice(0, 8).map((s: any) => (
+                      <button key={s.id} className={`w-full text-left px-3 py-2 hover:bg-accent text-sm ${String(s.id) === selectedStudent ? "bg-accent" : ""}`}
+                        onClick={() => { setSelectedStudent(String(s.id)); setSearch(""); }}>
+                        <span className="font-medium">{s.rollNumber}</span> — {s.firstName} {s.lastName}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {selectedStudent && !search && (
+                  <Badge variant="secondary">{(() => { const st = (students as any[]).find(s => String(s.id) === selectedStudent); return st ? `${st.firstName} ${st.lastName}` : ""; })()}</Badge>
+                )}
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Exam</Label>
               <Select value={selectedExam} onValueChange={setSelectedExam}>
@@ -123,51 +126,53 @@ export default function HallTicketsPage() {
 
       {hallTicket && (
         <div ref={printRef}>
-          <div className="hall-ticket border-[3px] border-double border-foreground p-6 max-w-[700px] mx-auto bg-white text-black">
+          <div className="hall-ticket border-[3px] border-double border-foreground p-4 sm:p-6 max-w-[700px] mx-auto bg-white text-black">
             <div className="text-center border-b-2 border-black pb-3 mb-4">
-              <h1 className="text-lg font-bold">{institution.collegeName || "College"}</h1>
-              <p className="text-[10px] tracking-wider">Affiliated to {institution.affiliatedUniversity || "University"}</p>
-              <h2 className="text-sm">{institution.location || ""}</h2>
-              <h3 className="text-base font-bold underline mt-2">EXAMINATION HALL TICKET</h3>
+              <h1 className="text-base sm:text-lg font-bold">{institution.collegeName || "College"}</h1>
+              <p className="text-[9px] sm:text-[10px] tracking-wider">Affiliated to {institution.affiliatedUniversity || "University"}</p>
+              <h2 className="text-xs sm:text-sm">{institution.location || ""}</h2>
+              <h3 className="text-sm sm:text-base font-bold underline mt-2">EXAMINATION HALL TICKET</h3>
             </div>
-            <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
-              <div><strong className="inline-block min-w-[120px]">Name:</strong> {hallTicket.studentName}</div>
-              <div><strong className="inline-block min-w-[120px]">Roll No:</strong> {hallTicket.rollNumber}</div>
-              <div><strong className="inline-block min-w-[120px]">Exam:</strong> {hallTicket.examName}</div>
-              <div><strong className="inline-block min-w-[120px]">Type:</strong> {hallTicket.examType}</div>
-              <div><strong className="inline-block min-w-[120px]">Semester:</strong> {hallTicket.semester}</div>
-              <div><strong className="inline-block min-w-[120px]">Seat No:</strong> <span className="font-bold text-base">{hallTicket.seatNumber}</span></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 text-xs sm:text-sm">
+              <div><strong className="inline-block min-w-[100px] sm:min-w-[120px]">Name:</strong> {hallTicket.studentName}</div>
+              <div><strong className="inline-block min-w-[100px] sm:min-w-[120px]">Roll No:</strong> {hallTicket.rollNumber}</div>
+              <div><strong className="inline-block min-w-[100px] sm:min-w-[120px]">Exam:</strong> {hallTicket.examName}</div>
+              <div><strong className="inline-block min-w-[100px] sm:min-w-[120px]">Type:</strong> {hallTicket.examType}</div>
+              <div><strong className="inline-block min-w-[100px] sm:min-w-[120px]">Semester:</strong> {hallTicket.semester}</div>
+              <div><strong className="inline-block min-w-[100px] sm:min-w-[120px]">Seat No:</strong> <span className="font-bold text-sm sm:text-base">{hallTicket.seatNumber}</span></div>
             </div>
-            <table className="w-full border-collapse mb-4">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-black px-3 py-1.5 text-xs text-left">S.No</th>
-                  <th className="border border-black px-3 py-1.5 text-xs text-left">Subject Code</th>
-                  <th className="border border-black px-3 py-1.5 text-xs text-left">Subject Name</th>
-                  <th className="border border-black px-3 py-1.5 text-xs text-left">Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hallTicket.subjects?.map((s: any, i: number) => (
-                  <tr key={s.id}>
-                    <td className="border border-black px-3 py-1.5 text-xs">{i + 1}</td>
-                    <td className="border border-black px-3 py-1.5 text-xs">{s.code}</td>
-                    <td className="border border-black px-3 py-1.5 text-xs">{s.name}</td>
-                    <td className="border border-black px-3 py-1.5 text-xs">{s.type}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse mb-4">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs text-left">S.No</th>
+                    <th className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs text-left">Subject Code</th>
+                    <th className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs text-left">Subject Name</th>
+                    <th className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs text-left">Type</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="text-xs mt-4">
+                </thead>
+                <tbody>
+                  {hallTicket.subjects?.map((s: any, i: number) => (
+                    <tr key={s.id}>
+                      <td className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs">{i + 1}</td>
+                      <td className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs">{s.code}</td>
+                      <td className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs">{s.name}</td>
+                      <td className="border border-black px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs">{s.type}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="text-[10px] sm:text-xs mt-4">
               <strong>Instructions:</strong>
               <ol className="list-decimal ml-5 mt-1 space-y-1">
                 {hallTicket.instructions?.map((inst: string, i: number) => <li key={i}>{inst}</li>)}
               </ol>
             </div>
-            <div className="flex justify-between mt-10 pt-2">
-              <div className="text-center border-t border-black pt-1 w-36 text-xs">Student Signature</div>
-              <div className="text-center border-t border-black pt-1 w-36 text-xs">Controller of Exams</div>
-              <div className="text-center border-t border-black pt-1 w-36 text-xs">Principal</div>
+            <div className="flex justify-between mt-8 sm:mt-10 pt-2">
+              <div className="text-center border-t border-black pt-1 w-28 sm:w-36 text-[10px] sm:text-xs">Student Signature</div>
+              <div className="text-center border-t border-black pt-1 w-28 sm:w-36 text-[10px] sm:text-xs">Controller of Exams</div>
+              <div className="text-center border-t border-black pt-1 w-28 sm:w-36 text-[10px] sm:text-xs">Principal</div>
             </div>
           </div>
         </div>

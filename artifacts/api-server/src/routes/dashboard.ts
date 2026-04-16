@@ -167,4 +167,59 @@ router.get("/dashboard/attendance-overview", async (_req, res): Promise<void> =>
   }));
 });
 
+router.get("/dashboard/student-summary", requireAuth, async (req, res): Promise<void> => {
+  const scope = getUserScope(req);
+  if (!scope?.isStudent || !scope.studentRecordId) {
+    res.status(403).json({ error: "Student access only" });
+    return;
+  }
+  const sid = scope.studentRecordId;
+  const [student] = await db.select().from(studentsTable).where(eq(studentsTable.id, sid));
+  if (!student) { res.status(404).json({ error: "Student not found" }); return; }
+
+  const [attStats] = await db.select({
+    total: sql<number>`count(*)::int`,
+    present: sql<number>`count(*) filter (where ${attendanceTable.status} = 'Present')::int`,
+  }).from(attendanceTable).where(eq(attendanceTable.studentId, sid));
+
+  const [feeStats] = await db.select({
+    totalPaid: sql<number>`coalesce(sum(amount_paid::numeric), 0)::float`,
+    count: sql<number>`count(*)::int`,
+  }).from(feePaymentsTable).where(eq(feePaymentsTable.studentId, sid));
+
+  const deptName = student.departmentId
+    ? (await db.select({ name: departmentsTable.name }).from(departmentsTable).where(eq(departmentsTable.id, student.departmentId)))[0]?.name || "-"
+    : "-";
+
+  const courseName = student.courseId
+    ? (await db.select({ name: coursesTable.name }).from(coursesTable).where(eq(coursesTable.id, student.courseId)))[0]?.name || "-"
+    : "-";
+
+  res.json({
+    student: {
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
+      rollNumber: student.rollNumber,
+      semester: student.semester,
+      departmentName: deptName,
+      courseName,
+      admissionDate: student.admissionDate,
+      email: student.email,
+      phone: student.phone,
+      bloodGroup: student.bloodGroup,
+      status: student.status,
+    },
+    attendance: {
+      total: attStats.total,
+      present: attStats.present,
+      percentage: attStats.total > 0 ? Math.round((attStats.present / attStats.total) * 100) : 0,
+    },
+    fees: {
+      totalPaid: feeStats.totalPaid,
+      paymentCount: feeStats.count,
+    },
+  });
+});
+
 export default router;

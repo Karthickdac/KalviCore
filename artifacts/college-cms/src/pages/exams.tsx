@@ -102,7 +102,8 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 export default function Exams() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isStudent = user?.role === "Student";
   const [activeTab, setActiveTab] = useState("schedule");
   const [exams, setExams] = useState<Exam[]>([]);
   const [stats, setStats] = useState<ExamStats | null>(null);
@@ -172,38 +173,171 @@ export default function Exams() {
 
   if (loading) return <div className="flex items-center justify-center h-96"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
 
+  if (isStudent) {
+    const upcomingExams = exams.filter(e => e.status === "Scheduled" || e.status === "Ongoing");
+    const completedExams = exams.filter(e => e.status === "Completed");
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+            <FileText className="h-5 sm:h-6 w-5 sm:w-6 text-indigo-500" />
+            My Examinations
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base">View your upcoming and completed exams.</p>
+        </div>
+
+        {upcomingExams.length > 0 && (
+          <Card>
+            <CardHeader><CardTitle className="text-sm sm:text-base">Upcoming Exams</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-3 sm:hidden">
+                {upcomingExams.map(e => (
+                  <div key={e.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <div className="font-medium text-sm">{e.subjectCode} - {e.subjectName}</div>
+                      <Badge className={STATUS_COLORS[e.status] || ""} variant="outline">{e.status}</Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{e.date}</div>
+                      {e.startTime && <div className="flex items-center gap-1"><Timer className="h-3 w-3" />{e.startTime}{e.endTime ? `-${e.endTime}` : ""}</div>}
+                      {e.venue && <div className="flex items-center gap-1"><MapPin className="h-3 w-3" />{e.venue}</div>}
+                      <div>Marks: {e.maxMarks}</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Badge className={TYPE_COLORS[e.type] || ""}>{e.type}</Badge>
+                      <Badge variant="outline">Sem {e.semester}</Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Date & Time</TableHead>
+                      <TableHead>Venue</TableHead>
+                      <TableHead>Marks</TableHead>
+                      <TableHead>Sem</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {upcomingExams.map(e => (
+                      <TableRow key={e.id}>
+                        <TableCell>
+                          <div className="font-medium">{e.subjectCode} - {e.subjectName}</div>
+                          <div className="text-xs text-muted-foreground">{e.academicYear}</div>
+                        </TableCell>
+                        <TableCell><Badge className={TYPE_COLORS[e.type] || ""}>{e.type}</Badge></TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1 text-sm"><CalendarDays className="h-3 w-3 text-muted-foreground" /> {e.date}</div>
+                          {e.startTime && <div className="text-xs text-muted-foreground flex items-center gap-1"><Timer className="h-3 w-3" /> {e.startTime}{e.endTime ? ` - ${e.endTime}` : ""}{e.duration ? ` (${e.duration}min)` : ""}</div>}
+                        </TableCell>
+                        <TableCell>{e.venue ? <div className="flex items-center gap-1 text-sm"><MapPin className="h-3 w-3 text-muted-foreground" /> {e.venue}</div> : <span className="text-muted-foreground">-</span>}</TableCell>
+                        <TableCell>
+                          <div className="text-sm font-medium">{e.maxMarks}</div>
+                          {e.passMarks && <div className="text-xs text-muted-foreground">Pass: {e.passMarks}</div>}
+                        </TableCell>
+                        <TableCell>{e.semester}</TableCell>
+                        <TableCell><Badge variant="outline" className={STATUS_COLORS[e.status] || ""}>{e.status}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {completedExams.length > 0 && (
+          <Card>
+            <CardHeader><CardTitle className="text-sm sm:text-base">Completed Exams</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-3 sm:hidden">
+                {completedExams.map(e => (
+                  <div key={e.id} className="border rounded-lg p-3 space-y-1">
+                    <div className="font-medium text-sm">{e.subjectCode} - {e.subjectName}</div>
+                    <div className="flex gap-2 text-xs text-muted-foreground">
+                      <span>{e.date}</span>
+                      <Badge className={TYPE_COLORS[e.type] || ""} >{e.type}</Badge>
+                      <span>Marks: {e.maxMarks}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Subject</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Max Marks</TableHead>
+                      <TableHead>Sem</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {completedExams.map(e => (
+                      <TableRow key={e.id}>
+                        <TableCell className="font-medium">{e.subjectCode} - {e.subjectName}</TableCell>
+                        <TableCell><Badge className={TYPE_COLORS[e.type] || ""}>{e.type}</Badge></TableCell>
+                        <TableCell>{e.date}</TableCell>
+                        <TableCell>{e.maxMarks}</TableCell>
+                        <TableCell>{e.semester}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {exams.length === 0 && (
+          <Card>
+            <CardContent className="text-center py-12 text-muted-foreground">
+              No exams scheduled for your department yet.
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <FileText className="h-6 w-6 text-indigo-500" />
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+            <FileText className="h-5 sm:h-6 w-5 sm:w-6 text-indigo-500" />
             Examinations
           </h2>
-          <p className="text-muted-foreground">Schedule exams, manage results, and track performance analytics.</p>
+          <p className="text-muted-foreground text-sm sm:text-base">Schedule exams, manage results, and track performance analytics.</p>
         </div>
       </div>
 
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
             <div className="text-xs text-muted-foreground">Total Exams</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-blue-600">{stats.scheduled}</div>
+            <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats.scheduled}</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> Scheduled</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-amber-600">{stats.ongoing}</div>
+            <div className="text-xl sm:text-2xl font-bold text-amber-600">{stats.ongoing}</div>
             <div className="text-xs text-muted-foreground">Ongoing</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-emerald-600">{stats.completed}</div>
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600">{stats.completed}</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Completed</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-teal-600">{stats.avgPassRate}%</div>
+            <div className="text-xl sm:text-2xl font-bold text-teal-600">{stats.avgPassRate}%</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><TrendingUp className="h-3 w-3" /> Pass Rate</div>
           </CardContent></Card>
         </div>

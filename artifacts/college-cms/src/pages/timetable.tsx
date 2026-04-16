@@ -12,10 +12,14 @@ import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Clock } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/auth";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Timetable() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
   const { data: departments } = useListDepartments();
   const { data: subjects } = useListSubjects();
   const { data: staff } = useListStaff();
@@ -33,15 +37,84 @@ export default function Timetable() {
   const form = useForm({ defaultValues: { departmentId: 0, semester: 1, dayOfWeek: "Monday", periodNumber: 1, startTime: "09:00", endTime: "09:50", subjectId: 0, staffId: 0, room: "", section: "A", academicYear: "2024-2025" } });
   const onSubmit = (data: any) => { const clean = { ...data, subjectId: data.subjectId || undefined, staffId: data.staffId || undefined }; createM.mutate({ data: clean }, { onSuccess: () => { qc.invalidateQueries({ queryKey: getListTimetableQueryKey() }); toast({ title: "Entry added" }); setIsOpen(false); form.reset(); }, onError: () => toast({ title: "Error", variant: "destructive" }) }); };
   const getSubjectName = (id: number | null | undefined) => id ? subjects?.find(s => s.id === id)?.name || '-' : '-';
+  const getSubjectCode = (id: number | null | undefined) => id ? subjects?.find(s => s.id === id)?.code || '' : '';
   const getStaffName = (id: number | null | undefined) => id ? staff?.find(s => s.id === id)?.firstName || '-' : '-';
   const getDeptName = (id: number) => departments?.find(d => d.id === id)?.name || '-';
+
+  const sortedEntries = entries?.slice().sort((a, b) => DAYS.indexOf(a.dayOfWeek) - DAYS.indexOf(b.dayOfWeek) || a.periodNumber - b.periodNumber);
+
+  if (isStudent) {
+    const periods = sortedEntries ? [...new Set(sortedEntries.map(e => e.periodNumber))].sort((a, b) => a - b) : [];
+    const getEntry = (day: string, period: number) => sortedEntries?.find(e => e.dayOfWeek === day && e.periodNumber === period);
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">My Timetable</h2>
+          <p className="text-muted-foreground">Your weekly class schedule.</p>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Clock className="w-5 h-5" />Weekly Schedule</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 sm:p-6">
+            {isLoading ? (
+              <div className="text-center py-12 text-muted-foreground">Loading...</div>
+            ) : !sortedEntries || sortedEntries.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">No timetable entries found for your department.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="bg-muted/50">
+                      <th className="border border-border px-2 sm:px-3 py-2 text-left text-xs sm:text-sm font-semibold w-20">Day</th>
+                      {periods.map(p => (
+                        <th key={p} className="border border-border px-2 sm:px-3 py-2 text-center text-xs sm:text-sm font-semibold">Period {p}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {DAYS.filter(day => sortedEntries.some(e => e.dayOfWeek === day)).map(day => (
+                      <tr key={day} className="hover:bg-muted/30">
+                        <td className="border border-border px-2 sm:px-3 py-2 font-medium text-xs sm:text-sm">
+                          <span className="hidden sm:inline">{day}</span>
+                          <span className="sm:hidden">{DAY_SHORT[DAYS.indexOf(day)]}</span>
+                        </td>
+                        {periods.map(p => {
+                          const entry = getEntry(day, p);
+                          return (
+                            <td key={p} className="border border-border px-1 sm:px-3 py-2 text-center">
+                              {entry ? (
+                                <div className="space-y-0.5">
+                                  <div className="font-medium text-xs sm:text-sm leading-tight">{getSubjectCode(entry.subjectId) || getSubjectName(entry.subjectId)}</div>
+                                  <div className="text-[10px] sm:text-xs text-muted-foreground">{getStaffName(entry.staffId)}</div>
+                                  {entry.room && <div className="text-[10px] sm:text-xs text-muted-foreground">{entry.room}</div>}
+                                  <div className="text-[10px] text-muted-foreground/60">{entry.startTime}-{entry.endTime}</div>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground/40 text-xs">-</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div><h2 className="text-2xl font-bold tracking-tight">Timetable</h2><p className="text-muted-foreground">Department-wise class timetable management.</p></div>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div className="flex items-center gap-3"><CardTitle><Clock className="w-5 h-5 inline mr-2" />Timetable</CardTitle>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3"><CardTitle><Clock className="w-5 h-5 inline mr-2" />Timetable</CardTitle>
             <Select value={deptFilter} onValueChange={setDeptFilter}><SelectTrigger className="w-[180px]"><SelectValue placeholder="All Depts" /></SelectTrigger><SelectContent><SelectItem value="all">All Departments</SelectItem>{departments?.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}</SelectContent></Select>
             <Select value={semFilter} onValueChange={setSemFilter}><SelectTrigger className="w-[120px]"><SelectValue placeholder="All Sem" /></SelectTrigger><SelectContent><SelectItem value="all">All Sem</SelectItem>{[1,2,3,4,5,6,7,8].map(s => <SelectItem key={s} value={String(s)}>Sem {s}</SelectItem>)}</SelectContent></Select>
           </div>
@@ -64,10 +137,12 @@ export default function Timetable() {
               </form></Form></DialogContent></Dialog>
         </CardHeader>
         <CardContent>
-          <Table><TableHeader><TableRow><TableHead>Day</TableHead><TableHead>Period</TableHead><TableHead>Time</TableHead><TableHead>Subject</TableHead><TableHead>Staff</TableHead><TableHead>Room</TableHead><TableHead>Dept</TableHead><TableHead>Sem</TableHead><TableHead></TableHead></TableRow></TableHeader>
-            <TableBody>{isLoading ? <TableRow><TableCell colSpan={9} className="text-center">Loading...</TableCell></TableRow> : entries?.length === 0 ? <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground">No entries.</TableCell></TableRow> : entries?.sort((a, b) => DAYS.indexOf(a.dayOfWeek) - DAYS.indexOf(b.dayOfWeek) || a.periodNumber - b.periodNumber).map(e => (
-              <TableRow key={e.id}><TableCell className="font-medium">{e.dayOfWeek}</TableCell><TableCell>{e.periodNumber}</TableCell><TableCell>{e.startTime} - {e.endTime}</TableCell><TableCell>{getSubjectName(e.subjectId)}</TableCell><TableCell>{getStaffName(e.staffId)}</TableCell><TableCell>{e.room || '-'}</TableCell><TableCell><Badge variant="secondary">{getDeptName(e.departmentId)}</Badge></TableCell><TableCell>{e.semester}</TableCell><TableCell><Button variant="ghost" size="sm" onClick={() => deleteM.mutate({ id: e.id }, { onSuccess: () => qc.invalidateQueries({ queryKey: getListTimetableQueryKey() }) })}><Trash2 className="w-4 h-4" /></Button></TableCell></TableRow>
-            ))}</TableBody></Table>
+          <div className="overflow-x-auto">
+            <Table><TableHeader><TableRow><TableHead>Day</TableHead><TableHead>Period</TableHead><TableHead>Time</TableHead><TableHead>Subject</TableHead><TableHead>Staff</TableHead><TableHead>Room</TableHead><TableHead>Dept</TableHead><TableHead>Sem</TableHead><TableHead></TableHead></TableRow></TableHeader>
+              <TableBody>{isLoading ? <TableRow><TableCell colSpan={9} className="text-center">Loading...</TableCell></TableRow> : entries?.length === 0 ? <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground">No entries.</TableCell></TableRow> : sortedEntries?.map(e => (
+                <TableRow key={e.id}><TableCell className="font-medium">{e.dayOfWeek}</TableCell><TableCell>{e.periodNumber}</TableCell><TableCell>{e.startTime} - {e.endTime}</TableCell><TableCell>{getSubjectName(e.subjectId)}</TableCell><TableCell>{getStaffName(e.staffId)}</TableCell><TableCell>{e.room || '-'}</TableCell><TableCell><Badge variant="secondary">{getDeptName(e.departmentId)}</Badge></TableCell><TableCell>{e.semester}</TableCell><TableCell><Button variant="ghost" size="sm" onClick={() => deleteM.mutate({ id: e.id }, { onSuccess: () => qc.invalidateQueries({ queryKey: getListTimetableQueryKey() }) })}><Trash2 className="w-4 h-4" /></Button></TableCell></TableRow>
+              ))}</TableBody></Table>
+          </div>
         </CardContent>
       </Card>
     </div>
