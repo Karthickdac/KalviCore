@@ -7,6 +7,8 @@ import {
   GetRazorpayConfigResponse,
 } from "@workspace/api-zod";
 import { logActivity } from "../lib/activity";
+import { requireAuth } from "../middleware/auth";
+import { getUserScope } from "../lib/scopeFilter";
 import crypto from "crypto";
 
 const Razorpay = require("razorpay");
@@ -41,7 +43,7 @@ router.get("/razorpay/config", async (_req, res): Promise<void> => {
   }
 });
 
-router.post("/razorpay/create-order", async (req, res): Promise<void> => {
+router.post("/razorpay/create-order", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreateRazorpayOrderBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -49,6 +51,12 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
   }
 
   const { studentId, feeStructureId, amount, semester, academicYear } = parsed.data;
+
+  const scope = getUserScope(req);
+  if (scope?.isStudent && scope.studentRecordId !== studentId) {
+    res.status(403).json({ error: "You can only make payments for your own account" });
+    return;
+  }
 
   if (amount <= 0) {
     res.status(400).json({ error: "Amount must be greater than zero" });
@@ -116,7 +124,7 @@ router.post("/razorpay/create-order", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/razorpay/verify-payment", async (req, res): Promise<void> => {
+router.post("/razorpay/verify-payment", requireAuth, async (req, res): Promise<void> => {
   const body = req.body;
   const razorpayOrderId = body?.razorpayOrderId;
   const razorpayPaymentId = body?.razorpayPaymentId;

@@ -37,6 +37,7 @@ export default function NotificationsPage() {
 
   const userRole = user?.role || "Staff";
   const userDeptId = user?.departmentId;
+  const isStudent = userRole === "Student";
   const isFacultyOrHOD = userRole === "Faculty" || userRole === "HOD";
   const canSendToAll = ["SuperAdmin", "Admin", "Principal"].includes(userRole);
 
@@ -113,12 +114,67 @@ export default function NotificationsPage() {
     return "Everyone";
   };
 
+  if (isStudent) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Bell className="h-5 sm:h-6 w-5 sm:w-6 text-teal-600" />
+            Notifications
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base">View all notifications and announcements.</p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <CardTitle className="text-sm sm:text-base">All Notifications</CardTitle>
+              <Select value={filterChannel} onValueChange={setFilterChannel}>
+                <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Channels</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="sms">SMS</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {!Array.isArray(notifications) || notifications.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">No notifications yet.</div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.slice(0, 50).map((n: any) => (
+                  <div key={n.id} className="border rounded-lg p-3 sm:p-4 space-y-2 hover:bg-muted/30 transition-colors">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">{n.type}</Badge>
+                        <Badge variant="outline" className={`capitalize text-xs ${getChannelBadgeClass(n.channel)}`}>
+                          {getChannelIcon(n.channel)}
+                          {n.channel === "whatsapp" ? "WhatsApp" : n.channel}
+                        </Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{n.sentAt ? new Date(n.sentAt).toLocaleString("en-IN") : "-"}</span>
+                    </div>
+                    <h4 className="font-medium text-sm sm:text-base">{n.subject}</h4>
+                    {n.message && <p className="text-sm text-muted-foreground">{n.message}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
-          <p className="text-muted-foreground">Send WhatsApp, email, and SMS notifications to students and staff.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Notifications</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Send WhatsApp, email, and SMS notifications to students and staff.</p>
           {isFacultyOrHOD && (
             <p className="text-sm text-primary font-medium mt-1 flex items-center gap-1.5">
               <Building2 className="w-4 h-4" />

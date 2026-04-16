@@ -13,9 +13,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, CreditCard, IndianRupee } from "lucide-react";
+import { Plus, CreditCard, IndianRupee, Wallet, CheckCircle2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuth } from "@/contexts/auth";
 
 declare global {
   interface Window {
@@ -40,9 +41,16 @@ function useRazorpayScript() {
 }
 
 export default function Fees() {
+  const { user } = useAuth();
+  const isStudent = user?.role === "Student";
+
+  if (isStudent) {
+    return <StudentFeesView studentRecordId={user?.studentRecordId} />;
+  }
+
   return (
     <div className="space-y-6">
-      <div><h2 className="text-2xl font-bold tracking-tight">Fees & Payments</h2><p className="text-muted-foreground">Manage fee structures, payments, and student dues.</p></div>
+      <div><h2 className="text-xl sm:text-2xl font-bold tracking-tight">Fees & Payments</h2><p className="text-muted-foreground text-sm sm:text-base">Manage fee structures, payments, and student dues.</p></div>
       <Tabs defaultValue="structures">
         <TabsList className="flex-wrap"><TabsTrigger value="structures">Fee Structures</TabsTrigger><TabsTrigger value="payments">Payments</TabsTrigger><TabsTrigger value="dues">Student Dues</TabsTrigger><TabsTrigger value="instalments">Instalments</TabsTrigger><TabsTrigger value="defaulters">Defaulters</TabsTrigger><TabsTrigger value="scholarships">Scholarships</TabsTrigger></TabsList>
         <TabsContent value="structures"><FeeStructures /></TabsContent>
@@ -52,6 +60,265 @@ export default function Fees() {
         <TabsContent value="defaulters"><FeeDefaulters /></TabsContent>
         <TabsContent value="scholarships"><Scholarships /></TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function StudentFeesView({ studentRecordId }: { studentRecordId?: number }) {
+  const sid = studentRecordId ? String(studentRecordId) : "";
+  const { data: dues } = useGetStudentDues(Number(sid), { query: { enabled: !!sid, queryKey: getGetStudentDuesQueryKey(Number(sid)) } });
+  const { data: structures } = useListFeeStructures();
+  const { data: students } = useListStudents();
+  const razorpayLoaded = useRazorpayScript();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const createOrderMutation = useCreateRazorpayOrder();
+  const verifyPaymentMutation = useVerifyRazorpayPayment();
+  const [payAmount, setPayAmount] = useState("");
+  const [isPayOpen, setIsPayOpen] = useState(false);
+  const [paying, setPaying] = useState(false);
+
+  const selectedStudent = students?.find(s => s.id === Number(sid));
+  const studentFeeStructure = structures?.find(s => selectedStudent && s.courseId === selectedStudent.courseId);
+
+  const handlePayOnline = useCallback(() => {
+    if (!sid || !selectedStudent || !studentFeeStructure) {
+      toast({ title: "Unable to process payment", variant: "destructive" });
+      return;
+    }
+    const amount = Number(payAmount);
+    if (!amount || amount <= 0) {
+      toast({ title: "Enter a valid amount", variant: "destructive" });
+      return;
+    }
+    if (!razorpayLoaded) {
+      toast({ title: "Payment system is loading, please try again", variant: "destructive" });
+      return;
+    }
+
+    setPaying(true);
+    createOrderMutation.mutate({
+      data: {
+        studentId: Number(sid),
+        feeStructureId: studentFeeStructure.id,
+        amount,
+        semester: selectedStudent.semester,
+        academicYear: studentFeeStructure.academicYear,
+      }
+    }, {
+      onSuccess: (orderData) => {
+        const options = {
+          key: orderData.keyId,
+          amount: Math.round(orderData.amount * 100),
+          currency: orderData.currency,
+          name: "KalviCore",
+          description: `Fee Payment - ${selectedStudent.rollNumber}`,
+          order_id: orderData.orderId,
+          prefill: {
+            name: orderData.studentName,
+            email: orderData.studentEmail || undefined,
+            contact: orderData.studentPhone || undefined,
+          },
+          theme: { color: "#0D9488" },
+          handler: function(response: any) {
+            verifyPaymentMutation.mutate({
+              data: {
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }
+            }, {
+              onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: getGetStudentDuesQueryKey(Number(sid)) });
+                toast({ title: "Payment successful! Fee has been recorded." });
+                setIsPayOpen(false);
+                setPayAmount("");
+                setPaying(false);
+              },
+              onError: () => {
+                toast({ title: "Payment received but recording failed. Contact admin.", variant: "destructive" });
+                setPaying(false);
+              }
+            });
+          },
+          modal: {
+            ondismiss: function() {
+              setPaying(false);
+              toast({ title: "Payment cancelled" });
+            }
+          }
+        };
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function(response: any) {
+          setPaying(false);
+          toast({ title: `Payment failed: ${response.error.description}`, variant: "destructive" });
+        });
+        rzp.open();
+      },
+      onError: () => {
+        setPaying(false);
+        toast({ title: "Failed to create payment order", variant: "destructive" });
+      }
+    });
+  }, [sid, selectedStudent, studentFeeStructure, payAmount, razorpayLoaded, createOrderMutation, verifyPaymentMutation, queryClient, toast]);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+          <Wallet className="h-5 sm:h-6 w-5 sm:w-6 text-teal-600" />
+          My Fees
+        </h2>
+        <p className="text-muted-foreground text-sm sm:text-base">View your fee details and make online payments.</p>
+      </div>
+
+      {dues ? (
+        <>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-muted-foreground">Total Fee</div>
+                <div className="text-xl sm:text-2xl font-bold">₹{dues.totalFee.toLocaleString('en-IN')}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-muted-foreground">Total Paid</div>
+                <div className="text-xl sm:text-2xl font-bold text-emerald-600">₹{dues.totalPaid.toLocaleString('en-IN')}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-sm text-muted-foreground">Balance Due</div>
+                <div className={`text-xl sm:text-2xl font-bold ${dues.totalDue > 0 ? "text-red-600" : "text-emerald-600"}`}>
+                  ₹{dues.totalDue.toLocaleString('en-IN')}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {dues.totalDue > 0 && (
+            <Card className="border-teal-200 bg-teal-50/50">
+              <CardContent className="pt-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-teal-600 flex items-center justify-center">
+                      <CreditCard className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm sm:text-base">Pay Online via Razorpay</h4>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Secure online payment — UPI, Cards, Net Banking</p>
+                    </div>
+                  </div>
+                  <Dialog open={isPayOpen} onOpenChange={setIsPayOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-teal-600 hover:bg-teal-700 w-full sm:w-auto">
+                        <IndianRupee className="w-4 h-4 mr-1" /> Pay Now
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader><DialogTitle>Online Fee Payment</DialogTitle></DialogHeader>
+                      <div className="space-y-4">
+                        <div className="rounded-lg border p-4 space-y-2">
+                          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Student</span><span className="font-medium">{selectedStudent?.rollNumber} - {selectedStudent?.firstName} {selectedStudent?.lastName}</span></div>
+                          <div className="flex justify-between text-sm"><span className="text-muted-foreground">Due Amount</span><span className="font-bold text-red-600">₹{dues.totalDue.toLocaleString('en-IN')}</span></div>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Amount to Pay (in Rupees)</label>
+                          <Input
+                            type="number"
+                            placeholder={`Max: ₹${dues.totalDue.toLocaleString('en-IN')}`}
+                            value={payAmount}
+                            onChange={(e) => setPayAmount(e.target.value)}
+                            min={1}
+                            max={dues.totalDue}
+                          />
+                          <div className="flex gap-2 mt-2">
+                            <Button variant="outline" size="sm" onClick={() => setPayAmount(String(dues.totalDue))}>Full Amount</Button>
+                            <Button variant="outline" size="sm" onClick={() => setPayAmount(String(Math.ceil(dues.totalDue / 2)))}>Half</Button>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            className="w-full bg-teal-600 hover:bg-teal-700"
+                            onClick={handlePayOnline}
+                            disabled={paying || createOrderMutation.isPending || verifyPaymentMutation.isPending}
+                          >
+                            {paying ? "Processing..." : `Pay ${payAmount ? `₹${Number(payAmount).toLocaleString('en-IN')}` : ''} via Razorpay`}
+                          </Button>
+                        </DialogFooter>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {dues.totalDue === 0 && (
+            <Card className="border-emerald-200 bg-emerald-50/50">
+              <CardContent className="pt-6 flex items-center gap-3">
+                <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                <div>
+                  <h4 className="font-semibold text-emerald-700">All Fees Paid</h4>
+                  <p className="text-sm text-emerald-600">You have no outstanding dues.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {dues.payments.length > 0 && (
+            <Card>
+              <CardHeader><CardTitle className="text-sm sm:text-base">Payment History</CardTitle></CardHeader>
+              <CardContent>
+                <div className="space-y-3 sm:hidden">
+                  {dues.payments.map(p => (
+                    <div key={p.id} className="border rounded-lg p-3 space-y-1">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-sm">₹{p.amountPaid.toLocaleString('en-IN')}</span>
+                        <Badge variant={p.status === 'Paid' ? 'default' : 'secondary'}>{p.status}</Badge>
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{p.receiptNumber}</span>
+                        <span>{p.paymentDate}</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {p.paymentMode === 'Razorpay' ? (
+                          <Badge className="bg-blue-600 text-xs"><CreditCard className="w-2.5 h-2.5 mr-1" />{p.paymentMode}</Badge>
+                        ) : p.paymentMode}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="hidden sm:block overflow-x-auto">
+                  <Table>
+                    <TableHeader><TableRow><TableHead>Receipt</TableHead><TableHead>Amount</TableHead><TableHead>Date</TableHead><TableHead>Mode</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+                    <TableBody>{dues.payments.map(p => (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-medium">{p.receiptNumber}</TableCell>
+                        <TableCell>₹{p.amountPaid.toLocaleString('en-IN')}</TableCell>
+                        <TableCell>{p.paymentDate}</TableCell>
+                        <TableCell>
+                          {p.paymentMode === 'Razorpay' ? (
+                            <Badge className="bg-blue-600"><CreditCard className="w-3 h-3 mr-1" />{p.paymentMode}</Badge>
+                          ) : p.paymentMode}
+                        </TableCell>
+                        <TableCell><Badge variant={p.status === 'Paid' ? 'default' : 'secondary'}>{p.status}</Badge></TableCell>
+                      </TableRow>
+                    ))}</TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      ) : (
+        <Card>
+          <CardContent className="text-center py-12 text-muted-foreground">
+            Loading your fee details...
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

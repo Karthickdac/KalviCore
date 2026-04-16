@@ -23,18 +23,28 @@ interface SummaryItem { subjectId: number; subjectName: string; subjectCode: str
 interface CondonationRequest { id: number; studentId: number; subjectId: number; semester: number; academicYear: string; currentPercentage: string; reason: string; requestDate: string; status: string; approvedBy: string | null; }
 
 export default function AttendancePage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const isStudent = user?.role === "Student";
+
+  const headers = useCallback(() => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  }), [token]);
+
+  if (isStudent) {
+    return <StudentAttendanceView headers={headers} studentRecordId={user?.studentRecordId} />;
+  }
+
+  return <AdminAttendanceView headers={headers} />;
+}
+
+function AdminAttendanceView({ headers }: { headers: () => Record<string, string> }) {
   const [activeTab, setActiveTab] = useState("mark");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [allStudents, setAllStudents] = useState<Student[]>([]);
   const [overview, setOverview] = useState<OverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const headers = useCallback(() => ({
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  }), [token]);
 
   const fetchMeta = useCallback(async () => {
     try {
@@ -58,36 +68,36 @@ export default function AttendancePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <CalendarCheck className="h-6 w-6 text-emerald-500" />
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+          <CalendarCheck className="h-5 sm:h-6 w-5 sm:w-6 text-emerald-500" />
           Attendance
         </h2>
-        <p className="text-muted-foreground">Mark, track, and manage student attendance across subjects.</p>
+        <p className="text-muted-foreground text-sm sm:text-base">Mark, track, and manage student attendance across subjects.</p>
       </div>
 
       {overview && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold">{overview.totalRecords}</div>
+            <div className="text-xl sm:text-2xl font-bold">{overview.totalRecords}</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><ClipboardList className="h-3 w-3" /> Total Records</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-emerald-600">{overview.avgPercentage}%</div>
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600">{overview.avgPercentage}%</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><TrendingDown className="h-3 w-3" /> Avg Attendance</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-blue-600">{overview.todayMarked}</div>
+            <div className="text-xl sm:text-2xl font-bold text-blue-600">{overview.todayMarked}</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> Marked Today</div>
           </CardContent></Card>
           <Card><CardContent className="pt-4 pb-3 px-4">
-            <div className="text-2xl font-bold text-red-600">{overview.belowThresholdCount}</div>
+            <div className="text-xl sm:text-2xl font-bold text-red-600">{overview.belowThresholdCount}</div>
             <div className="text-xs text-muted-foreground flex items-center gap-1"><AlertTriangle className="h-3 w-3" /> Below 75%</div>
           </CardContent></Card>
         </div>
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="mark">Mark Attendance</TabsTrigger>
           <TabsTrigger value="summary">Student Summary</TabsTrigger>
           <TabsTrigger value="records">Attendance Records</TabsTrigger>
@@ -107,6 +117,106 @@ export default function AttendancePage() {
           <CondonationTab allStudents={allStudents} subjects={subjects} headers={headers} />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function StudentAttendanceView({ headers, studentRecordId }: { headers: () => Record<string, string>; studentRecordId?: number }) {
+  const [summary, setSummary] = useState<SummaryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!studentRecordId) { setLoading(false); return; }
+    fetch(`${API_BASE}/api/attendance/student/${studentRecordId}/summary`, { headers: headers() })
+      .then(r => r.ok ? r.json() : [])
+      .then(d => setSummary(d))
+      .finally(() => setLoading(false));
+  }, [studentRecordId, headers]);
+
+  const totalClasses = summary.reduce((a, s) => a + s.totalClasses, 0);
+  const totalPresent = summary.reduce((a, s) => a + s.present, 0);
+  const overallPercent = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 0;
+
+  if (loading) return <div className="flex items-center justify-center h-96"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+          <CalendarCheck className="h-5 sm:h-6 w-5 sm:w-6 text-emerald-500" />
+          My Attendance
+        </h2>
+        <p className="text-muted-foreground text-sm sm:text-base">Your subject-wise attendance summary.</p>
+      </div>
+
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="pt-4 pb-3 px-4">
+            <div className={`text-xl sm:text-2xl font-bold ${overallPercent >= 75 ? "text-emerald-600" : overallPercent >= 60 ? "text-amber-600" : "text-red-600"}`}>{overallPercent}%</div>
+            <div className="text-xs text-muted-foreground">Overall Attendance</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-3 px-4">
+            <div className="text-xl sm:text-2xl font-bold">{totalClasses}</div>
+            <div className="text-xs text-muted-foreground">Total Classes</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-3 px-4">
+            <div className="text-xl sm:text-2xl font-bold text-emerald-600">{totalPresent}</div>
+            <div className="text-xs text-muted-foreground flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Present</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-3 px-4">
+            <div className="text-xl sm:text-2xl font-bold text-red-600">{totalClasses - totalPresent}</div>
+            <div className="text-xs text-muted-foreground flex items-center gap-1"><XCircle className="h-3 w-3" /> Absent</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm sm:text-base">Subject-wise Breakdown</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {summary.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">No attendance records found.</div>
+          ) : (
+            <div className="space-y-4">
+              {summary.map(s => (
+                <div key={s.subjectId} className="space-y-2 border-b border-border/50 pb-4 last:border-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <span className="font-medium text-sm">{s.subjectCode}</span>
+                      <span className="text-sm text-muted-foreground ml-2">{s.subjectName}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs sm:text-sm">
+                      <span className="text-muted-foreground">{s.present}/{s.totalClasses} classes</span>
+                      <Badge variant={s.percentage >= 75 ? "default" : s.percentage >= 60 ? "secondary" : "destructive"} className={s.percentage >= 75 ? "bg-emerald-600" : ""}>
+                        {s.percentage}%
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${s.percentage >= 75 ? "bg-emerald-500" : s.percentage >= 60 ? "bg-amber-500" : "bg-red-500"}`}
+                      style={{ width: `${s.percentage}%` }}
+                    />
+                  </div>
+                  {s.percentage < 75 && (
+                    <div className="flex items-center gap-1 text-xs text-amber-600">
+                      <AlertTriangle className="h-3 w-3" />
+                      Below 75% threshold — {Math.ceil((0.75 * s.totalClasses - s.present) / 0.25)} more classes needed
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

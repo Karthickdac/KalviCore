@@ -53,9 +53,14 @@ Student-facing pages show simplified, read-only UIs:
 - **Timetable** (`timetable.tsx`): Students see "My Timetable" read-only day×period grid with subject code, staff, room, and time. No add/edit/delete controls. Admin sees full list with add/delete capabilities.
 - **Exams** (`exams.tsx`): Students see "My Examinations" with upcoming and completed exam cards (read-only, no tabs for results/analytics). Admin sees full tabs: Schedule, Results Management, Analytics.
 - **Hall Tickets** (`hall-tickets.tsx`): Students see "My Hall Ticket" with auto-selected student (from auth context) and only exam picker. Admin sees full student search + exam picker.
+- **Attendance** (`attendance.tsx`): Students see "My Attendance" with overall %, subject-wise breakdown with progress bars and shortage warnings. No Mark Attendance, Records, Condonation tabs. Admin sees all 4 tabs with full CRUD.
+- **Fees** (`fees.tsx`): Students see "My Fees" with total fee/paid/due cards, Razorpay online payment button, and payment history. No admin tabs (Fee Structures, Instalments, Defaulters, Scholarships). Admin sees all 6 tabs.
+- **Notifications** (`notifications.tsx`): Students see read-only notification feed with type, subject, message, date. No compose/send button, no stats dashboard. Admin/staff see full Notification Center with compose dialog and stats.
 - Pattern: `const { user } = useAuth(); const isStudent = user?.role === "Student";` — conditionally render tabs, buttons, and table columns.
 
 ## Backend Security
 - Timetable write endpoints (POST/PATCH/DELETE) require authentication and block students (403)
 - Hall ticket endpoints enforce IDOR protection: students can only access their own hall ticket (studentId === scope.studentRecordId)
 - Dashboard student-summary endpoint scoped to authenticated student's own record only
+- Razorpay create-order and verify-payment endpoints require authentication; student IDOR check prevents paying for other students
+- Attendance student view renders independently without triggering admin-level API calls (overview, department lists)
