@@ -66,7 +66,7 @@ export default function NotificationsPage() {
     mutationFn: async () => {
       const r = await fetch(`${API_BASE}/api/notifications/send`, {
         method: "POST", headers,
-        body: JSON.stringify({ type, channel, recipients, subject, message, departmentId: departmentId || undefined }),
+        body: JSON.stringify({ type, channel, recipients, subject, message, departmentId: departmentId || undefined, templateId: templateId || undefined }),
       });
       if (!r.ok) throw new Error("Failed to send");
       return r.json();
@@ -75,7 +75,7 @@ export default function NotificationsPage() {
       toast({ title: `${data.sent} notifications sent via ${channel === "whatsapp" ? "WhatsApp" : channel === "email" ? "Email" : "SMS"}` });
       qc.invalidateQueries({ queryKey: ["notifications"] });
       qc.invalidateQueries({ queryKey: ["notification-stats"] });
-      setSubject(""); setMessage(""); setDepartmentId(""); setDialogOpen(false);
+      setSubject(""); setMessage(""); setDepartmentId(""); setTemplateId(""); setDialogOpen(false);
     },
     onError: () => toast({ title: "Failed to send notifications", variant: "destructive" }),
   });
@@ -366,8 +366,15 @@ export default function NotificationsPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    <FileText className="w-2.5 h-2.5" />Variables like <code className="bg-muted px-1 rounded">{`{{student_name}}`}</code> will appear as-is. Edit the message before sending to fill them in.
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                    <Sparkles className="w-2.5 h-2.5 text-teal-600" />
+                    <span>Auto-filled per recipient:</span>
+                    <code className="bg-muted px-1 rounded">{`{{student_name}}`}</code>
+                    <code className="bg-muted px-1 rounded">{`{{roll_number}}`}</code>
+                    <code className="bg-muted px-1 rounded">{`{{department_name}}`}</code>
+                    <code className="bg-muted px-1 rounded">{`{{college_name}}`}</code>
+                    <code className="bg-muted px-1 rounded">{`{{current_date}}`}</code>
+                    <span>and more. Unmatched <code className="bg-muted px-1 rounded">{`{{vars}}`}</code> stay as-is.</span>
                   </p>
                 </div>
               )}

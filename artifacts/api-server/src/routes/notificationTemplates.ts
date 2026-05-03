@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { db, notificationTemplatesTable } from "@workspace/db";
-import { eq, and, asc } from "drizzle-orm";
+import { db, notificationTemplatesTable, notificationsTable } from "@workspace/db";
+import { eq, and, asc, sql } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import type { Request, Response, NextFunction } from "express";
 
@@ -334,6 +334,21 @@ router.get("/notification-templates", requireAuth, requirePermission("notificati
       ? await db.select().from(notificationTemplatesTable).where(and(...conditions)).orderBy(asc(notificationTemplatesTable.category), asc(notificationTemplatesTable.name))
       : await db.select().from(notificationTemplatesTable).orderBy(asc(notificationTemplatesTable.category), asc(notificationTemplatesTable.name));
     res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/notification-templates/usage-counts", requireAuth, requirePermission("notifications"), blockStudents, async (_req, res): Promise<void> => {
+  try {
+    const rows = await db
+      .select({ templateId: notificationsTable.templateId, count: sql<number>`count(*)::int` })
+      .from(notificationsTable)
+      .where(sql`${notificationsTable.templateId} is not null`)
+      .groupBy(notificationsTable.templateId);
+    const counts: Record<string, number> = {};
+    for (const r of rows) if (r.templateId !== null) counts[String(r.templateId)] = Number(r.count);
+    res.json(counts);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

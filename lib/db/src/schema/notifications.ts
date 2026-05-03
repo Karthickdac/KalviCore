@@ -14,6 +14,7 @@ export const notificationsTable = pgTable("notifications", {
   sentAt: timestamp("sent_at", { withTimezone: true }),
   studentId: integer("student_id"),
   staffId: integer("staff_id"),
+  templateId: integer("template_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

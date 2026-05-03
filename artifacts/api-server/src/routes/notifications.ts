@@ -1,11 +1,26 @@
 import { Router, type IRouter } from "express";
-import { db, notificationsTable, studentsTable, staffTable, departmentsTable } from "@workspace/db";
+import { db, notificationsTable, studentsTable, staffTable, departmentsTable, coursesTable } from "@workspace/db";
 import { eq, desc, and, sql, inArray } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
 import { logActivity } from "../lib/activity";
 import { getUserScope } from "../lib/scopeFilter";
+import { getInstitutionInfo } from "../lib/institutionSettings";
 
 const router: IRouter = Router();
+
+// Replaces {{var}} placeholders with values from ctx. Unmatched variables are left as-is
+// so a sender immediately notices missing data instead of shipping silently broken text.
+function renderTemplate(text: string, ctx: Record<string, string | number | null | undefined>): string {
+  if (!text) return text;
+  return text.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (match, key) => {
+    const v = ctx[key];
+    return v === undefined || v === null || v === "" ? match : String(v);
+  });
+}
+
+function formatDate(d = new Date()): string {
+  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
 
 router.get("/notifications", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
   try {
@@ -41,7 +56,7 @@ router.get("/notifications/departments", requireAuth, requirePermission("notific
 
 router.post("/notifications/send", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
   try {
-    const { type, channel, recipients, subject, message, departmentId } = req.body;
+    const { type, channel, recipients, subject, message, departmentId, templateId, extraVars } = req.body;
     if (!type || !channel || !subject || !message) {
       res.status(400).json({ error: "Missing required fields" });
       return;
@@ -49,6 +64,19 @@ router.post("/notifications/send", requireAuth, requirePermission("notifications
 
     const userRole = req.user!.role;
     const userDeptId = req.user!.departmentId;
+    const tplId = templateId ? Number(templateId) : null;
+
+    const institution = await getInstitutionInfo();
+    const baseCtx: Record<string, string> = {
+      college_name: institution.collegeName,
+      college_phone: institution.phone,
+      college_email: institution.email,
+      college_website: institution.website,
+      principal_name: institution.principalName,
+      current_date: formatDate(),
+      academic_year: institution.currentAcademicYear,
+      ...(extraVars && typeof extraVars === "object" ? extraVars : {}),
+    };
 
     const sentNotifications: any[] = [];
 
@@ -66,18 +94,46 @@ router.post("/notifications/send", requireAuth, requirePermission("notifications
         }
       }
 
-      const students = studentConditions.length > 1
-        ? await db.select().from(studentsTable).where(and(...studentConditions))
-        : await db.select().from(studentsTable).where(studentConditions[0]);
+      const studentRows = studentConditions.length > 1
+        ? await db.select({ s: studentsTable, deptName: departmentsTable.name, courseName: coursesTable.name })
+            .from(studentsTable)
+            .leftJoin(departmentsTable, eq(studentsTable.departmentId, departmentsTable.id))
+            .leftJoin(coursesTable, eq(studentsTable.courseId, coursesTable.id))
+            .where(and(...studentConditions))
+        : await db.select({ s: studentsTable, deptName: departmentsTable.name, courseName: coursesTable.name })
+            .from(studentsTable)
+            .leftJoin(departmentsTable, eq(studentsTable.departmentId, departmentsTable.id))
+            .leftJoin(coursesTable, eq(studentsTable.courseId, coursesTable.id))
+            .where(studentConditions[0]);
 
-      for (const s of students) {
+      for (const row of studentRows) {
+        const s = row.s;
         const contact = channel === "email" ? (s.email || "") : (s.phone || "");
         if (channel === "whatsapp" && !s.phone) continue;
         if (channel === "email" && !s.email) continue;
+        const ctx = {
+          ...baseCtx,
+          student_name: `${s.firstName} ${s.lastName}`,
+          first_name: s.firstName,
+          last_name: s.lastName,
+          roll_number: s.rollNumber,
+          email: s.email || "",
+          phone: s.phone || "",
+          guardian_phone: s.guardianPhone || "",
+          father_name: s.fatherName || "",
+          mother_name: s.motherName || "",
+          department_name: row.deptName || "",
+          course_name: row.courseName || "",
+          year: s.year,
+          semester: s.semester,
+          batch: s.batch || "",
+        };
         const [n] = await db.insert(notificationsTable).values({
           type, channel, recipientName: `${s.firstName} ${s.lastName}`,
-          recipientContact: channel === "whatsapp" ? (s.phone || "") : contact, subject, message,
-          status: "Sent", sentAt: new Date(), studentId: s.id,
+          recipientContact: channel === "whatsapp" ? (s.phone || "") : contact,
+          subject: renderTemplate(subject, ctx),
+          message: renderTemplate(message, ctx),
+          status: "Sent", sentAt: new Date(), studentId: s.id, templateId: tplId,
         }).returning();
         sentNotifications.push(n);
       }
@@ -90,18 +146,38 @@ router.post("/notifications/send", requireAuth, requirePermission("notifications
         staffConditions.push(eq(staffTable.departmentId, userDeptId));
       }
 
-      const staffMembers = staffConditions.length > 1
-        ? await db.select().from(staffTable).where(and(...staffConditions))
-        : await db.select().from(staffTable).where(staffConditions[0]);
+      const staffRows = staffConditions.length > 1
+        ? await db.select({ s: staffTable, deptName: departmentsTable.name })
+            .from(staffTable)
+            .leftJoin(departmentsTable, eq(staffTable.departmentId, departmentsTable.id))
+            .where(and(...staffConditions))
+        : await db.select({ s: staffTable, deptName: departmentsTable.name })
+            .from(staffTable)
+            .leftJoin(departmentsTable, eq(staffTable.departmentId, departmentsTable.id))
+            .where(staffConditions[0]);
 
-      for (const s of staffMembers) {
+      for (const row of staffRows) {
+        const s = row.s;
         const contact = channel === "email" ? (s.email || "") : (s.phone || "");
         if (channel === "whatsapp" && !s.phone) continue;
         if (channel === "email" && !s.email) continue;
+        const ctx = {
+          ...baseCtx,
+          staff_name: `${s.firstName} ${s.lastName}`,
+          first_name: s.firstName,
+          last_name: s.lastName,
+          staff_id: s.staffId,
+          email: s.email || "",
+          phone: s.phone || "",
+          designation: s.designation,
+          department_name: row.deptName || "",
+        };
         const [n] = await db.insert(notificationsTable).values({
           type, channel, recipientName: `${s.firstName} ${s.lastName}`,
-          recipientContact: channel === "whatsapp" ? (s.phone || "") : contact, subject, message,
-          status: "Sent", sentAt: new Date(), staffId: s.id,
+          recipientContact: channel === "whatsapp" ? (s.phone || "") : contact,
+          subject: renderTemplate(subject, ctx),
+          message: renderTemplate(message, ctx),
+          status: "Sent", sentAt: new Date(), staffId: s.id, templateId: tplId,
         }).returning();
         sentNotifications.push(n);
       }
@@ -109,11 +185,22 @@ router.post("/notifications/send", requireAuth, requirePermission("notifications
 
     if (Array.isArray(recipients)) {
       for (const r of recipients) {
+        const ctx = {
+          ...baseCtx,
+          student_name: r.name || "",
+          staff_name: r.name || "",
+          first_name: r.name ? String(r.name).split(" ")[0] : "",
+          email: channel === "email" ? r.contact || "" : "",
+          phone: channel !== "email" ? r.contact || "" : "",
+          ...(r.vars && typeof r.vars === "object" ? r.vars : {}),
+        };
         const [n] = await db.insert(notificationsTable).values({
           type, channel, recipientName: r.name || "Unknown",
-          recipientContact: r.contact || "", subject, message,
+          recipientContact: r.contact || "",
+          subject: renderTemplate(subject, ctx),
+          message: renderTemplate(message, ctx),
           status: "Sent", sentAt: new Date(),
-          studentId: r.studentId || null, staffId: r.staffId || null,
+          studentId: r.studentId || null, staffId: r.staffId || null, templateId: tplId,
         }).returning();
         sentNotifications.push(n);
       }

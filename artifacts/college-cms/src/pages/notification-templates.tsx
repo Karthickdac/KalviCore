@@ -71,6 +71,12 @@ export default function NotificationTemplatesPage() {
     enabled: !isStudent,
   });
 
+  const { data: usageCounts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["notification-templates-usage"],
+    queryFn: async () => { const r = await fetch(`${API_BASE}/api/notification-templates/usage-counts`, { headers }); return r.json(); },
+    enabled: !isStudent,
+  });
+
   const categories = useMemo(() => {
     const set = new Set<string>(templates.map(t => t.category));
     return Array.from(set).sort();
@@ -275,6 +281,11 @@ export default function NotificationTemplatesPage() {
                               <div className="flex items-center gap-2">
                                 <Switch checked={t.isActive} onCheckedChange={() => toggleActiveMutation.mutate(t)} />
                                 <span className="text-xs text-muted-foreground">{t.isActive ? "Active" : "Disabled"}</span>
+                                {usageCounts[String(t.id)] > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-teal-500/10 text-teal-600 border-teal-500/20" title="Times this template was used to send notifications">
+                                    {usageCounts[String(t.id)]} sent
+                                  </Badge>
+                                )}
                               </div>
                               <div className="flex gap-1">
                                 <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => duplicateTemplate(t)} title="Duplicate"><Copy className="h-3.5 w-3.5" /></Button>
