@@ -1,0 +1,472 @@
+───┬────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name               │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 6  │ automystics-api    │ default     │ 0.0.0   │ fork    │ 288690   │ 3D     │ 18   │ online    │ 0%       │ 104.2mb  │ root     │ disabled │
+│ 2  │ fitro360           │ default     │ 1.0.0   │ fork    │ 404918   │ 3h     │ 7    │ online    │ 0%       │ 112.4mb  │ root     │ disabled │
+│ 3  │ kalvicore-api      │ default     │ 0.0.0   │ fork    │ 0        │ 0      │ 1    │ stopped   │ 0%       │ 0b       │ root     │ disabled │
+│ 7  │ mystics-api        │ default     │ 0.0.0   │ fork    │ 372639   │ 27h    │ 7    │ online    │ 0%       │ 161.4mb  │ root     │ disabled │
+└────┴────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+remote: Enumerating objects: 1518, done.
+remote: Counting objects: 100% (1518/1518), done.
+remote: Compressing objects: 100% (599/599), done.
+remote: Total 1518 (delta 892), reused 1518 (delta 892), pack-reused 0 (from 0)
+Receiving objects: 100% (1518/1518), 26.68 MiB | 31.54 MiB/s, done.
+Resolving deltas: 100% (892/892), done.
+From https://github.com/Karthickdac/KalviCore
+ * branch            main       -> FETCH_HEAD
+ + edcc9d5...01306f8 main       -> origin/main  (forced update)
+HEAD is now at 01306f8 Add template usage tracking and personalize notification content for recipients
+Scope: all 11 workspace projects
+Lockfile is up to date, resolution step is skipped
+Packages: +64
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   ╭──────────────────────────────────────────╮
+   │                                          │
+   │   Update available! 10.33.1 → 10.33.2.   │
+   │   Changelog: https://pnpm.io/v/10.33.2   │
+   │     To update, run: pnpm add -g pnpm     │
+   │                                          │
+   ╰──────────────────────────────────────────╯
+
+Downloading three@0.182.0: 12.47 MB/12.47 MB, done
+Downloading @mediapipe/tasks-vision@0.10.17: 6.13 MB/6.13 MB, done
+Downloading hls.js@1.6.16: 5.87 MB/5.87 MB, done
+Progress: resolved 64, reused 3, downloaded 61, added 64, done
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+└─ Done in 22ms
+Done in 3.2s using pnpm v10.33.1
+
+> @workspace/db@0.0.0 push-force /home/automystics-kalvicore/htdocs/kalvicore.automystics.tech/lib/db
+> drizzle-kit push --force --config ./drizzle.config.ts
+
+Reading config file '/home/automystics-kalvicore/htdocs/kalvicore.automystics.tech/lib/db/drizzle.config.ts'
+DATABASE_URL, ensure the database is provisioned
+/home/automystics-kalvicore/htdocs/kalvicore.automystics.tech/lib/db:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workspace/db@0.0.0 push-force: `drizzle-kit push --force --config ./drizzle.config.ts`
+Exit status 1
+
+> workspace@0.0.0 build /home/automystics-kalvicore/htdocs/kalvicore.automystics.tech
+> pnpm run typecheck && pnpm -r --if-present run build
+
+
+> workspace@0.0.0 typecheck /home/automystics-kalvicore/htdocs/kalvicore.automystics.tech
+> pnpm run typecheck:libs && pnpm -r --filter "./artifacts/**" --filter "./scripts" --if-present run typecheck
+
+
+> workspace@0.0.0 typecheck:libs /home/automystics-kalvicore/htdocs/kalvicore.automystics.tech
+> tsc --build
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateAnnouncementBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateAssetBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateAssignmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateAssignmentSubmissionBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateAttendanceCondonationBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateCertificateBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateCourseBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateDepartmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateDisciplinaryRecordBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateEventBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateEventParticipantBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateExamBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateFeeInstalmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateFeeStructureBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateGrievanceBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateHostelAllocationBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateHostelBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateHostelComplaintBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateHostelRoomBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateLabEquipmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateLabScheduleBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateLaboratoryBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateLibraryBookBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateRazorpayOrderBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateScholarshipBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateSportsAchievementBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateSportsActivityBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateSportsEnrollmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateStaffBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateStaffLeaveBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateStoreItemBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateStudentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateSubjectBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateTimetableEntryBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateTransportAllocationBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateTransportRouteBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateTransportStopBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'CreateTransportVehicleBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'IssueLibraryBookBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'MarkAttendanceBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'RecordExamResultsBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'RecordFeePaymentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateAnnouncementBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateAssetBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateAssignmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateAssignmentSubmissionBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateAttendanceCondonationBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateCertificateBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateCourseBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateDepartmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateDisciplinaryRecordBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateEventBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateEventParticipantBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateFeeInstalmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateGrievanceBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateHostelAllocationBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateHostelBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateHostelComplaintBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateHostelRoomBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateLabEquipmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateLabScheduleBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateLaboratoryBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateLibraryBookBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateLibraryIssuedBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateScholarshipBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateSportsAchievementBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateSportsActivityBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateSportsEnrollmentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateStaffBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateStaffLeaveBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateStoreItemBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateStudentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateSubjectBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateTimetableEntryBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateTransportAllocationBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateTransportRouteBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpdateTransportVehicleBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'UpsertSettingBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lib/api-zod/src/index.ts:2:1 - error TS2308: Module "./generated/api" has already exported a member named 'VerifyRazorpayPaymentBody'. Consider explicitly re-exporting to resolve the ambiguity.
+
+2 export * from "./generated/types";
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Found 79 errors.
+
+ ELIFECYCLE  Command failed with exit code 2.
+ ELIFECYCLE  Command failed with exit code 2.
+ ELIFECYCLE  Command failed with exit code 2.
+[PM2] Applying action restartProcessId on app [kalvicore-api](ids: [ 3 ])
+[PM2] [kalvicore-api](3) ✓
+[PM2] Process successfully started
+┌────┬────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name               │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 6  │ automystics-api    │ default     │ 0.0.0   │ fork    │ 288690   │ 3D     │ 18   │ online    │ 0%       │ 104.2mb  │ root     │ disabled │
+│ 2  │ fitro360           │ default     │ 1.0.0   │ fork    │ 404918   │ 3h     │ 7    │ online    │ 0%       │ 112.4mb  │ root     │ disabled │
+│ 3  │ kalvicore-api      │ default     │ 0.0.0   │ fork    │ 409479   │ 0s     │ 1    │ online    │ 0%       │ 17.3mb   │ root     │ disabled │
+│ 7  │ mystics-api        │ default     │ 0.0.0   │ fork    │ 372639   │ 27h    │ 7    │ online    │ 0%       │ 161.4mb  │ root     │ disabled │
+└────┴────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[TAILING] Tailing last 30 lines for [kalvicore-api] process (change the value with --lines option)
