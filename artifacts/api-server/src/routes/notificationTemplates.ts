@@ -2,8 +2,18 @@ import { Router, type IRouter } from "express";
 import { db, notificationTemplatesTable } from "@workspace/db";
 import { eq, and, asc } from "drizzle-orm";
 import { requireAuth, requirePermission } from "../middleware/auth";
+import type { Request, Response, NextFunction } from "express";
 
 const router: IRouter = Router();
+
+// Block students from any template management — they only consume rendered notifications.
+function blockStudents(req: Request, res: Response, next: NextFunction): void {
+  if (req.user?.role === "Student") {
+    res.status(403).json({ error: "Forbidden — notification templates are for staff only." });
+    return;
+  }
+  next();
+}
 
 // SYSTEM TEMPLATES — Comprehensive library of pre-built templates per channel
 // Variables use {{name}} placeholders that get substituted at send time.
@@ -313,7 +323,7 @@ const SYSTEM_TEMPLATES: Array<{
     variables: ["recipient_name", "username", "password", "college_name"] },
 ];
 
-router.get("/notification-templates", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
+router.get("/notification-templates", requireAuth, requirePermission("notifications"), blockStudents, async (req, res): Promise<void> => {
   try {
     const channel = req.query.channel as string | undefined;
     const category = req.query.category as string | undefined;
@@ -329,7 +339,7 @@ router.get("/notification-templates", requireAuth, requirePermission("notificati
   }
 });
 
-router.get("/notification-templates/categories", requireAuth, requirePermission("notifications"), async (_req, res): Promise<void> => {
+router.get("/notification-templates/categories", requireAuth, requirePermission("notifications"), blockStudents, async (_req, res): Promise<void> => {
   try {
     const rows = await db.selectDistinct({ category: notificationTemplatesTable.category }).from(notificationTemplatesTable);
     res.json(rows.map(r => r.category).sort());
@@ -338,13 +348,13 @@ router.get("/notification-templates/categories", requireAuth, requirePermission(
   }
 });
 
-router.get("/notification-templates/:id", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
+router.get("/notification-templates/:id", requireAuth, requirePermission("notifications"), blockStudents, async (req, res): Promise<void> => {
   const [row] = await db.select().from(notificationTemplatesTable).where(eq(notificationTemplatesTable.id, Number(req.params.id)));
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
   res.json(row);
 });
 
-router.post("/notification-templates", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
+router.post("/notification-templates", requireAuth, requirePermission("notifications"), blockStudents, async (req, res): Promise<void> => {
   try {
     const { code, name, category, channel, subject, body, variables, description, isActive } = req.body;
     if (!code || !name || !category || !channel || !subject || !body) {
@@ -365,7 +375,7 @@ router.post("/notification-templates", requireAuth, requirePermission("notificat
   }
 });
 
-router.patch("/notification-templates/:id", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
+router.patch("/notification-templates/:id", requireAuth, requirePermission("notifications"), blockStudents, async (req, res): Promise<void> => {
   try {
     const [existing] = await db.select().from(notificationTemplatesTable).where(eq(notificationTemplatesTable.id, Number(req.params.id)));
     if (!existing) { res.status(404).json({ error: "Not found" }); return; }
@@ -398,7 +408,7 @@ router.patch("/notification-templates/:id", requireAuth, requirePermission("noti
   }
 });
 
-router.delete("/notification-templates/:id", requireAuth, requirePermission("notifications"), async (req, res): Promise<void> => {
+router.delete("/notification-templates/:id", requireAuth, requirePermission("notifications"), blockStudents, async (req, res): Promise<void> => {
   try {
     const [existing] = await db.select().from(notificationTemplatesTable).where(eq(notificationTemplatesTable.id, Number(req.params.id)));
     if (!existing) { res.status(404).json({ error: "Not found" }); return; }
@@ -411,7 +421,7 @@ router.delete("/notification-templates/:id", requireAuth, requirePermission("not
 });
 
 // Re-seed/Refresh — inserts any system templates that don't exist by code
-router.post("/notification-templates/seed", requireAuth, requirePermission("notifications"), async (_req, res): Promise<void> => {
+router.post("/notification-templates/seed", requireAuth, requirePermission("notifications"), blockStudents, async (_req, res): Promise<void> => {
   try {
     let inserted = 0;
     for (const t of SYSTEM_TEMPLATES) {

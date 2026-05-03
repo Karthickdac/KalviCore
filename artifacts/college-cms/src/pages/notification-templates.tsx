@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Plus, Pencil, Trash2, Search, Mail, MessageSquare, Phone, Lock, RefreshCw, Copy } from "lucide-react";
+import { FileText, Plus, Pencil, Trash2, Search, Mail, MessageSquare, Phone, Lock, RefreshCw, Copy, ShieldAlert } from "lucide-react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
@@ -53,9 +53,10 @@ interface Template {
 const blank = { code: "", name: "", category: "Academic", channel: "email", subject: "", body: "", description: "", isActive: true };
 
 export default function NotificationTemplatesPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const isStudent = user?.role === "Student";
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const [search, setSearch] = useState("");
   const [filterChannel, setFilterChannel] = useState("all");
@@ -67,6 +68,7 @@ export default function NotificationTemplatesPage() {
   const { data: templates = [], isLoading } = useQuery<Template[]>({
     queryKey: ["notification-templates"],
     queryFn: async () => { const r = await fetch(`${API_BASE}/api/notification-templates`, { headers }); return r.json(); },
+    enabled: !isStudent,
   });
 
   const categories = useMemo(() => {
@@ -157,6 +159,18 @@ export default function NotificationTemplatesPage() {
   };
 
   const liveVars = extractVars(form.subject, form.body);
+
+  if (isStudent) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center space-y-3">
+        <ShieldAlert className="h-12 w-12 text-amber-500" />
+        <h1 className="text-xl font-semibold">Access Restricted</h1>
+        <p className="text-sm text-muted-foreground max-w-md">
+          Notification templates are for college staff only. Please head back to your dashboard or check the noticeboard for college announcements.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
